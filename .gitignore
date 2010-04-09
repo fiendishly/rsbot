@@ -1,0 +1,10 @@
+.svn
+/*.diff
+/*.iml
+/*.ipr
+/*.iws
+/*.jar
+/*.patch
+/bin
+/scripts/*.class
+/temp.txt
