@@ -357,22 +357,25 @@ public class Injector {
 	public HashMap<String, byte[]> getClasses()
 	{
 		try {
+			log.info("Downloading loader");
+			JarFile loaderJar = getJar(true);
 			log.info("Downloading client");
-			JarFile jar = getJar(false);
-			Enumeration<JarEntry> entries = jar.entries();
+			JarFile clientJar = getJar(false);
+			
+			Enumeration<JarEntry> entries = clientJar.entries();
 			ArrayList<ClassGen> classlist = new ArrayList<ClassGen>();
-			while (entries.hasMoreElements()) {
+			while(entries.hasMoreElements())
+			{
 				JarEntry entry = entries.nextElement();
 				String name = entry.getName();
-				if (name.endsWith(".class")) {
-					ClassParser cp = new ClassParser(jar.getInputStream(entry), name);
+				if (name.endsWith(".class"))
+				{
+					ClassParser cp = new ClassParser(clientJar.getInputStream(entry), name);
 					classlist.add(new ClassGen(cp.parse()));
 				}
 			}
 
-			log.info("Downloading loader");
-			jar = getJar(true);
-			entries = jar.entries();
+			entries = loaderJar.entries();
 			ArrayList<ClassGen> loaderclasslist = new ArrayList<ClassGen>();
 			while(entries.hasMoreElements())
 			{
@@ -380,10 +383,13 @@ public class Injector {
 				String name = entry.getName();
 				if(name.endsWith(".class"))
 				{
-					loaderclasslist.add(new ClassGen(new ClassParser(jar.getInputStream(entry), name).parse()));
+					loaderclasslist.add(new ClassGen(new ClassParser(loaderJar.getInputStream(entry), name).parse()));
 				}
 			}
-
+			
+			loaderJar = null;
+			clientJar = null;
+			
 			log.info("Parsing loader");
 			ClassGen[] loader = new ClassGen[loaderclasslist.size()];
 			loaderclasslist.toArray(loader);

@@ -12,6 +12,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
 
 import org.rsbot.bot.Bot;
 import org.rsbot.event.EventMulticaster;
@@ -26,7 +27,7 @@ public class CanvasWrapper extends Canvas {
 	private static BufferedImage botBuffer;
 	private static int gameWidth = 765;
 	private static int gameHeight = 503;
-	private boolean didGraphicsCheck = false;
+	private static boolean didGraphicsCheck = false;
 
 	// private InputManager inputManager;
 	private EventMulticaster eventMulticaster;
@@ -59,17 +60,19 @@ public class CanvasWrapper extends Canvas {
 
 	@Override
 	public final Graphics getGraphics() {
-		if(!this.didGraphicsCheck)
-		{
-			if(Bot.getClient().getDetailInfo() != null && Bot.getClient().getDetailInfo().getDetailLevel() != 0)
-			{
-				JOptionPane.showMessageDialog(this, 
-						new String[] { 
-							"We detected that your graphics detail is not set to 'Safe Mode'.",
-							"Please go to 'Graphics Options' and select 'Safe Mode'.",
-						}, "Graphics Options", JOptionPane.WARNING_MESSAGE);
-				
-				this.didGraphicsCheck = true;
+		if (!CanvasWrapper.didGraphicsCheck) {
+			if (Bot.getClient().getDetailInfo() != null &&
+					Bot.getClient().getDetailInfo().getDetailLevel() != 0) {
+				SwingUtilities.invokeLater(new Runnable() {
+					public void run() {
+						JOptionPane.showMessageDialog(CanvasWrapper.this, 
+								new String[] { 
+									"Your graphics detail level is not set to 'Safe Mode'.",
+									"Please go to 'Graphics Options' and select 'Safe Mode'.",
+								}, "Graphics Options", JOptionPane.WARNING_MESSAGE);
+					}
+				});
+				CanvasWrapper.didGraphicsCheck = true;
 			}
 		}
 		try {

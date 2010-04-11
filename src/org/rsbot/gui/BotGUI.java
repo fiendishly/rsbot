@@ -145,8 +145,9 @@ public class BotGUI extends JFrame implements ActionListener {
 		setMinimumSize(minsize);
 		setResizable(true);
 		setVisible(true);
+		BotGUI.log.info("Welcome to " + GlobalConfiguration.NAME + "!");
 		bot.startClient();
-
+		
 		if (GlobalConfiguration.RUNNING_FROM_JAR) {
 			final BotGUI parent = this;
 			new Thread(new Runnable() {
@@ -156,8 +157,6 @@ public class BotGUI extends JFrame implements ActionListener {
 				}
 			}).start();
 		}
-
-		BotGUI.log.info("Welcome to " + GlobalConfiguration.NAME + "!");
 	}
 
 	public void actionPerformed(final ActionEvent e) {

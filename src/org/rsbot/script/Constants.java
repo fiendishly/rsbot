@@ -98,7 +98,7 @@ public interface Constants {
 	public static final int INTERFACE_BANK_BUTTON_NOTE = 19;
 	public static final int INTERFACE_BANK_BUTTON_SEARCH = 17;
 	public static final int INTERFACE_BANK_BUTTON_SWAP = 15;
-	public static final int INTERFACE_BANK_INVENTORY = 149;
+	public static final int INTERFACE_BANK_INVENTORY = 92;
 	public static final int INTERFACE_BANK_ITEM_FREE_COUNT = 23;
 	public static final int INTERFACE_BANK_ITEM_FREE_MAX = 24;
 	public static final int INTERFACE_BANK_ITEM_MEMBERS_COUNT = 25;
