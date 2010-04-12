@@ -103,6 +103,14 @@ public class GlobalConfiguration {
 		public static String getPathCache() {
 			return Paths.getSettingsDirectory() + File.separator + "path.txt";
 		}
+		
+		public static String getVersionCache() {
+			return Paths.getCacheDirectory() + File.separator + "info.dat";
+		}
+
+		public static String getClientCache() {
+			return Paths.getCacheDirectory() + File.separator + "client.dat";
+		}
 
 		public static String getScreenshotsDirectory() {
 			return Paths.getHomeDirectory() + File.separator + "Screenshots";
@@ -114,6 +122,10 @@ public class GlobalConfiguration {
 
 		public static String getScriptsPrecompiledDirectory() {
 			return Paths.getScriptsDirectory() + File.separator + "Precompiled";
+		}
+		
+		public static String getCacheDirectory() {
+			return Paths.getHomeDirectory() + File.separator + "Cache";
 		}
 
 		public static String getSettingsDirectory() {
@@ -158,6 +170,7 @@ public class GlobalConfiguration {
 		final ArrayList<String> dirs = new ArrayList<String>();
 		dirs.add(Paths.getHomeDirectory());
 		dirs.add(Paths.getLogsDirectory());
+		dirs.add(Paths.getCacheDirectory());
 		dirs.add(Paths.getSettingsDirectory());
 		if (GlobalConfiguration.RUNNING_FROM_JAR) {
 			dirs.add(Paths.getScriptsDirectory());

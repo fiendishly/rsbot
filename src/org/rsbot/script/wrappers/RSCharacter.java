@@ -7,7 +7,6 @@ import org.rsbot.accessors.RSNPCNode;
 import org.rsbot.bot.Bot;
 import org.rsbot.script.Calculations;
 import org.rsbot.script.Methods;
-import org.rsbot.script.internal.NodeCache;
 
 public class RSCharacter {
 	public final Methods methods = new Methods();
@@ -37,36 +36,30 @@ public class RSCharacter {
 	}
 
 	/**
-	 * Returns the % of HP. Returns 100 if not in combat.
-	 * */
+	 * @return The % of HP; 100 if not in combat.
+	 */
 	public int getHPPercent() {
 		return isInCombat() ? c.getHPRatio() * 100 / 255 : 100;
 	}
 
 	public RSCharacter getInteracting() {
-
 		final int interact = c.getInteracting();
-		if (interact == -1)
+		if (interact == -1) {
 			return null;
-
-		if (interact < 32768)
-		{
-			Node node = Calculations.findNodeByID(Bot.getClient().getRSInterfaceNC(), interact);
-			if(node == null || !(node instanceof RSNPCNode))
-				return null;
-			
-			return new org.rsbot.script.wrappers.RSNPC(((RSNPCNode) node).getRSNPC());
 		}
-		else if (interact >= 32768) {
+		if (interact < 32768) {
+			Node node = Calculations.findNodeByID(Bot.getClient().getRSInterfaceNC(), interact);
+			if(node == null || !(node instanceof RSNPCNode)) {
+				return null;
+			}
+			return new org.rsbot.script.wrappers.RSNPC(((RSNPCNode) node).getRSNPC());
+		} else {
 			int index = interact - 32768;
 			if (index == Bot.getClient().getSelfInteracting()) {
 				index = 2047;
 			}
-
 			return new org.rsbot.script.wrappers.RSPlayer(Bot.getClient().getRSPlayerArray()[index]);
 		}
-
-		return null;
 	}
 
 	public RSTile getLocation() {
@@ -84,7 +77,7 @@ public class RSCharacter {
 	/**
 	 * Get's the minimap location, of the character. Note: This does work when
 	 * it's walking!
-	 * 
+	 *
 	 * @return The location of the character on the minimap.
 	 */
 	public Point getMinimapLocation() {
@@ -110,7 +103,7 @@ public class RSCharacter {
 
 	/**
 	 * Currently unhooked
-	 * 
+	 *
 	 * @return 0
 	 */
 	public int getTurnDirection() {
@@ -123,9 +116,7 @@ public class RSCharacter {
 	}
 
 	public boolean isInCombat() {
-		if (!methods.isLoggedIn())
-			return false;
-		return Bot.getClient().getLoopCycle() < c.getLoopCycleStatus();
+		return methods.isLoggedIn() && Bot.getClient().getLoopCycle() < c.getLoopCycleStatus();
 	}
 
 	public boolean isInteractingWithLocalPlayer() {

@@ -7,6 +7,7 @@ import java.applet.AudioClip;
 import java.awt.Dimension;
 import java.awt.Image;
 import java.awt.Toolkit;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.ref.WeakReference;
@@ -144,6 +145,10 @@ public class BotStub implements AppletStub, AppletContext {
 			final String message = GlobalConfiguration.NAME + " is currently outdated, please wait patiently for a new version.";
 			log.severe(message);
 			JOptionPane.showMessageDialog(null, message, "Outdated", JOptionPane.WARNING_MESSAGE);
+			File versionFile = new File(GlobalConfiguration.Paths.getVersionCache());
+			if (versionFile.exists()) {
+				versionFile.delete();
+			}
 		} else {
 			log.info("Attempting to show: " + url.toString() + " [" + target + "]");
 		}

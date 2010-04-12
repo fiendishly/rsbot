@@ -1,7 +1,13 @@
 package org.rsbot.util;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
@@ -17,6 +23,7 @@ import java.util.Iterator;
 import java.util.Random;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
+import java.util.jar.JarOutputStream;
 import java.util.logging.Logger;
 
 import javax.swing.JOptionPane;
@@ -332,6 +339,20 @@ public class Injector {
 		return s;
 	}
 	
+	private int getCachedVersion()
+	{
+		try {
+			File versionFile = new File(GlobalConfiguration.Paths.getVersionCache());
+			BufferedReader reader = new BufferedReader(new FileReader(versionFile));
+			int version = Integer.parseInt(reader.readLine());
+			reader.close();
+			return version;
+		}catch(Exception e)
+		{
+			return 0;
+		}
+	}
+	
 	private JarFile getJar(boolean loader)
 	{
 		while(true)
@@ -357,95 +378,131 @@ public class Injector {
 	public HashMap<String, byte[]> getClasses()
 	{
 		try {
-			log.info("Downloading loader");
-			JarFile loaderJar = getJar(true);
-			log.info("Downloading client");
-			JarFile clientJar = getJar(false);
-			
-			Enumeration<JarEntry> entries = clientJar.entries();
 			ArrayList<ClassGen> classlist = new ArrayList<ClassGen>();
-			while(entries.hasMoreElements())
-			{
-				JarEntry entry = entries.nextElement();
-				String name = entry.getName();
-				if (name.endsWith(".class"))
-				{
-					ClassParser cp = new ClassParser(clientJar.getInputStream(entry), name);
-					classlist.add(new ClassGen(cp.parse()));
-				}
-			}
-
-			entries = loaderJar.entries();
-			ArrayList<ClassGen> loaderclasslist = new ArrayList<ClassGen>();
-			while(entries.hasMoreElements())
-			{
-				JarEntry entry = entries.nextElement();
-				String name = entry.getName();
-				if(name.endsWith(".class"))
-				{
-					loaderclasslist.add(new ClassGen(new ClassParser(loaderJar.getInputStream(entry), name).parse()));
-				}
-			}
 			
-			loaderJar = null;
-			clientJar = null;
-			
-			log.info("Parsing loader");
-			ClassGen[] loader = new ClassGen[loaderclasslist.size()];
-			loaderclasslist.toArray(loader);
-			String[] classNames = new String[5];
-			for(ClassGen cg : loader)
+			if (hd.version != getCachedVersion())
 			{
-				if(!cg.getClassName().equals("loader")) continue;
+				log.info("Downloading loader");
+				JarFile loaderJar = getJar(true);
+				log.info("Downloading client");
+				JarFile clientJar = getJar(false);
 
-				for(Method m : cg.getMethods())
+				Enumeration<JarEntry> entries = clientJar.entries();
+				while(entries.hasMoreElements())
 				{
-					if(!m.getName().equals("run")) continue;
-					InstructionSearcher s = new InstructionSearcher(cg, m);
-					s.nextLDC("client");
-					for(int i = 0; i < 5; i++)
-						classNames[i] = (String) ((LDC) s.previous("LDC")).getValue(cg.getConstantPool());
-					break;
-				}
-			}
-
-			for(ClassGen cg : loader)
-			{
-				for(String name : classNames)
-				{
-					if(!cg.getClassName().equals(name)) continue;
-
-					ClassGen ccg = null;
-					for(Iterator<ClassGen> it = classlist.iterator(); it.hasNext(); ccg = it.next() )
+					JarEntry entry = entries.nextElement();
+					String name = entry.getName();
+					if (name.endsWith(".class"))
 					{
-						if(ccg == null) continue;
+						ClassParser cp = new ClassParser(clientJar.getInputStream(entry), name);
+						classlist.add(new ClassGen(cp.parse()));
+					}
+				}
 
-						if(ccg.getClassName().equals(name))
+				entries = loaderJar.entries();
+				ArrayList<ClassGen> loaderclasslist = new ArrayList<ClassGen>();
+				while(entries.hasMoreElements())
+				{
+					JarEntry entry = entries.nextElement();
+					String name = entry.getName();
+					if(name.endsWith(".class"))
+					{
+						loaderclasslist.add(new ClassGen(new ClassParser(loaderJar.getInputStream(entry), name).parse()));
+					}
+				}
+				
+				log.info("Parsing loader");
+				ClassGen[] loader = new ClassGen[loaderclasslist.size()];
+				loaderclasslist.toArray(loader);
+				String[] classNames = new String[5];
+				for(ClassGen cg : loader)
+				{
+					if(!cg.getClassName().equals("loader")) continue;
+
+					for(Method m : cg.getMethods())
+					{
+						if(!m.getName().equals("run")) continue;
+						InstructionSearcher s = new InstructionSearcher(cg, m);
+						s.nextLDC("client");
+						for(int i = 0; i < 5; i++)
+							classNames[i] = (String) ((LDC) s.previous("LDC")).getValue(cg.getConstantPool());
+						break;
+					}
+				}
+
+				for(ClassGen cg : loader)
+				{
+					for(String name : classNames)
+					{
+						if(!cg.getClassName().equals(name)) continue;
+
+						ClassGen ccg = null;
+						for(Iterator<ClassGen> it = classlist.iterator(); it.hasNext(); ccg = it.next() )
 						{
-							classlist.remove(ccg);
-							break;
+							if(ccg == null) continue;
+
+							if(ccg.getClassName().equals(name))
+							{
+								classlist.remove(ccg);
+								break;
+							}
+						}
+						classlist.add(cg);
+					}
+				}
+				
+				int size = classlist.size();
+				loaded = new ClassGen[size];
+				classlist.toArray(loaded);
+				
+				//Check version
+				if (getRSBuild() != hd.version) {
+					String message = GlobalConfiguration.NAME + " is currently outdated, please wait patiently for a new version.";
+					log.severe(message);
+					JOptionPane.showMessageDialog(null, message, "Outdated", JOptionPane.WARNING_MESSAGE);
+					return new HashMap<String, byte[]>();
+				}
+				
+				cacheClient();
+			}
+			else
+			{
+				log.info("Loading client #" + hd.version);
+				
+				try {
+					JarFile cachedJar = new JarFile(GlobalConfiguration.Paths.getClientCache());
+
+					Enumeration<JarEntry> entries = cachedJar.entries();
+					while(entries.hasMoreElements())
+					{
+						JarEntry entry = entries.nextElement();
+						String name = entry.getName();
+						if (name.endsWith(".class"))
+						{
+							ClassParser cp = new ClassParser(cachedJar.getInputStream(entry), name);
+							classlist.add(new ClassGen(cp.parse()));
 						}
 					}
-					classlist.add(cg);
+
+					int size = classlist.size();
+					loaded = new ClassGen[size];
+					classlist.toArray(loaded);
+				}catch(Exception e)
+				{
+					File versionFile = new File(GlobalConfiguration.Paths.getVersionCache());
+					if(versionFile.delete())
+					{
+						log.info("Error loading client, redownloading...");
+						return getClasses();
+					} else {
+						log.severe("Error loading cached client.");
+						return new HashMap<String, byte[]>();
+					}
 				}
-			}
-
-
-			int size = classlist.size();
-			loaded = new ClassGen[size];
-			classlist.toArray(loaded);
-			
-			//Check version
-			if(getRSBuild() != hd.version)
-			{
-				String message = GlobalConfiguration.NAME + " is currently outdated, please wait patiently for a new version.";
-				log.severe(message);
-				JOptionPane.showMessageDialog(null, message, "Outdated", JOptionPane.WARNING_MESSAGE);
-				return new HashMap<String, byte[]>();
 			}
 			
 			log.info("Injecting client #" + hd.version);
-			
+
 			//Interface and TileData ClassGen
 			ClassGen cgInterface = null;
 			ClassGen cgTileData = null;
@@ -462,13 +519,13 @@ public class Injector {
 							cgInterface = cg;
 						else if(cd.injected_name.equals("TileData"))
 							cgTileData = cg;
-						
+
 						cg.addInterface(ACCESSOR_PACKAGE + cd.injected_name);
 						break;
 					}
 				}
 			}
-			
+
 			//Inject masterx/y fields
 			cgInterface.addField(new FieldGen(0, Type.INT, "masterX", cgInterface.getConstantPool()).getField());
 			cgInterface.addField(new FieldGen(0, Type.INT, "masterY", cgInterface.getConstantPool()).getField());
@@ -486,7 +543,7 @@ public class Injector {
 					}
 				}
 			}
-			
+
 			//Inject static fields
 			StaticFieldData[] staticFields = hd.staticFields.toArray(new StaticFieldData[0]);
 			ClassGen client = findClass("client");
@@ -498,16 +555,16 @@ public class Injector {
 				injectGetter(client, Type.getType(fd.injected_field_signature), 
 							fd.injected_field_name, fd.official_class_name + "." + fd.official_field_name);
 			}
-			
+
 			//Inject master x/y
 			ClassGen c_masterxy = findClass(hd.masterXY.class_name);
 			Method m_masterxy = c_masterxy.containsMethod(hd.masterXY.method_name, hd.masterXY.method_signature);
-			
+
 			InstructionFactory fac = new InstructionFactory(c_masterxy, c_masterxy.getConstantPool());
 			MethodGen mgn = new MethodGen(m_masterxy, c_masterxy.getClassName(), c_masterxy.getConstantPool());
 			InstructionList il = mgn.getInstructionList();
 			InstructionHandle[] ih = il.getInstructionHandles();
-			
+
 			InstructionHandle ih_append = ih[hd.masterXY.append_index];
 			ih_append = il.append(ih_append, new ALOAD(hd.masterXY.aload));
 			ih_append = il.append(ih_append, new ILOAD(hd.masterXY.iload_x));
@@ -515,13 +572,13 @@ public class Injector {
 			ih_append = il.append(ih_append, new ALOAD(hd.masterXY.aload));
 			ih_append = il.append(ih_append, new ILOAD(hd.masterXY.iload_y));
 			ih_append = il.append(ih_append, fac.createPutField(cgInterface.getClassName(), "masterY", Type.INT));
-			
+
 			mgn.setInstructionList(il);
 			mgn.setMaxLocals();
 			mgn.setMaxStack();
 			mgn.update();
 			c_masterxy.replaceMethod(m_masterxy, mgn.getMethod());
-			
+
 			//Inject server message listener
 			ClassGen c_sml = findClass(hd.serverMessageListener.class_name);
 			Method m_sml = c_sml.containsMethod(hd.serverMessageListener.method_name, hd.serverMessageListener.method_signature);
@@ -529,7 +586,7 @@ public class Injector {
 			mgn = new MethodGen(m_sml, c_sml.getClassName(), c_sml.getConstantPool());
 			il = mgn.getInstructionList();
 			ih = il.getInstructionHandles();
-			
+
 			ih_append = ih[hd.serverMessageListener.append_index];
 			ih_append = il.append(ih_append, fac.createGetStatic("client", "callback", 
 					Type.getType(org.rsbot.accessors.Callback.class)));
@@ -551,21 +608,21 @@ public class Injector {
 				Method rso_id = rso.containsMethod(hd.rsObjects.method_name, hd.rsObjects.method_signature);
 				QIS s = new QIS(rso, rso_id);
 				s.gotoEnd();
-				
+
 				if(!(s.previous(ReturnInstruction.class) instanceof IRETURN))
 					continue;
-				
+
 				InstructionHandle[][] arguments = s.getArgumentInstructions();
 				if(arguments.length != 1)
 					continue;
-				
+
 				//Create method, since we have different types of getID we have to reconstruct it in the client
 				//and not using the bot to figure it out!
 				il = new InstructionList();
 				for(InstructionHandle ih1 : arguments[0])
 					il.append(ih1.getInstruction());
 				il.append(s.current());
-				
+
 				MethodGen mg_getid = new MethodGen(
 						Constants.ACC_PUBLIC | Constants.ACC_FINAL, // access_flags
 						Type.INT, // return_type
@@ -579,10 +636,10 @@ public class Injector {
 				mg_getid.stripAttributes(true);
 				mg_getid.setMaxLocals();
 				mg_getid.setMaxStack();
-				
+
 				rso.addMethod(mg_getid.getMethod());
 			}
-			
+
 			//Render data
 			ClassGen c_rd = findClass(hd.render.class_name);
 			Method m_rd = c_rd.containsMethod(hd.render.method_name, hd.render.method_signature);
@@ -590,7 +647,7 @@ public class Injector {
 			mgn = new MethodGen(m_rd, c_rd.getClassName(), c_rd.getConstantPool());
 			il = mgn.getInstructionList();
 			ih = il.getInstructionHandles();
-			
+
 			ih_append = ih[hd.render.append_index];
 			ih_append = il.append(ih_append, fac.createGetStatic("client", "callback", 
 					Type.getType(org.rsbot.accessors.Callback.class)));
@@ -607,11 +664,11 @@ public class Injector {
 			mgn.setMaxStack();
 			mgn.update();
 			c_rd.replaceMethod(m_rd, mgn.getMethod());
-			
+
 			//Tile height			
 			il = new InstructionList();
 			fac = new InstructionFactory(cgTileData, cgTileData.getConstantPool());
-			
+
 			il.append(new ALOAD(0));
 			il.append(new ILOAD(1));
 			il.append(new ILOAD(2));
@@ -622,7 +679,7 @@ public class Injector {
 					Type.getArgumentTypes(hd.tileHeight.method_signature), 
 					Constants.INVOKEVIRTUAL));
 			il.append(new IRETURN());
-			
+
 			MethodGen mg = new MethodGen(
 					Constants.ACC_PUBLIC | Constants.ACC_FINAL, // access_flags
 					Type.INT, // return_type
@@ -635,16 +692,16 @@ public class Injector {
 			);
 			mg.setMaxLocals();
 			mg.setMaxStack();
-			
+
 			cgTileData.addMethod(mg.getMethod());
-			
+
 			//Hack mouse/keyboard/canvas/signlink
 			hackMouse();
 			hackMouseWheel();
 			hackKeyboard();
 			hackCanvas();
 			hackSignUID(username);
-			
+
 			//Insert callback
 			insertCallback();
 			
@@ -688,6 +745,28 @@ public class Injector {
 			}
 		}
 		return -1;
+	}
+	
+	private void cacheClient()
+	{
+		try {
+			File file = new File(GlobalConfiguration.Paths.getClientCache());
+	        FileOutputStream stream = new FileOutputStream(file);
+	        JarOutputStream out = new JarOutputStream(stream);
+
+            for (ClassGen cg : loaded)
+			{
+                out.putNextEntry(new JarEntry(cg.getClassName() + ".class"));
+                out.write(cg.getJavaClass().getBytes());
+            }
+
+			out.close();
+			stream.close();
+			
+			FileWriter writer = new FileWriter(GlobalConfiguration.Paths.getVersionCache());
+			writer.write(Integer.toString(hd.version));
+			writer.close();
+		}catch(IOException ignored){}
 	}
 	
 	private void insertCallback()

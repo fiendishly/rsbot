@@ -5,12 +5,14 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
+import java.io.File;
 import java.lang.reflect.Constructor;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.rsbot.accessors.Loader;
 import org.rsbot.util.Injector;
+import org.rsbot.util.GlobalConfiguration;
 
 /**
  * @author Qauters This class will be used instead of the their own
@@ -115,6 +117,8 @@ public class RSLoader extends Applet implements Runnable, Loader {
 			client.start();
 		} catch (final Exception e) {
 			log.log(Level.SEVERE, "Unable to load client, please check your firewall and internet connection");
+			File versionFile = new File(GlobalConfiguration.Paths.getVersionCache());
+			versionFile.delete();
 		}
 	}
 
