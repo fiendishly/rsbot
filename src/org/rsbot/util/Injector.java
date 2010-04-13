@@ -1,8 +1,6 @@
 package org.rsbot.util;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -110,13 +108,13 @@ class Stream
 		off++;
 		return s;
 	}
-};
+}
 
 class ClassData
 {
 	String official_name;
 	String injected_name;
-};
+}
 
 class FieldData
 {
@@ -124,7 +122,7 @@ class FieldData
 	String official_field_name;
 	String injected_field_name;
 	String injected_field_signature;
-};
+}
 
 class StaticFieldData
 {
@@ -132,7 +130,7 @@ class StaticFieldData
 	String official_field_name;
 	String injected_field_name;
 	String injected_field_signature;
-};
+}
 
 class MasterXYData
 {
@@ -143,7 +141,7 @@ class MasterXYData
 	int aload;
 	int iload_x;
 	int iload_y;
-};
+}
 
 class ServerMessageListenerData
 {
@@ -152,14 +150,14 @@ class ServerMessageListenerData
 	String method_signature;
 	int append_index;
 	int aload;
-};
+}
 
 class RSObjectsData
 {
 	String method_name;
 	String method_signature;
 	String[] object_class_names;
-};
+}
 
 class RenderData
 {
@@ -176,7 +174,7 @@ class RenderData
 	String renderData_class_name;
 	String renderData_field_name;
 	String renderData_field_signature;
-};
+}
 
 class TileHeightData
 {
@@ -303,7 +301,7 @@ class HookData
 		charData.i = Arrays.copyOfRange(s_data.data, s_data.off, s_data.off + i_length);
 		s_data.off += i_length;
 	}	
-};
+}
 
 public class Injector {	
 	private Logger log = Logger.getLogger(Injector.class.getName());
@@ -368,10 +366,7 @@ public class Injector {
 				URL url = new URL(s);
 				return ((JarURLConnection) url.openConnection()).getJarFile();
 			}
-			catch(Exception e)
-			{
-				
-			}
+			catch(Exception ignored) { }
 		}
 	}
 
@@ -508,7 +503,7 @@ public class Injector {
 			ClassGen cgTileData = null;
 
 			//Inject interfaces
-			ClassData[] classes = hd.classes.toArray(new ClassData[0]);
+			ClassData[] classes = hd.classes.toArray(new ClassData[hd.classes.size()]);
 			for(ClassGen cg : loaded)
 			{
 				for(ClassData cd : classes)
@@ -531,7 +526,7 @@ public class Injector {
 			cgInterface.addField(new FieldGen(0, Type.INT, "masterY", cgInterface.getConstantPool()).getField());
 
 			//Inject fields
-			FieldData[] fields = hd.fields.toArray(new FieldData[0]);
+			FieldData[] fields = hd.fields.toArray(new FieldData[hd.fields.size()]);
 			for(ClassGen cg : loaded)
 			{
 				for(FieldData fd : fields)
@@ -545,7 +540,7 @@ public class Injector {
 			}
 
 			//Inject static fields
-			StaticFieldData[] staticFields = hd.staticFields.toArray(new StaticFieldData[0]);
+			StaticFieldData[] staticFields = hd.staticFields.toArray(new StaticFieldData[hd.staticFields.size()]);
 			ClassGen client = findClass("client");
 			String[] username = new String[2];
 			for(StaticFieldData fd : staticFields)
@@ -571,7 +566,7 @@ public class Injector {
 			ih_append = il.append(ih_append, fac.createPutField(cgInterface.getClassName(), "masterX", Type.INT));
 			ih_append = il.append(ih_append, new ALOAD(hd.masterXY.aload));
 			ih_append = il.append(ih_append, new ILOAD(hd.masterXY.iload_y));
-			ih_append = il.append(ih_append, fac.createPutField(cgInterface.getClassName(), "masterY", Type.INT));
+			il.append(ih_append, fac.createPutField(cgInterface.getClassName(), "masterY", Type.INT));
 
 			mgn.setInstructionList(il);
 			mgn.setMaxLocals();
@@ -591,7 +586,7 @@ public class Injector {
 			ih_append = il.append(ih_append, fac.createGetStatic("client", "callback", 
 					Type.getType(org.rsbot.accessors.Callback.class)));
 			ih_append = il.append(ih_append, new ALOAD(hd.serverMessageListener.aload));
-			ih_append = il.append(ih_append, fac.createInvoke(ACCESSOR_PACKAGE + "Callback", 
+			il.append(ih_append, fac.createInvoke(ACCESSOR_PACKAGE + "Callback",
 							"notifyServerMessage", Type.VOID, new Type[] { Type.STRING }, 
 							Constants.INVOKEINTERFACE));
 
@@ -655,7 +650,7 @@ public class Injector {
 					hd.render.render_field_name, Type.getType(hd.render.render_field_signature)));
 			ih_append = il.append(ih_append, fac.createGetStatic(hd.render.renderData_class_name, 
 					hd.render.renderData_field_name, Type.getType(hd.render.renderData_field_signature)));
-			ih_append = il.append(ih_append, fac.createInvoke(ACCESSOR_PACKAGE + "Callback", "updateRenderInfo", 
+			il.append(ih_append, fac.createInvoke(ACCESSOR_PACKAGE + "Callback", "updateRenderInfo",
 					Type.VOID, new Type[] { Type.getType(org.rsbot.accessors.Render.class), 
 					Type.getType(org.rsbot.accessors.RenderData.class) }, Constants.INVOKEINTERFACE));
 
@@ -751,18 +746,18 @@ public class Injector {
 	{
 		try {
 			File file = new File(GlobalConfiguration.Paths.getClientCache());
-	        FileOutputStream stream = new FileOutputStream(file);
-	        JarOutputStream out = new JarOutputStream(stream);
+			FileOutputStream stream = new FileOutputStream(file);
+			JarOutputStream out = new JarOutputStream(stream);
 
-            for (ClassGen cg : loaded)
+			for (ClassGen cg : loaded)
 			{
-                out.putNextEntry(new JarEntry(cg.getClassName() + ".class"));
-                out.write(cg.getJavaClass().getBytes());
-            }
+				out.putNextEntry(new JarEntry(cg.getClassName() + ".class"));
+				out.write(cg.getJavaClass().getBytes());
+			}
 
 			out.close();
 			stream.close();
-			
+
 			FileWriter writer = new FileWriter(GlobalConfiguration.Paths.getVersionCache());
 			writer.write(Integer.toString(hd.version));
 			writer.close();
@@ -1105,7 +1100,7 @@ public class Injector {
 				if (out != null) {
 					out.close();
 				}
-			} catch (IOException ioe) { }
+			} catch (IOException ignored) { }
 		}
 		if(out != null)
 			return out.toByteArray();
@@ -1189,7 +1184,7 @@ public class Injector {
 		il.append(factory.createFieldAccess(field_class, field_name, field_type, isStatic ? Constants.GETSTATIC : Constants.GETFIELD));
 		if(checkcast && !(return_type instanceof BasicType)) 
 			il.append(factory.createCheckCast(return_type instanceof ArrayType ? ((ArrayType) return_type) : (ObjectType) return_type));
-		else if(checkcast && return_type instanceof BasicType)
+		else if(checkcast)
 		{
 			switch(field_type.getType())
 			{

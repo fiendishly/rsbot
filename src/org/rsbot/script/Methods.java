@@ -4447,7 +4447,7 @@ public class Methods implements Constants {
 	 *         False - if <code>timeout</code> is lesser than 0.
 	 * @since 1.0 - 08-03-2009
 	 * 
-	 * @see #waitForIface(RSInterfaceChild, int)
+	 * @see #waitForInterface(RSInterfaceChild, int)
 	 */
 	public boolean waitForIface(RSInterface iface, int timeout) {
 		if (timeout < 0)
@@ -4472,7 +4472,7 @@ public class Methods implements Constants {
 	 * <code>RSIterface</code> in <code>iface</code> becomes "valid".<br />
 	 * If <code>iface</code> is <code>null</code> the method will return false.
 	 * 
-	 * @param iface
+	 * @param interfaceChild
 	 *            The RSInterface to wait for.
 	 * @param timeout
 	 *            The time in milliseconds to wait for iface to become "valid".
@@ -4700,23 +4700,18 @@ public class Methods implements Constants {
 	 * 
 	 * @param t
 	 *            The destination tile.
-	 * @param maxDist
-	 *            The maximum distance between two tiles in the path. 16 is
-	 *            recommended.
 	 * @param x
 	 *            The x randomness passed to
-	 *            {@link #walkTileMM(RSTile, int, int)}.
+	 *            {@link #walkTo(RSTile, int, int)}.
 	 * @param y
 	 *            The y randomness passed to
-	 *            {@link #walkTileMM(RSTile, int, int)}.
+	 *            {@link #walkTo(RSTile, int, int)}.
 	 * @return <tt>true</tt> if the destination was reached; otherwise
 	 *         <tt>false</tt>.
 	 */
 	public boolean walkToClosestTile(RSTile[] t, int x, int y) {
 		RSTile next = nextTile(t, 16, false);
-		if (next != null)
-			return walkTo(next);
-		return false;
+		return next != null && walkTo(next, x, y);
 	}
 
 	public Point worldToMinimap(int x, int y) {

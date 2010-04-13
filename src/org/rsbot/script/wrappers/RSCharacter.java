@@ -48,17 +48,17 @@ public class RSCharacter {
 			return null;
 		}
 		if (interact < 32768) {
-			Node node = Calculations.findNodeByID(Bot.getClient().getRSInterfaceNC(), interact);
+			Node node = Calculations.findNodeByID(Bot.getClient().getRSNPCNC(), interact);
 			if(node == null || !(node instanceof RSNPCNode)) {
 				return null;
 			}
-			return new org.rsbot.script.wrappers.RSNPC(((RSNPCNode) node).getRSNPC());
+			return new RSNPC(((RSNPCNode) node).getRSNPC());
 		} else {
 			int index = interact - 32768;
 			if (index == Bot.getClient().getSelfInteracting()) {
 				index = 2047;
 			}
-			return new org.rsbot.script.wrappers.RSPlayer(Bot.getClient().getRSPlayerArray()[index]);
+			return new RSPlayer(Bot.getClient().getRSPlayerArray()[index]);
 		}
 	}
 
