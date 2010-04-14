@@ -692,7 +692,7 @@ public class Injector {
 
 			//Hack mouse/keyboard/canvas/signlink
 			hackMouse();
-			hackMouseWheel();
+			//hackMouseWheel();
 			hackKeyboard();
 			hackCanvas();
 			hackSignUID(username);
@@ -833,42 +833,24 @@ public class Injector {
 	private void hackMouse(){
 		for(ClassGen cg : loaded){
 			String interfaces[] = cg.getInterfaceNames();
+			boolean foundMouseListener = false;
+			
 			for(String iface : interfaces){
-				if(iface.endsWith("MouseListener")) {
+				if(iface.endsWith("MouseListener"))
+					foundMouseListener = true;	
+				else if(iface.endsWith("MouseWheelListener")) {
 					setSuperclassName(findClass(cg.getSuperclassName()), "org/rsbot/bot/input/Mouse");
-
-					Method methods[] = cg.getMethods();
-					for(Method m : methods) {
-						String name = m.getName();
-						if(name.startsWith("mouse") || name.startsWith("focus"))
-							cg.getConstantPool().setConstant(m.getNameIndex(), new ConstantUtf8("_" + name));
-					}
-					
-					return;
+					break;
 				}
 			}
-		}
-	}
-
-	private void hackMouseWheel(){
-		for(ClassGen cg : loaded)
-		{
-			String interfaces[] = cg.getInterfaceNames();
-			for(String iface : interfaces)
+			
+			if(foundMouseListener)
 			{
-				if(iface.endsWith("MouseWheelListener")) 
-				{
-					setSuperclassName(findClass(cg.getSuperclassName()), "org/rsbot/bot/input/MouseWheel");
-					
-					Method methods[] = cg.getMethods();
-					for(Method m : methods) 
-					{
-						String name = m.getName();
-						if(name.startsWith("mouse"))
-							cg.getConstantPool().setConstant(m.getNameIndex(), new ConstantUtf8("_" + name));
-					}
-					
-					return;
+				Method methods[] = cg.getMethods();
+				for(Method m : methods) {
+					String name = m.getName();
+					if(name.startsWith("mouse") || name.startsWith("focus"))
+						cg.getConstantPool().setConstant(m.getNameIndex(), new ConstantUtf8("_" + name));
 				}
 			}
 		}

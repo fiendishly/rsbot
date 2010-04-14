@@ -4,7 +4,6 @@ import java.awt.Rectangle;
 
 import org.rsbot.bot.input.Keyboard;
 import org.rsbot.bot.input.Mouse;
-import org.rsbot.bot.input.MouseWheel;
 
 public interface Client {
 
@@ -72,7 +71,7 @@ public interface Client {
 
 	Mouse getMouse();
 
-	MouseWheel getMouseWheel();
+	//MouseWheel getMouseWheel();
 
 	RSPlayer getMyRSPlayer();
 

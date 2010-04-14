@@ -4,8 +4,10 @@ import java.awt.Component;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
 
-public abstract class Mouse extends Focus implements MouseListener, MouseMotionListener {
+public abstract class Mouse extends Focus implements MouseListener, MouseMotionListener, MouseWheelListener {
 	public int clientX;
 	public int clientY;
 	public boolean present;
@@ -30,6 +32,8 @@ public abstract class Mouse extends Focus implements MouseListener, MouseMotionL
 	public abstract void _mousePressed(MouseEvent e);
 
 	public abstract void _mouseReleased(MouseEvent e);
+
+	public abstract void _mouseWheelMoved(MouseWheelEvent e);
 
 	public abstract Component getComponent();
 
@@ -157,6 +161,14 @@ public abstract class Mouse extends Focus implements MouseListener, MouseMotionL
 		e.consume();
 	}
 
+	public void mouseWheelMoved(final MouseWheelEvent e) {
+		// System.out.println(("WHL");
+		if (!Listener.blocked) {
+			try { _mouseWheelMoved(e); }catch(AbstractMethodError ame){} //it might not be implemented!
+		}
+		e.consume();
+	}
+
 	public final void sendEvent(final MouseEvent e) {
 		if (e.getID() == MouseEvent.MOUSE_CLICKED) {
 			_mouseClicked(e);
@@ -176,6 +188,8 @@ public abstract class Mouse extends Focus implements MouseListener, MouseMotionL
 			mousePressTime = System.currentTimeMillis();
 
 			_mouseReleased(e);
+		} else if(e.getID() == MouseEvent.MOUSE_WHEEL) {
+			try { _mouseWheelMoved((MouseWheelEvent) e); }catch(AbstractMethodError ame){} //it might not be implemented!
 		} else
 			throw new InternalError(e.toString());
 	}
