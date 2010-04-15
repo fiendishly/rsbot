@@ -3181,6 +3181,10 @@ public class Methods implements Constants {
 		return Bot.getClient().isItemSelected();
 	}
 
+	public String getSelectedItemName() {
+		return Bot.getClient().getSelectedItemName();
+	}
+
 	/**
 	 * Returns an array of RSInterfaceComponents representing the prayers that
 	 * are selected. Written by Bool.
@@ -4368,16 +4372,16 @@ public class Methods implements Constants {
 		if (getCurrentTab() != TAB_INVENTORY) {
 			openTab(TAB_INVENTORY);
 		}
-		atInventoryItem(item.getID(), "Use");
-		return atInventoryItem(targetItem.getID(), "Use");
+		return atInventoryItem(item.getID(), "Use") &&
+				atInventoryItem(targetItem.getID(), "Use");
 	}
 
 	public boolean useItem(RSItem item, RSObject targetObject) {
 		if (getCurrentTab() != TAB_INVENTORY) {
 			openTab(TAB_INVENTORY);
 		}
-		atInventoryItem(item.getID(), "Use");
-		return atObject(targetObject, "Use");
+		return atInventoryItem(item.getID(), "Use") &&
+				atObject(targetObject, "Use");
 	}
 
 	/**

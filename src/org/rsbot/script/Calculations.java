@@ -52,8 +52,8 @@ public class Calculations {
 			}
 		}
 
-		int curX = startX;
-		int curY = startY;
+		int curX;
+		int curY;
 		via[startX][startY] = 99;
 		cost[startX][startY] = 0;
 		int head = 0;
@@ -75,7 +75,6 @@ public class Calculations {
 			}
 			tail = (tail + 1) % pathLength;
 
-			// Big and ugly block of code
 			final int thisCost = cost[curX][curY] + 1;
 			// Can go south (by determining, whether the north side of the
 			// south tile is blocked :P)
@@ -173,7 +172,7 @@ public class Calculations {
 				if (node.getID() == id)
 					return node;
 			}
-		} catch (final Exception e) {
+		} catch (final Exception ignored) {
 		}
 
 		return null;
@@ -415,7 +414,7 @@ public class Calculations {
 				else
 					return new Point(-1, -1);
 			}
-		} catch (final NullPointerException npe) {
+		} catch (final NullPointerException ignored) {
 		}
 
 		return new Point(-1, -1);// not on minimap

@@ -23,44 +23,39 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.logging.Logger;
 
 import javax.naming.NamingException;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JDialog;
-import javax.swing.JLabel;
-import javax.swing.JList;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JPasswordField;
-import javax.swing.JScrollPane;
-import javax.swing.JSpinner;
-import javax.swing.JTextField;
-import javax.swing.ListSelectionModel;
-import javax.swing.SpinnerNumberModel;
-import javax.swing.SwingConstants;
+import javax.swing.*;
 
 import org.rsbot.util.GlobalConfiguration;
 
 /**
  * This will handle the management of Accounts for the Bot.<br>
- * Information will be stored in a file specified by fileName.<br>
+ * Information will be stored in a file specified by FILE_NAME.<br>
  * Format for accounts should be:<br>
  * &nbsp;&nbsp; Name:Password[:Pin] <br>
  * Pin may be omitted if no Pin on Account
- * 
+ *
  * @author Fusion89k
  */
 // The brackets [] are there to denote optional.
 public class AccountManager extends JDialog implements ActionListener {
+
 	private static final long serialVersionUID = 6401178388485322197L;
-	private JList names;
-	private GridBagConstraints c;
-	public final static String sepChar = ":", fileName = GlobalConfiguration.Paths.getAccountsFile();
-	private final String emptyName = "No Accounts Found";
-	static String key;
+	private static final String SEP_CHAR = ":";
+	private static final String FILE_NAME = GlobalConfiguration.Paths.getAccountsFile();
+	private static final Logger log = Logger.getLogger(AccountManager.class.getName());
+
 	private static Map<String, String> accounts;
 	private static AccountManager instance;
+
+	private final String emptyName = "No Accounts Found";
+
+	private JList names;
+	private GridBagConstraints c;
+
+	static String key;
 
 	static {
 		try {
@@ -73,32 +68,34 @@ public class AccountManager extends JDialog implements ActionListener {
 		try {
 			AccountManager.accounts = AccountManager.loadAccounts();
 		} catch (final NamingException e) {
-			e.printStackTrace();
+			log.warning("There was an error loading account data.");
+			if (new File(FILE_NAME).delete()) {
+				log.warning("Corrupt account file deleted.");
+			} else {
+				log.warning("Unable to delete corrupt account file.");
+			}
 		}
 	}
 
 	/**
 	 * Allows addition of an account
-	 * 
-	 * @param info
-	 *            Account info in format of name:pass[:pin]
+	 *
+	 * @param info Account info in format of name:pass[:pin]
 	 */
 	public static void addAccount(final String info) throws NamingException {
-		if (!info.contains(AccountManager.sepChar))
+		if (!info.contains(AccountManager.SEP_CHAR))
 			throw new NamingException(info + " is not in the correct format.");
-		final String[] parts = info.split(AccountManager.sepChar);
+		final String[] parts = info.split(AccountManager.SEP_CHAR);
 		AccountManager.accounts.put(AccountManager.fixName(parts[0]), AccountManager.crypt(parts[1], true));
 		if (parts.length > 2) {
-			AccountManager.accounts.put(AccountManager.fixName(parts[0]), AccountManager.crypt(parts[1], true) + AccountManager.sepChar + parts[2]);
+			AccountManager.accounts.put(AccountManager.fixName(parts[0]), AccountManager.crypt(parts[1], true) + AccountManager.SEP_CHAR + parts[2]);
 		}
 		AccountManager.saveAccounts();
 	}
 
 	/**
-	 * Encrypts/Decrypts a string using a SHA1 hash of (String) key from other
-	 * users computers
-	 * 
-	 * @author Jacmob
+	 * Encrypts/Decrypts a string using a SHA1 hash of <code>key</code>
+	 * -Jacmob
 	 */
 	private static String crypt(final String start, final boolean en) {
 		final String delim = "a";
@@ -144,17 +141,17 @@ public class AccountManager extends JDialog implements ActionListener {
 
 	/**
 	 * Will convert account files from the old format to the new format
-	 * 
+	 * <p/>
 	 * Old Format - key=value, key=value,[key=value,]
-	 * 
+	 * <p/>
 	 * New Format - name:pass[:pin]
-	 * 
+	 *
 	 * @return A mapping of name password/pin pairs
 	 */
 	private static Map<String, String> fixAccounts() throws NamingException {
 		String endResult = "";
 		try {
-			final BufferedReader in = new BufferedReader(new FileReader(AccountManager.fileName));
+			final BufferedReader in = new BufferedReader(new FileReader(AccountManager.FILE_NAME));
 			String temp;
 			while ((temp = in.readLine()) != null) {
 				if (temp.contains("USERNAME")) {
@@ -173,7 +170,7 @@ public class AccountManager extends JDialog implements ActionListener {
 					}
 					try {
 						// Converts to new format name:pass[:pin]
-						endResult += name + AccountManager.sepChar + pass + (pin != null ? AccountManager.sepChar + pin : "");
+						endResult += name + AccountManager.SEP_CHAR + pass + (pin != null ? AccountManager.SEP_CHAR + pin : "");
 					} catch (final NullPointerException e) {
 						// Will only happen if one of the keys is not found
 						try {
@@ -187,7 +184,7 @@ public class AccountManager extends JDialog implements ActionListener {
 			}
 			in.close();
 			// Writes the new format to the file
-			final BufferedWriter out = new BufferedWriter(new FileWriter(AccountManager.fileName));
+			final BufferedWriter out = new BufferedWriter(new FileWriter(AccountManager.FILE_NAME));
 			out.append(endResult);
 			out.close();
 		} catch (final FileNotFoundException e) {
@@ -201,10 +198,9 @@ public class AccountManager extends JDialog implements ActionListener {
 
 	/**
 	 * Capitalizes the first character and replaces spaces with underscores
-	 * Purely esthetic
-	 * 
-	 * @param name
-	 *            Name to fix
+	 * Purely aesthetic
+	 *
+	 * @param name Name to fix
 	 * @return Fixed name
 	 */
 	private static String fixName(String name) {
@@ -219,16 +215,17 @@ public class AccountManager extends JDialog implements ActionListener {
 
 	/**
 	 * Access the list of names for loaded accounts
-	 * 
+	 *
 	 * @return Array of the Names
 	 */
 	public static String[] getAccountNames() {
-		return AccountManager.accounts.keySet().toArray(new String[0]);
+		return AccountManager.accounts.keySet().toArray(
+				new String[AccountManager.accounts.size()]);
 	}
 
 	/**
 	 * Enables AccountManager to be a Singleton
-	 * 
+	 *
 	 * @return The instance of the AccountManager
 	 */
 	public static AccountManager getInstance() {
@@ -240,57 +237,58 @@ public class AccountManager extends JDialog implements ActionListener {
 
 	/**
 	 * Access the password of the given account
-	 * 
-	 * @param name
-	 *            Name of account to access password of
+	 *
+	 * @param name Name of account to access password of
 	 * @return Unencrypted Password
 	 */
 	public static String getPassword(final String name) {
 		String password = AccountManager.accounts.get(name);
-		if ((password != null) && password.contains(AccountManager.sepChar)) {
-			password = password.split(AccountManager.sepChar, 2)[0];
+		if ((password != null) && password.contains(AccountManager.SEP_CHAR)) {
+			password = password.split(AccountManager.SEP_CHAR, 2)[0];
 		}
 		return AccountManager.crypt(password, false);
 	}
 
 	/**
 	 * Access the pin for the given account
-	 * 
-	 * @param name
-	 *            Name of the account
+	 *
+	 * @param name Name of the account
 	 * @return Pin or -1 if no pin
 	 */
 	public static String getPin(final String name) {
 		final String all = AccountManager.accounts.get(name);
-		if (all.contains(AccountManager.sepChar))
-			return all.split(AccountManager.sepChar, 2)[1];
+		if (all.contains(AccountManager.SEP_CHAR))
+			return all.split(AccountManager.SEP_CHAR, 2)[1];
 		return "-1";
 	}
 
 	/**
 	 * Loads the accounts from the file
+	 *
+	 * @return A map of user names to passwords
+	 * @throws javax.naming.NamingException Invalid storage
 	 */
 	private static Map<String, String> loadAccounts() throws NamingException {
 		final TreeMap<String, String> accounts = new TreeMap<String, String>();
-		final File accountFile = new File(AccountManager.fileName);
+		final File accountFile = new File(AccountManager.FILE_NAME);
 		if (accountFile.exists()) {
 			try {
 				final BufferedReader in = new BufferedReader(new FileReader(accountFile));
-				String temp;// Used to store the lines from the file
-				while ((temp = in.readLine()) != null) {
-					if (temp.isEmpty()) {
+				String line;// Used to store the lines from the file
+				while ((line = in.readLine()) != null) {
+					if (line.isEmpty()) {
 						continue;
 					}
 					// Means that it is in old format
-					if (temp.contains("USERNAME"))
+					if (line.contains("USERNAME"))
 						return AccountManager.fixAccounts();
 					// If for some reason the format is not as expected
-					if (!temp.contains(AccountManager.sepChar))
-						throw new NamingException("Invliad Storage of: " + temp);
-					final String[] parts = temp.split(AccountManager.sepChar, 2);
+					if (!line.contains(AccountManager.SEP_CHAR))
+						throw new NamingException("Invalid Storage of: " + line);
+					final String[] parts = line.split(AccountManager.SEP_CHAR, 2);
 					for (final String s : parts) {
 						if (s.isEmpty())
-							throw new NamingException("Invliad Storage of: " + temp);
+							throw new NamingException("Invalid Storage of: " + line);
 					}
 					// Formats the name
 					parts[0] = AccountManager.fixName(parts[0]);
@@ -317,14 +315,14 @@ public class AccountManager extends JDialog implements ActionListener {
 	 * Writes the accounts to the file
 	 */
 	private static void saveAccounts() {
-		final File accountFile = new File(AccountManager.fileName);
+		final File accountFile = new File(AccountManager.FILE_NAME);
 		try {
 			final BufferedWriter out = new BufferedWriter(new FileWriter(accountFile));
 			for (final String s : AccountManager.accounts.keySet()) {
 				if (AccountManager.accounts.get(s).isEmpty()) {
 					continue;
 				}
-				out.append(s + AccountManager.sepChar + AccountManager.accounts.get(s));
+				out.append(s).append(AccountManager.SEP_CHAR).append(AccountManager.accounts.get(s));
 				out.newLine();
 			}
 			out.close();
@@ -333,16 +331,14 @@ public class AccountManager extends JDialog implements ActionListener {
 		}
 	}
 
-	/**
+	/*
 	 * Returns SHA1 hash of a String.
 	 */
+
 	private static byte[] SHA1(final String in) throws NoSuchAlgorithmException, UnsupportedEncodingException {
-		MessageDigest md;
-		md = MessageDigest.getInstance("SHA-1");
-		byte[] sha1hash = new byte[40];
+		MessageDigest md = MessageDigest.getInstance("SHA-1");
 		md.update(in.getBytes("iso-8859-1"), 0, in.length());
-		sha1hash = md.digest();
-		return sha1hash;
+		return md.digest();
 	}
 
 	private AccountManager() {
@@ -383,7 +379,7 @@ public class AccountManager extends JDialog implements ActionListener {
 							JOptionPane.showMessageDialog(null, "Empty Fields");
 							return;
 						}
-						AccountManager.accounts.put(AccountManager.fixName(name), AccountManager.crypt(pass, true) + (pin.isEmpty() ? "" : AccountManager.sepChar + pin));
+						AccountManager.accounts.put(AccountManager.fixName(name), AccountManager.crypt(pass, true) + (pin.isEmpty() ? "" : AccountManager.SEP_CHAR + pin));
 						refreshList();
 						names.validate();
 						parentFrame.dispose();
@@ -495,7 +491,7 @@ public class AccountManager extends JDialog implements ActionListener {
 
 	/**
 	 * Creates and Displays the main GUI
-	 * 
+	 * <p/>
 	 * This GUI has the list and the main buttons
 	 */
 	public void showGUI() {
@@ -504,7 +500,7 @@ public class AccountManager extends JDialog implements ActionListener {
 		// Main Panel with everything
 		final JPanel pane = new JPanel(new GridBagLayout());
 		// Makes the List
-		names = new JList(AccountManager.accounts.keySet().toArray(new String[0]));
+		names = new JList(AccountManager.accounts.keySet().toArray(new String[AccountManager.accounts.size()]));
 		// Only one selection at a time
 		names.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		// Will display the password and pin when double clicked or right
@@ -515,11 +511,11 @@ public class AccountManager extends JDialog implements ActionListener {
 					final String clicked = AccountManager.accounts.get(((JList) click.getComponent()).getSelectedValue());
 					if (clicked.isEmpty())
 						return;
-					String pass = clicked.contains(AccountManager.sepChar) ? clicked.substring(0, clicked.indexOf(AccountManager.sepChar)) : clicked;
+					String pass = clicked.contains(AccountManager.SEP_CHAR) ? clicked.substring(0, clicked.indexOf(AccountManager.SEP_CHAR)) : clicked;
 					pass = AccountManager.crypt(pass, false);
 					String info = "Password: " + pass;
-					if (clicked.contains(AccountManager.sepChar)) {
-						info += "\nPin: " + clicked.substring(clicked.indexOf(AccountManager.sepChar) + 1, clicked.length());
+					if (clicked.contains(AccountManager.SEP_CHAR)) {
+						info += "\nPin: " + clicked.substring(clicked.indexOf(AccountManager.SEP_CHAR) + 1, clicked.length());
 					}
 					JOptionPane.showMessageDialog(null, info);
 				}
