@@ -31,7 +31,6 @@ import org.rsbot.bot.input.CanvasWrapper;
 import org.rsbot.event.listeners.PaintListener;
 import org.rsbot.gui.AccountManager;
 import org.rsbot.script.internal.NodeList;
-import org.rsbot.script.randoms.LoginBot;
 import org.rsbot.script.wrappers.RSArea;
 import org.rsbot.script.wrappers.RSCharacter;
 import org.rsbot.script.wrappers.RSInterface;
@@ -46,10 +45,10 @@ import org.rsbot.script.wrappers.RSTile;
 
 /**
  * Methods that can be used by RSBot scripts.
- * 
+ * <p/>
  * If you want to edit this methods file from the official RSBot download, then
  * please create an issue at: http://code.google.com/p/rsbotsvn/issues/list
- * 
+ *
  * @author This is an open-source project, therefore there are too many to list.
  */
 public class Methods implements Constants {
@@ -58,29 +57,43 @@ public class Methods implements Constants {
 		VIEW, ON, FRIENDS, OFF, HIDE
 	}
 
-	private static final String[] COLOURS_STR = new String[] { "red", "green", "cyan", "purple", "white" };
+	private static final String[] COLOURS_STR = new String[]{"red", "green", "cyan", "purple", "white"};
 
 	private static Pattern stripFormatting = Pattern.compile("\\<.+?\\>");
 
-	/** The singleton of skills. */
+	/**
+	 * The singleton of skills.
+	 */
 	public final Skills skills = new Skills(this);
 
-	/** The singleton of bank  */
+	/**
+	 * The singleton of bank
+	 */
 	public final Bank bank = new Bank(this);
 
-	/** The singleton of store  */
+	/**
+	 * The singleton of store
+	 */
 	public final Store store = new Store(this);
 
-	/** The singleton of Grand Exchange  */
+	/**
+	 * The singleton of Grand Exchange
+	 */
 	public final GrandExchange grandExchange = new GrandExchange();
 
-	/** The reference to the Bot's input manager. */
+	/**
+	 * The reference to the Bot's input manager.
+	 */
 	public final InputManager input = Bot.getInputManager();
 
-	/** The instance of {@link java.util.Random} for random number generation. */
+	/**
+	 * The instance of {@link java.util.Random} for random number generation.
+	 */
 	private final java.util.Random random = new java.util.Random();
 
-	/** The {@link java.util.logging.Logger} for this class. */
+	/**
+	 * The {@link java.util.logging.Logger} for this class.
+	 */
 	protected final Logger log = Logger.getLogger(this.getClass().getName());
 
 	private ArrayList<WalkerNode> nodes = new ArrayList<WalkerNode>();
@@ -100,11 +113,9 @@ public class Methods implements Constants {
 
 	/**
 	 * Returns the distance between the two tiles.
-	 * 
-	 * @param t1
-	 *            The first tile.
-	 * @param t2
-	 *            The second tile.
+	 *
+	 * @param t1 The first tile.
+	 * @param t2 The second tile.
 	 * @return The distance between the tiles.
 	 */
 	public static int distanceBetween(RSTile t1, RSTile t2) {
@@ -113,15 +124,12 @@ public class Methods implements Constants {
 
 	/**
 	 * Draws a line on the screen at the specified index. Default is green.
-	 * <p>
+	 * <p/>
 	 * Available colours: red, green, cyan, purple, white.
-	 * 
-	 * @param render
-	 *            The Graphics object to be used.
-	 * @param row
-	 *            The index where you want the text.
-	 * @param text
-	 *            The text you want to render. Colours can be set like [red].
+	 *
+	 * @param render The Graphics object to be used.
+	 * @param row	The index where you want the text.
+	 * @param text   The text you want to render. Colours can be set like [red].
 	 */
 	public static void drawLine(Graphics render, int row, String text) {
 		FontMetrics metrics = render.getFontMetrics();
@@ -164,9 +172,8 @@ public class Methods implements Constants {
 
 	/**
 	 * Removes HTML tags.
-	 * 
-	 * @param input
-	 *            The string you want to parse.
+	 *
+	 * @param input The string you want to parse.
 	 * @return The parsed {@code String}.
 	 */
 	public static String stripFomatting(String input) {
@@ -175,9 +182,8 @@ public class Methods implements Constants {
 
 	/**
 	 * Checks if the player's animation is one of the IDs sent.
-	 * 
-	 * @param ids
-	 *            The animation IDs to check.
+	 *
+	 * @param ids The animation IDs to check.
 	 * @return <tt>true</tt> if the animation is in the array; otherwise
 	 *         <tt>false</tt>.
 	 */
@@ -191,11 +197,9 @@ public class Methods implements Constants {
 
 	/**
 	 * Searches a String array to see if it contains a search String.
-	 * 
-	 * @param items
-	 *            The {@code String} array to check.
-	 * @param searchString
-	 *            The {@code String} to search for.
+	 *
+	 * @param items		The {@code String} array to check.
+	 * @param searchString The {@code String} to search for.
 	 * @return <tt>true</tt> if the searchString appears in items; otherwise
 	 *         <tt>false</tt>.
 	 */
@@ -209,13 +213,10 @@ public class Methods implements Constants {
 
 	/**
 	 * Clicks the component and then the action in the menu.
-	 * 
-	 * @param ChildInterface
-	 *            The child containing the component.
-	 * @param ComponentID
-	 *            The component to be clicked.
-	 * @param action
-	 *            The menu action to be done.
+	 *
+	 * @param ChildInterface The child containing the component.
+	 * @param ComponentID	The component to be clicked.
+	 * @param action		 The menu action to be done.
 	 * @return <tt>true</tt> if the action was clicked; otherwise <tt>false</tt>.
 	 */
 	public boolean atComponent(RSInterfaceChild ChildInterface, int ComponentID, String action) {
@@ -224,11 +225,9 @@ public class Methods implements Constants {
 
 	/**
 	 * Clicks the component and then the action in the menu.
-	 * 
-	 * @param comp
-	 *            The component you are going to click.
-	 * @param action
-	 *            The menu action to be done.
+	 *
+	 * @param comp   The component you are going to click.
+	 * @param action The menu action to be done.
 	 * @return <tt>true</tt> if the action was clicked; otherwise <tt>false</tt>.
 	 */
 	public boolean atComponent(RSInterfaceComponent comp, String action) {
@@ -237,11 +236,9 @@ public class Methods implements Constants {
 
 	/**
 	 * Opens a door given the ID and the direction in which the door is facing.
-	 * 
-	 * @param id
-	 *            The object ID of the door.
-	 * @param direction
-	 *            The direction the door is on the tile.
+	 *
+	 * @param id		The object ID of the door.
+	 * @param direction The direction the door is on the tile.
 	 * @return <tt>true</tt> if the door was the door was opened; otherwise
 	 *         <tt>false</tt>.
 	 */
@@ -402,11 +399,9 @@ public class Methods implements Constants {
 	/**
 	 * Performs an action on a given equipped item ID by clicking it in the
 	 * equipment tab. Written by Garrett.
-	 * 
-	 * @param itemID
-	 *            The ID of the item to look for.
-	 * @param action
-	 *            The menu action to click.
+	 *
+	 * @param itemID The ID of the item to look for.
+	 * @param action The menu action to click.
 	 * @return <tt>true</tt> if the action was clicked; otherwise false.
 	 */
 	public boolean atEquippedItem(int itemID, String action) {
@@ -432,13 +427,10 @@ public class Methods implements Constants {
 	/**
 	 * Left-clicks the child interface with the given parent ID and child ID if
 	 * it is showing (valid).
-	 * 
-	 * @param iface
-	 *            The parent interface ID.
-	 * @param child
-	 *            The child interface ID.
+	 *
+	 * @param iface The parent interface ID.
+	 * @param child The child interface ID.
 	 * @return <tt>true</tt> if the action was clicked; otherwise false.
-	 * 
 	 * @see #atInterface(RSInterfaceChild, String)
 	 * @see #atInterface(int, int, String)
 	 */
@@ -449,15 +441,11 @@ public class Methods implements Constants {
 	/**
 	 * Performs the provided action on the child interface with the given parent
 	 * ID and child ID if it is showing (valid).
-	 * 
-	 * @param iface
-	 *            The parent interface ID.
-	 * @param child
-	 *            The child interface ID.
-	 * @param actionContains
-	 *            The menu action to click.
+	 *
+	 * @param iface		  The parent interface ID.
+	 * @param child		  The child interface ID.
+	 * @param actionContains The menu action to click.
 	 * @return <tt>true</tt> if the action was clicked; otherwise false.
-	 * 
 	 * @see #atInterface(RSInterfaceChild, String)
 	 * @see #atInterface(int, int)
 	 */
@@ -467,11 +455,9 @@ public class Methods implements Constants {
 
 	/**
 	 * Left-clicks the provided RSInterfaceChild if it is showing (valid).
-	 * 
-	 * @param i
-	 *            The child interface to click.
+	 *
+	 * @param i The child interface to click.
 	 * @return <tt>true</tt> if the action was clicked; otherwise false.
-	 * 
 	 * @see #atInterface(RSInterfaceChild, String)
 	 */
 	public boolean atInterface(RSInterfaceChild i) {
@@ -505,13 +491,10 @@ public class Methods implements Constants {
 	/**
 	 * Performs the given action on the provided RSInterfaceChild if it is
 	 * showing (valid).
-	 * 
-	 * @param i
-	 *            The child interface to click.
-	 * @param actionContains
-	 *            The menu action to click.
+	 *
+	 * @param i			  The child interface to click.
+	 * @param actionContains The menu action to click.
 	 * @return <tt>true</tt> if the action was clicked; otherwise false.
-	 * 
 	 * @see #atInterface(RSInterfaceChild)
 	 * @see #atInterface(int, int, String)
 	 */
@@ -533,11 +516,9 @@ public class Methods implements Constants {
 	/**
 	 * Performs the provided action on a random inventory item with the given
 	 * ID.
-	 * 
-	 * @param itemID
-	 *            The ID of the item to look for.
-	 * @param option
-	 *            The menu action to click.
+	 *
+	 * @param itemID The ID of the item to look for.
+	 * @param option The menu action to click.
 	 * @return <tt>true</tt> if the action was clicked; otherwise false.
 	 */
 	public boolean atInventoryItem(int itemID, String option) {
@@ -571,9 +552,8 @@ public class Methods implements Constants {
 	/**
 	 * Clicks the menu option. Will left-click if the menu item is the first,
 	 * otherwise open menu and click the option.
-	 * 
-	 * @param optionContains
-	 *            The option to click.
+	 *
+	 * @param optionContains The option to click.
 	 * @return <tt>true</tt> if the menu item was clicked; otherwise
 	 *         <tt>false</tt>.
 	 */
@@ -606,9 +586,8 @@ public class Methods implements Constants {
 	/**
 	 * Search a menu for multiple Strings and click the first occurrence that is
 	 * found.
-	 * 
-	 * @param items
-	 *            The Strings to search the menu for.
+	 *
+	 * @param items The Strings to search the menu for.
 	 * @return <tt>true</tt> if the menu item was clicked; otherwise
 	 *         <tt>false</tt>.
 	 */
@@ -626,9 +605,8 @@ public class Methods implements Constants {
 
 	/**
 	 * Left clicks at the given index.
-	 * 
-	 * @param i
-	 *            The index of the item.
+	 *
+	 * @param i The index of the item.
 	 * @return <tt>true</tt> if the mouse was clicked; otherwise <tt>false</tt>.
 	 */
 	public boolean atMenuItem(int i) {
@@ -654,13 +632,10 @@ public class Methods implements Constants {
 	/**
 	 * Clicks a humanoid character (tall and skinny) without any randomly
 	 * generated mousepaths.
-	 * 
-	 * @param someNPC
-	 *            The RSNPC to be clicked.
-	 * @param option
-	 *            The option to be clicked (If available).
+	 *
+	 * @param someNPC The RSNPC to be clicked.
+	 * @param option  The option to be clicked (If available).
 	 * @return <tt>true</tt> if the option was found; otherwise <tt>false</tt>.
-	 * 
 	 * @see #atNPC(RSNPC, String, boolean)
 	 */
 	public boolean atNPC(RSNPC someNPC, String option) {
@@ -669,16 +644,12 @@ public class Methods implements Constants {
 
 	/**
 	 * Clicks a humanoid character (tall and skinny).
-	 * 
-	 * @param someNPC
-	 *            The RSNPC to be clicked.
-	 * @param option
-	 *            The option to be clicked (If available).
-	 * @param mousepath
-	 *            Whether or not to use {@link #moveMouseByPath(Point)} rather
-	 *            than {@link #moveMouse(Point)}.
+	 *
+	 * @param someNPC   The RSNPC to be clicked.
+	 * @param option	The option to be clicked (If available).
+	 * @param mousepath Whether or not to use {@link #moveMouseByPath(Point)} rather
+	 *                  than {@link #moveMouse(Point)}.
 	 * @return <tt>true</tt> if the option was found; otherwise <tt>false</tt>.
-	 * 
 	 * @see #moveMouseByPath(Point)
 	 * @see #atMenu(String)
 	 */
@@ -714,12 +685,10 @@ public class Methods implements Constants {
 	/**
 	 * Clicks on the player with specified action Walks to the player if not on
 	 * screen.
-	 * 
-	 * @param character
-	 *            The RSCharacter you want to click.
-	 * @param action
-	 *            Action command to use on the Character (e.g "Attack" or
-	 *            "Trade").
+	 *
+	 * @param character The RSCharacter you want to click.
+	 * @param action	Action command to use on the Character (e.g "Attack" or
+	 *                  "Trade").
 	 * @return <tt>true</tt> if the Character was clicked; otherwise
 	 *         <tt>false</tt>.
 	 */
@@ -769,15 +738,12 @@ public class Methods implements Constants {
 	 * Clicks a tile if it is on screen. It will left-click if the action is
 	 * available as the default option, otherwise it will right-click and check
 	 * for the action in the context menu.
-	 * 
-	 * @param tile
-	 *            The RSTile that you want to click.
-	 * @param action
-	 *            Action command to use on the Character (e.g "Attack" or
-	 *            "Trade").
-	 * @param mousePath
-	 *            Whether or not you want it to move the mouse using
-	 *            {@link #moveMouseByPath(Point)}.
+	 *
+	 * @param tile	  The RSTile that you want to click.
+	 * @param action	Action command to use on the Character (e.g "Attack" or
+	 *                  "Trade").
+	 * @param mousePath Whether or not you want it to move the mouse using
+	 *                  {@link #moveMouseByPath(Point)}.
 	 * @return <tt>true</tt> if the Character was clicked; otherwise
 	 *         <tt>false</tt>.
 	 */
@@ -816,6 +782,7 @@ public class Methods implements Constants {
 	/*
 	 * Clicks a tree object.
 	 */
+
 	public boolean atTree(RSObject tree, String action) {
 		RSTile loc1 = tree.getLocation();
 		RSTile loc4 = new RSTile(loc1.getX() + 1, loc1.getY() + 1);
@@ -830,9 +797,8 @@ public class Methods implements Constants {
 
 	/**
 	 * Autocasts a spell via interfaces. Written by: Mouchicc
-	 * 
-	 * @param spell
-	 *            The spell to cast.
+	 *
+	 * @param spell The spell to cast.
 	 * @return <tt>true</tt> if the "Autocast" interface option was clicked;
 	 *         otherwise <tt>false</tt>.
 	 */
@@ -852,7 +818,7 @@ public class Methods implements Constants {
 	}
 
 	public boolean canContinue() {
-		return getContinueInterface() != null;
+		return getContinueChildInterface() != null;
 	}
 
 	public boolean canReach(Object obj, boolean isObject) {
@@ -871,9 +837,8 @@ public class Methods implements Constants {
 	 * Clicks a specified spell, opens magic tab if not open and uses interface
 	 * of the spell to click it, so it works if the spells are layout in any
 	 * sway.
-	 * 
-	 * @param spell
-	 *            Spell number. This can be found in (e.g SPELL_HOME_TELEPORT).
+	 *
+	 * @param spell Spell number. This can be found in (e.g SPELL_HOME_TELEPORT).
 	 * @return <tt>true</tt> if the spell was clicked; otherwise <tt>false</tt>.
 	 */
 	public boolean castSpell(int spell) {
@@ -894,12 +859,10 @@ public class Methods implements Constants {
 	 * This method will remove any duplicates tiles in a RSTile[] path. This is
 	 * preferably to be used with generateFixedPath. For instance:
 	 * walkPathMM(cleanPath(generatedFixedPath(tile)));
-	 * 
+	 * <p/>
 	 * Written by: Taha
-	 * 
-	 * @param path
-	 *            The messy RSTile[] path with duplicate tiles.
-	 * 
+	 *
+	 * @param path The messy RSTile[] path with duplicate tiles.
 	 * @return The cleaned RSTile[] path with no duplicate tiles.
 	 */
 	public RSTile[] cleanPath(RSTile[] path) {
@@ -918,12 +881,10 @@ public class Methods implements Constants {
 	/**
 	 * Searches the game screen for the RSCharacter by checking the menu list.
 	 * Clicks the Character if the menu option was found.
-	 * 
-	 * @param c
-	 *            The RSCharacter you want to click.
-	 * @param action
-	 *            Action command to use on the Character (e.g "Attack" or
-	 *            "Trade").
+	 *
+	 * @param c	  The RSCharacter you want to click.
+	 * @param action Action command to use on the Character (e.g "Attack" or
+	 *               "Trade").
 	 * @return true if the Character was clicked.
 	 */
 	public boolean clickCharacter(RSCharacter c, String action) {
@@ -1007,13 +968,10 @@ public class Methods implements Constants {
 
 	/**
 	 * Clicks an RSComponent.
-	 * 
-	 * @param ChildInterface
-	 *            The child containing the component.
-	 * @param ComponentID
-	 *            The component to be clicked.
-	 * @param leftclick
-	 *            true to left-click, false to right-click.
+	 *
+	 * @param ChildInterface The child containing the component.
+	 * @param ComponentID	The component to be clicked.
+	 * @param leftclick	  true to left-click, false to right-click.
 	 * @return true if it successfully clicked the component.
 	 */
 	public boolean clickRSComponent(RSInterfaceChild ChildInterface, int ComponentID, boolean leftclick) {
@@ -1031,11 +989,9 @@ public class Methods implements Constants {
 
 	/**
 	 * Clicks an RSComponent.
-	 * 
-	 * @param comp
-	 *            The component you are going to click
-	 * @param leftclick
-	 *            true to left click; false to right click.
+	 *
+	 * @param comp	  The component you are going to click
+	 * @param leftclick true to left click; false to right click.
 	 * @return true if the component was clicked.
 	 */
 	public boolean clickRSComponent(RSInterfaceComponent comp, boolean leftclick) {
@@ -1049,11 +1005,9 @@ public class Methods implements Constants {
 
 	/**
 	 * Attempts to click all the components.
-	 * 
-	 * @param leftclick
-	 *            true to left-click; false to right click.
-	 * @param components
-	 *            All the components to be clicked.
+	 *
+	 * @param leftclick  true to left-click; false to right click.
+	 * @param components All the components to be clicked.
 	 * @return <tt>true</tt> if all components were clicked; otherwise
 	 *         <tt>false</tt>.
 	 */
@@ -1074,11 +1028,9 @@ public class Methods implements Constants {
 	/**
 	 * Searches the RS game screen for the NPC by checking the menu list Clicks
 	 * NPC once found
-	 * 
-	 * @param npc
-	 *            The RSNPC you want to click.
-	 * @param action
-	 *            Action command to use on the NPC (e.g "Attack" or "Talk").
+	 *
+	 * @param npc	The RSNPC you want to click.
+	 * @param action Action command to use on the NPC (e.g "Attack" or "Talk").
 	 * @return <tt>true</tt> if the NPC was clicked; otherwise <tt>false</tt>.
 	 */
 	public boolean clickRSNPC(RSNPC npc, String action) {
@@ -1088,13 +1040,10 @@ public class Methods implements Constants {
 	/**
 	 * Searches the RS game screen for the NPC by checking the menu list.
 	 * Performs the provided action on the NPC once found.
-	 * 
-	 * @param npc
-	 *            The RSNPC you want to click.
-	 * @param action
-	 *            Action command to use on the NPC (e.g "Attack" or "Talk").
-	 * @param name
-	 *            The name of the NPC.
+	 *
+	 * @param npc	The RSNPC you want to click.
+	 * @param action Action command to use on the NPC (e.g "Attack" or "Talk").
+	 * @param name   The name of the NPC.
 	 * @return <tt>true</tt> if the NPC was clicked; otherwise <tt>false</tt>.
 	 */
 	public boolean clickRSNPC(RSNPC npc, String action, String name) {
@@ -1144,11 +1093,9 @@ public class Methods implements Constants {
 
 	/**
 	 * Drag the mouse from the current position to a certain other position.
-	 * 
-	 * @param x
-	 *            The x coordinate to drag to.
-	 * @param y
-	 *            The y coordinate to drag to.
+	 *
+	 * @param x The x coordinate to drag to.
+	 * @param y The y coordinate to drag to.
 	 */
 	public void dragMouse(int x, int y) {
 		input.dragMouse(x, y);
@@ -1156,9 +1103,8 @@ public class Methods implements Constants {
 
 	/**
 	 * Drag the mouse from the current position to a certain other position.
-	 * 
-	 * @param p
-	 *            The point to drag to.
+	 *
+	 * @param p The point to drag to.
 	 */
 	public void dragMouse(Point p) {
 		input.dragMouse(p.x, p.y);
@@ -1244,9 +1190,8 @@ public class Methods implements Constants {
 
 	/**
 	 * Checks if the player has one (or more) of the given items equipped.
-	 * 
-	 * @param items
-	 *            The IDs of items to check for.
+	 *
+	 * @param items The IDs of items to check for.
 	 * @return <tt>true</tt> if the player has one (or more) of the given items
 	 *         equipped; otherwise <tt>false</tt>.
 	 */
@@ -1443,6 +1388,7 @@ public class Methods implements Constants {
 	/*
 	 * Credits: Aftermath
 	 */
+
 	public List<RSTile> fixPath2(int startX, int startY, int destinationX, int destinationY) {
 		double dx, dy;
 		ArrayList<RSTile> list = new ArrayList<RSTile>();
@@ -1481,12 +1427,10 @@ public class Methods implements Constants {
 
 	/**
 	 * Generates a randomized point array, used as a mouse path.
-	 * 
-	 * @param Amount
-	 *            - The amount of points for the mouse path to contain,
-	 *            including the destination.
-	 * @param destination
-	 *            - The destination.
+	 *
+	 * @param Amount	  - The amount of points for the mouse path to contain,
+	 *                    including the destination.
+	 * @param destination - The destination.
 	 * @return A point array, used as a mouse path or null if failed (Most
 	 *         likely because the amount was negative or 0). If you enter 1 as
 	 *         amount, the return would be the destination.
@@ -1560,7 +1504,7 @@ public class Methods implements Constants {
 		}
 		WalkerNode[] nodePath = findPath(startNode, endNode);
 		if (nodePath == null)
-			return new RSTile[] { new RSTile(mx, my), new RSTile(targetX, targetY) };
+			return new RSTile[]{new RSTile(mx, my), new RSTile(targetX, targetY)};
 		else {
 			RSTile[] tilePath = new RSTile[nodePath.length];
 			tilePath[0] = new RSTile(mx, my);
@@ -1582,7 +1526,7 @@ public class Methods implements Constants {
 
 	/**
 	 * Gets the pin for the account
-	 * 
+	 *
 	 * @return Pin or -1 if no pin
 	 */
 	public String getAccountPin() {
@@ -1591,9 +1535,8 @@ public class Methods implements Constants {
 
 	/**
 	 * Returns the angle to a given RSCharacter (RSNPC or RSPlayer).
-	 * 
-	 * @param n
-	 *            the RSCharacter
+	 *
+	 * @param n the RSCharacter
 	 * @return The angle
 	 */
 	public int getAngleToCharacter(RSCharacter n) {
@@ -1602,11 +1545,9 @@ public class Methods implements Constants {
 
 	/**
 	 * Returns the angle to a given coordinate pair.
-	 * 
-	 * @param x2
-	 *            X coordinate
-	 * @param y2
-	 *            Y coordinate
+	 *
+	 * @param x2 X coordinate
+	 * @param y2 Y coordinate
 	 * @return The angle
 	 */
 	public int getAngleToCoordinates(int x2, int y2) {
@@ -1650,9 +1591,8 @@ public class Methods implements Constants {
 
 	/**
 	 * Returns the angle to a given object
-	 * 
-	 * @param o
-	 *            The RSObject
+	 *
+	 * @param o The RSObject
 	 * @return The angle
 	 */
 	public int getAngleToObject(RSObject o) {
@@ -1661,9 +1601,8 @@ public class Methods implements Constants {
 
 	/**
 	 * Returns the angle to a given tile
-	 * 
-	 * @param t
-	 *            The RSTile
+	 *
+	 * @param t The RSTile
 	 * @return The angle
 	 */
 	public int getAngleToTile(RSTile t) {
@@ -1684,9 +1623,8 @@ public class Methods implements Constants {
 
 	/**
 	 * Use by looping walkTo with this method as the argument.
-	 * 
-	 * @param tile
-	 *            The destination tile.
+	 *
+	 * @param tile The destination tile.
 	 * @return Returns the closest tile to the destination on the minimap.
 	 */
 	public RSTile getClosestTileOnMap(RSTile tile) {
@@ -1706,12 +1644,13 @@ public class Methods implements Constants {
 			return null;
 		RSInterface[] valid = RSInterface.getAllInterfaces();
 		for (RSInterface iface : valid) {
-			int len = iface.getChildCount();
-			for (int i = 0; i < len; i++) {
-				RSInterfaceChild child = iface.getChild(i);
-				if (child.containsText("Click here to continue"))
-					// || child.containsAction("Click here to continue")) {
-					return child;
+			if (iface.getIndex() != 137) {
+				int len = iface.getChildCount();
+				for (int i = 0; i < len; i++) {
+					RSInterfaceChild child = iface.getChild(i);
+					if (child.containsText("Click here to continue"))
+						return child;
+				}
 			}
 		}
 		return null;
@@ -1753,7 +1692,7 @@ public class Methods implements Constants {
 	/**
 	 * Gets the destination tile. Where the flag is. WARNING: This method can
 	 * return null.
-	 * 
+	 *
 	 * @return The current detination tile.
 	 */
 	public RSTile getDestination() { // ngovil21
@@ -1772,7 +1711,7 @@ public class Methods implements Constants {
 
 	/**
 	 * Gets the equipment array.
-	 * 
+	 *
 	 * @return an array containing all equipped items
 	 */
 	public int[] getEquipmentArray() {
@@ -1800,7 +1739,7 @@ public class Methods implements Constants {
 
 	/**
 	 * Gets the equipment interface accessor.
-	 * 
+	 *
 	 * @return the equipment interface
 	 */
 	public RSInterface getEquipmentInterface() {
@@ -1826,9 +1765,8 @@ public class Methods implements Constants {
 	/**
 	 * Returns the first (but not the closest) item found in a square within
 	 * (range) away from you.
-	 * 
-	 * @param range
-	 *            The maximum distance.
+	 *
+	 * @param range The maximum distance.
 	 * @return The first ground item found; or null if none were found.
 	 */
 	public RSItemTile getGroundItem(int range) {
@@ -1876,37 +1814,32 @@ public class Methods implements Constants {
 	/**
 	 * Returns the first (but not the closest) item with a specified id in the
 	 * playable(visible) area.
-	 * 
-	 * @param id
-	 *            The ID of the item to look for.
+	 *
+	 * @param id The ID of the item to look for.
 	 * @return The first matching ground item found; or null if none were found.
 	 */
 	public RSItemTile getGroundItemByID(int id) {
-		return getGroundItemByID(52, new int[] { id });
+		return getGroundItemByID(52, new int[]{id});
 	}
 
 	/**
 	 * Returns the first (but not the closest) item with a specified id found in
 	 * a square within (range) away from you.
-	 * 
-	 * @param range
-	 *            The maximum distance.
-	 * @param id
-	 *            The ID of the item to look for.
+	 *
+	 * @param range The maximum distance.
+	 * @param id	The ID of the item to look for.
 	 * @return The first matching ground item found; or null if none were found.
 	 */
 	public RSItemTile getGroundItemByID(int range, int id) {
-		return getGroundItemByID(range, new int[] { id });
+		return getGroundItemByID(range, new int[]{id});
 	}
 
 	/**
 	 * Returns the first (but not the closest) item with any of the specified
 	 * IDs in a square within (range) away from you.
-	 * 
-	 * @param range
-	 *            The maximum distance.
-	 * @param ids
-	 *            The IDs of the items to look for.
+	 *
+	 * @param range The maximum distance.
+	 * @param ids   The IDs of the items to look for.
 	 * @return The first matching ground item found; or null if none were found.
 	 */
 	public RSItemTile getGroundItemByID(int range, int[] ids) {
@@ -1934,9 +1867,8 @@ public class Methods implements Constants {
 	/**
 	 * Returns the first (but not the closest) item with a specified id in the
 	 * playable(visible) area.
-	 * 
-	 * @param ids
-	 *            The IDs of the items to look for.
+	 *
+	 * @param ids The IDs of the items to look for.
 	 * @return The first matching ground item found; or null if none were found.
 	 */
 	public RSItemTile getGroundItemByID(int[] ids) {
@@ -1945,11 +1877,9 @@ public class Methods implements Constants {
 
 	/**
 	 * Returns all the ground items at a tile on the current plane.
-	 * 
-	 * @param x
-	 *            The x position of the tile in the world.
-	 * @param y
-	 *            The y position of the tile in the world.
+	 *
+	 * @param x The x position of the tile in the world.
+	 * @param y The y position of the tile in the world.
 	 * @return An array of the ground items on the specified tile.
 	 */
 	public RSItemTile[] getGroundItemsAt(int x, int y) {
@@ -1979,9 +1909,8 @@ public class Methods implements Constants {
 
 	/**
 	 * Returns all the ground items at a tile on the current plane.
-	 * 
-	 * @param t
-	 *            The tile.
+	 *
+	 * @param t The tile.
 	 * @return An array of the ground items on the specified tile.
 	 */
 	public RSItemTile[] getGroundItemsAt(RSTile t) {
@@ -2036,7 +1965,7 @@ public class Methods implements Constants {
 
 	/**
 	 * Gets the inventory array.
-	 * 
+	 *
 	 * @return an array containing all items
 	 */
 	public int[] getInventoryArray() {
@@ -2070,7 +1999,7 @@ public class Methods implements Constants {
 
 	/**
 	 * Gets the count of all items in your inventory
-	 * 
+	 *
 	 * @return the count of all inventory items
 	 */
 	public int getInventoryCount() {
@@ -2079,10 +2008,9 @@ public class Methods implements Constants {
 
 	/**
 	 * Gets the count of all items in your inventory.
-	 * 
-	 * @param includeStacks
-	 *            <tt>false</tt> if stacked items should be counted as a single
-	 *            item; otherwise <tt>true</tt>.
+	 *
+	 * @param includeStacks <tt>false</tt> if stacked items should be counted as a single
+	 *                      item; otherwise <tt>true</tt>.
 	 * @return The count of all inventory items (+ stacks).
 	 */
 	public int getInventoryCount(boolean includeStacks) {
@@ -2105,9 +2033,8 @@ public class Methods implements Constants {
 
 	/**
 	 * Gets the count of a specific item in your inventory.
-	 * 
-	 * @param itemIDs
-	 *            the item id to check
+	 *
+	 * @param itemIDs the item id to check
 	 * @return the inventory count of the specified items
 	 */
 	public int getInventoryCount(int... itemIDs) {
@@ -2151,7 +2078,7 @@ public class Methods implements Constants {
 
 	/**
 	 * Gets the inventory interface accessor.
-	 * 
+	 *
 	 * @return the inventory interface
 	 */
 	public RSInterfaceChild getInventoryInterface() {
@@ -2180,9 +2107,8 @@ public class Methods implements Constants {
 
 	/**
 	 * Gets the ID of an item in the inventory. Written by Speed.
-	 * 
-	 * @param name
-	 *            The name of the item you wish to find.
+	 *
+	 * @param name The name of the item you wish to find.
 	 * @return The ID of the item or -1 if not in inventory.
 	 */
 	public int getInventoryItemIDByName(String name) {
@@ -2198,9 +2124,8 @@ public class Methods implements Constants {
 
 	/**
 	 * Gets the top left position of the item
-	 * 
-	 * @param invIndex
-	 *            The index of the item in the inventory array.
+	 *
+	 * @param invIndex The index of the item in the inventory array.
 	 * @return A Point representing the screen location.
 	 */
 	public Point getInventoryItemPoint(int invIndex) {
@@ -2242,7 +2167,7 @@ public class Methods implements Constants {
 
 	/**
 	 * Gets the inventory stack array.
-	 * 
+	 *
 	 * @return an array containing all item stacks
 	 */
 	public int[] getInventoryStackArray() {
@@ -2276,7 +2201,7 @@ public class Methods implements Constants {
 
 	/**
 	 * Access the last message spoken by a player.
-	 * 
+	 *
 	 * @return The last message spoken by a player or "" if none
 	 */
 	public String getLastMessage() {
@@ -2291,7 +2216,7 @@ public class Methods implements Constants {
 
 	/**
 	 * Gets the player's current location.
-	 * 
+	 *
 	 * @return The RSTile that represents the player's location.
 	 */
 	public RSTile getLocation() {
@@ -2305,7 +2230,7 @@ public class Methods implements Constants {
 	/**
 	 * Returns an ArrayList of the first parts of each item in the current
 	 * context menu actions.
-	 * 
+	 *
 	 * @return Returns the first half, for example "Walk here" "Follow".
 	 */
 	public ArrayList<String> getMenuActions() {
@@ -2337,10 +2262,9 @@ public class Methods implements Constants {
 	/**
 	 * Returns the index (starts at 0) in the menu for a given action. -1 when
 	 * invalid.
-	 * 
-	 * @param optionContains
-	 *            The String or a substring of the String that you want the
-	 *            index of.
+	 *
+	 * @param optionContains The String or a substring of the String that you want the
+	 *                       index of.
 	 * @return The index of the given option in the context menu; or -1 if the
 	 *         option was not found.
 	 */
@@ -2357,7 +2281,7 @@ public class Methods implements Constants {
 
 	/**
 	 * Returns an ArrayList of each item in the current context menu actions.
-	 * 
+	 *
 	 * @return First half + second half. As displayed in rs.
 	 */
 	public ArrayList<String> getMenuItems() {
@@ -2382,7 +2306,7 @@ public class Methods implements Constants {
 
 	/**
 	 * Returns the location of the menu. Returns null if not open.
-	 * 
+	 *
 	 * @return The RSTile over which the menu is currently located.
 	 */
 	public RSTile getMenuLocation() {
@@ -2398,7 +2322,7 @@ public class Methods implements Constants {
 	/**
 	 * Returns an ArrayList of the second parts of each item in the current
 	 * context menu actions.
-	 * 
+	 *
 	 * @return The second half. "<user name>".
 	 */
 	public ArrayList<String> getMenuOptions() {
@@ -2430,7 +2354,7 @@ public class Methods implements Constants {
 	/**
 	 * Gets the location of the Mouse in the Screen. <br />
 	 * <b>Note: </b>The X & Y coords in the Point retuned could be -1.
-	 * 
+	 *
 	 * @return A Point containing the mouse X & Y coordinates.
 	 */
 	public Point getMouseLocation() {
@@ -2448,7 +2372,7 @@ public class Methods implements Constants {
 	/**
 	 * Get the mouse speed for this instance. This should be overrided if a
 	 * change in speed is desired.
-	 * 
+	 *
 	 * @return the mouse speed to use for all operations.
 	 * @see #moveMouse(int, int, int, int, int)
 	 */
@@ -2458,7 +2382,7 @@ public class Methods implements Constants {
 
 	/**
 	 * Returns an RSPlayer object representing the current player.
-	 * 
+	 *
 	 * @return An RSPlayer object representing the player.
 	 */
 	public RSPlayer getMyPlayer() {
@@ -2468,6 +2392,7 @@ public class Methods implements Constants {
 	/*
 	 * Credits to Mouchicc.
 	 */
+
 	public int getNametoID(String name) {
 		int ID = 0;
 		try {
@@ -2493,13 +2418,11 @@ public class Methods implements Constants {
 	/**
 	 * Returns the RSNPC that is nearest, out of all of the RSPNCs with the
 	 * provided ID(s), that is not currently in combat. Can return null.
-	 * 
-	 * @param ids
-	 *            The ID(s) of the NPCs that you are searching.
+	 *
+	 * @param ids The ID(s) of the NPCs that you are searching.
 	 * @return An RSNPC object representing the nearest RSNPC with one of the
 	 *         provided IDs that is not in combat; or null if there are no
 	 *         mathching NPCs in the current region.
-	 * 
 	 * @see #getNearestNPCByID(int...)
 	 * @see #getNearestNPCToAttackByID(int...)
 	 * @see #getNearestFreeNPCToAttackByID(int...)
@@ -2535,13 +2458,11 @@ public class Methods implements Constants {
 	/**
 	 * Returns the RSNPC that is nearest, out of all of the RSPNCs with the
 	 * provided name(s), that is not currently in combat. Can return null.
-	 * 
-	 * @param names
-	 *            The name(s) of the NPCs that you are searching.
+	 *
+	 * @param names The name(s) of the NPCs that you are searching.
 	 * @return An RSNPC object representing the nearest RSNPC with one of the
 	 *         provided names that is not in combat; or null if there are no
 	 *         mathching NPCs in the current region.
-	 * 
 	 * @see #getNearestNPCByID(int...)
 	 * @see #getNearestFreeNPCByID(int...)
 	 * @see #getNearestNPCToAttackByID(int...)
@@ -2580,14 +2501,12 @@ public class Methods implements Constants {
 	 * Returns the RSNPC that is nearest, out of all of the RSPNCs with the
 	 * provided ID(s), that is not currently in combat and does not have 0% HP.
 	 * Can return null.
-	 * 
-	 * @param ids
-	 *            The ID(s) of the NPCs that you are searching.
+	 *
+	 * @param ids The ID(s) of the NPCs that you are searching.
 	 * @return An RSNPC object representing the nearest RSNPC with one of the
 	 *         provided IDs that is not in combat and does not have 0% HP (is
 	 *         attackable); or null if there are no mathching NPCs in the
 	 *         current region.
-	 * 
 	 * @see #getNearestNPCByID(int...)
 	 * @see #getNearestFreeNPCByID(int...)
 	 * @see #getNearestNPCToAttackByID(int...)
@@ -2624,14 +2543,12 @@ public class Methods implements Constants {
 	 * Returns the RSNPC that is nearest, out of all of the RSPNCs with the
 	 * provided name(s), that is not currently in combat and does not have 0%
 	 * HP. Can return null.
-	 * 
-	 * @param names
-	 *            The names(s) of the NPCs that you are searching.
+	 *
+	 * @param names The names(s) of the NPCs that you are searching.
 	 * @return An RSNPC object representing the nearest RSNPC with one of the
 	 *         provided namess that is not in combat and does not have 0% HP (is
 	 *         attackable); or null if there are no mathching NPCs in the
 	 *         current region.
-	 * 
 	 * @see #getNearestNPCByID(int...)
 	 * @see #getNearestFreeNPCByID(int...)
 	 * @see #getNearestNPCToAttackByID(int...)
@@ -2670,9 +2587,8 @@ public class Methods implements Constants {
 	 * Returns an RSItemTile representing the nearest item on the ground with an
 	 * ID that matches any of the IDS provided. Can return null. RSItemTile is a
 	 * subclass of RSTile.
-	 * 
-	 * @param ids
-	 *            The IDs to look for.
+	 *
+	 * @param ids The IDs to look for.
 	 * @return RSItemTile of the nearest item with the an ID that matches any in
 	 *         the array of IDs provided; or null if no matching ground items
 	 *         were found.
@@ -2731,13 +2647,11 @@ public class Methods implements Constants {
 	/**
 	 * Returns the RSNPC that is nearest, out of all of the RSPNCs with the
 	 * provided ID(s). Can return null.
-	 * 
-	 * @param ids
-	 *            The ID(s) of the NPCs that you are searching.
+	 *
+	 * @param ids The ID(s) of the NPCs that you are searching.
 	 * @return An RSNPC object representing the nearest RSNPC with one of the
 	 *         provided IDs; or null if there are no mathching NPCs in the
 	 *         current region.
-	 * 
 	 * @see #getNearestFreeNPCByID(int...)
 	 * @see #getNearestNPCToAttackByID(int...)
 	 * @see #getNearestFreeNPCToAttackByID(int...)
@@ -2773,13 +2687,11 @@ public class Methods implements Constants {
 	/**
 	 * Returns the RSNPC that is nearest, out of all of the RSPNCs with the
 	 * provided name(s). Can return null.
-	 * 
-	 * @param names
-	 *            The name(s) of the NPCs that you are searching.
+	 *
+	 * @param names The name(s) of the NPCs that you are searching.
 	 * @return An RSNPC object representing the nearest RSNPC with one of the
 	 *         provided names; or null if there are no mathching NPCs in the
 	 *         current region.
-	 * 
 	 * @see #getNearestNPCByID(int...)
 	 * @see #getNearestFreeNPCByID(int...)
 	 * @see #getNearestNPCToAttackByID(int...)
@@ -2817,13 +2729,11 @@ public class Methods implements Constants {
 	/**
 	 * Returns the RSNPC that is nearest, out of all of the RSPNCs with the
 	 * provided ID(s), that does not have 0% HP. Can return null.
-	 * 
-	 * @param ids
-	 *            The ID(s) of the NPCs that you are searching.
+	 *
+	 * @param ids The ID(s) of the NPCs that you are searching.
 	 * @return An RSNPC object representing the nearest RSNPC with one of the
 	 *         provided IDs that does not have 0% HP (is attackable); or null if
 	 *         there are no matching NPCs in the current region.
-	 * 
 	 * @see #getNearestNPCByID(int...)
 	 * @see #getNearestFreeNPCByID(int...)
 	 * @see #getNearestNPCToAttackByID(int...)
@@ -2861,13 +2771,11 @@ public class Methods implements Constants {
 	 * Returns the RSNPC that is nearest, out of all of the RSPNCs with the
 	 * provided names(s), that does not have 0% HP (is attackable). Can return
 	 * null.
-	 * 
-	 * @param names
-	 *            The name(s) of the NPCs that you are searching.
+	 *
+	 * @param names The name(s) of the NPCs that you are searching.
 	 * @return An RSNPC object representing the nearest RSNPC with one of the
 	 *         provided name(s) that does not have 0% HP (is attackable); or
 	 *         null if there are no mathching NPCs in the current region.
-	 * 
 	 * @see #getNearestNPCByID(int...)
 	 * @see #getNearestFreeNPCByID(int...)
 	 * @see #getNearestNPCToAttackByID(int...)
@@ -3045,7 +2953,7 @@ public class Methods implements Constants {
 		ArrayList<RSNPC> realNPCs = new ArrayList<RSNPC>();
 		for (int element : validNPCs) {
 			Node node = Calculations.findNodeByID(Bot.getClient().getRSNPCNC(), element);
-			if (node == null || !(node instanceof RSNPCNode) || excludeInteractingNPC && getMyPlayer().getInteracting() != null && 
+			if (node == null || !(node instanceof RSNPCNode) || excludeInteractingNPC && getMyPlayer().getInteracting() != null &&
 					getMyPlayer().getInteracting().equals(new RSNPC(((RSNPCNode) node).getRSNPC()))) {
 				continue;
 			}
@@ -3144,7 +3052,7 @@ public class Methods implements Constants {
 	 * Gets the plane we are currently on. Typically 0 (ground level), but will
 	 * increase when going up ladders. You cannot be on a negative plane. Most
 	 * dungeons/basements are on plane 0 elsewhere on the world map.
-	 * 
+	 *
 	 * @return The current plane.
 	 */
 	public int getPlane() {
@@ -3188,7 +3096,7 @@ public class Methods implements Constants {
 	/**
 	 * Returns an array of RSInterfaceComponents representing the prayers that
 	 * are selected. Written by Bool.
-	 * 
+	 *
 	 * @return An <code>RSInterfaceComponent</code> array containing all the
 	 *         components that represent selected prayers.
 	 */
@@ -3218,6 +3126,7 @@ public class Methods implements Constants {
 	}
 
 	// Input methods TODO: Remove and use input.*()
+
 	public RSInterfaceChild getTalkInterface() {
 		for (int talk : INTERFACE_TALKS) {
 			RSInterfaceChild child = RSInterface.getChildInterface(talk, 0);
@@ -3229,9 +3138,8 @@ public class Methods implements Constants {
 
 	/**
 	 * Will return the closest tile that is on screen to the given tile.
-	 * 
-	 * @param tile
-	 *            Tile you want to get to.
+	 *
+	 * @param tile Tile you want to get to.
 	 * @return Tile that is onScreen.
 	 */
 	public RSTile getTileOnScreen(RSTile tile) {
@@ -3275,9 +3183,8 @@ public class Methods implements Constants {
 
 	/**
 	 * Gets the current Wilderness Level. Written by Speed.
-	 * 
+	 *
 	 * @return The current wilderness level otherwise, 0.
-	 * 
 	 */
 	public int getWildernessLevel() {
 		return RSInterface.getInterface(381).getChild(1).isValid() ? Integer.parseInt(RSInterface.getInterface(381).getChild(1).getText().replace("Level: ", "").trim()) : 0;
@@ -3285,12 +3192,10 @@ public class Methods implements Constants {
 
 	/**
 	 * Checks if your inventory contains the specific items.
-	 * 
-	 * @param itemID
-	 *            The item(s) you wish to evaluate.
+	 *
+	 * @param itemID The item(s) you wish to evaluate.
 	 * @return <tt>true</tt> if your inventory contains at least one of all of
 	 *         the item IDs provided; otherwise <tt>false</tt>.
-	 * 
 	 * @see #inventoryContainsOneOf(int...)
 	 */
 	public boolean inventoryContains(int... itemID) {
@@ -3316,7 +3221,8 @@ public class Methods implements Constants {
 		if (ids == null)
 			return getInventoryCount() == 0;
 		boolean no = false;
-		outer: for (int items : getInventoryArray()) {
+		outer:
+		for (int items : getInventoryArray()) {
 			if (items == -1) {
 				continue;
 			}
@@ -3337,7 +3243,7 @@ public class Methods implements Constants {
 
 	/**
 	 * Checks whether or not the player is currently idle.
-	 * 
+	 *
 	 * @return <tt>true</tt> if the player is neither moving nor performing an
 	 *         animation; otherwise <tt>false</tt>.
 	 */
@@ -3347,7 +3253,7 @@ public class Methods implements Constants {
 
 	/**
 	 * Checks if your inventory is full.
-	 * 
+	 *
 	 * @return <tt>true</tt> if your inventory is contains 28 items; otherwise
 	 *         <tt>false</tt>.
 	 */
@@ -3365,7 +3271,7 @@ public class Methods implements Constants {
 
 	/**
 	 * Gets the client login status.
-	 * 
+	 *
 	 * @return <tt>true</tt> if logged in; otherwise <tt>false</tt>.
 	 */
 	public boolean isLoggedIn() {
@@ -3455,12 +3361,12 @@ public class Methods implements Constants {
 	}
 
 	public boolean login() {
-		return new LoginBot().runRandom();
+		return new org.rsbot.script.randoms.antiban.LoginBot().runRandom();
 	}
 
 	/**
 	 * Closes the bank if it is open and logs out.
-	 * 
+	 *
 	 * @return True if the player was logged out.
 	 */
 	public boolean logout() {
@@ -3498,12 +3404,10 @@ public class Methods implements Constants {
 
 	/**
 	 * Click chat button. Saves space, actually works.
-	 * 
-	 * @param button
-	 *            Which button? Left-to right, 0 to 6. 7 Would land you on
-	 *            Report Abuse.
-	 * @param left
-	 *            Left or right button? Left = true. Right = false.
+	 *
+	 * @param button Which button? Left-to right, 0 to 6. 7 Would land you on
+	 *               Report Abuse.
+	 * @param left   Left or right button? Left = true. Right = false.
 	 */
 	public void mouseChatButton(int button, boolean left) {
 		int x = CHAT_BUTTON_CENTER_X + CHAT_BUTTON_DIFF_X * button;
@@ -3541,24 +3445,16 @@ public class Methods implements Constants {
 
 	/**
 	 * Moves the mouse to the specified point at a certain sped.
-	 * 
-	 * @param speed
-	 *            The lower, the faster.
-	 * @param x
-	 *            The x destination.
-	 * @param y
-	 *            The y destination.
-	 * @param randX
-	 *            X-axis randomness (added to x).
-	 * @param randY
-	 *            X-axis randomness (added to y).
-	 * @param afterOffset
-	 *            The maximum distance in pixels to move on both axes shortly
-	 *            after moving to the destination.
-	 * @param mousePaths
-	 *            <tt>true</tt> to enable Sweed's mouse splines, otherwise
-	 *            <tt>false</tt>.
-	 * 
+	 *
+	 * @param speed	   The lower, the faster.
+	 * @param x		   The x destination.
+	 * @param y		   The y destination.
+	 * @param randX	   X-axis randomness (added to x).
+	 * @param randY	   X-axis randomness (added to y).
+	 * @param afterOffset The maximum distance in pixels to move on both axes shortly
+	 *                    after moving to the destination.
+	 * @param mousePaths  <tt>true</tt> to enable Sweed's mouse splines, otherwise
+	 *                    <tt>false</tt>.
 	 * @see #getMouseSpeed()
 	 */
 	public void moveMouse(int speed, int x, int y, int randX, int randY, int afterOffset, boolean mousePaths) {
@@ -3601,10 +3497,8 @@ public class Methods implements Constants {
 	/**
 	 * Moves mouse through a mouse path containing 1 to 5 points (randomized) to
 	 * a specified destination point.
-	 * 
-	 * @param p
-	 *            The destination.
-	 * 
+	 *
+	 * @param p The destination.
 	 * @see #moveMouseByPath(Point, int, int, int)
 	 */
 	public void moveMouseByPath(Point p) {
@@ -3614,11 +3508,9 @@ public class Methods implements Constants {
 	/**
 	 * Moves mouse through a mouse path containing a specified number of points
 	 * to a specified destination point.
-	 * 
-	 * @param p
-	 *            The destination.
-	 * @param pathPointAmount
-	 *            The amount of points in the path.
+	 *
+	 * @param p			   The destination.
+	 * @param pathPointAmount The amount of points in the path.
 	 */
 	public void moveMouseByPath(Point p, int pathPointAmount) {
 		moveMouseByPath(p, pathPointAmount, 0, 0);
@@ -3627,14 +3519,10 @@ public class Methods implements Constants {
 	/**
 	 * Moves mouse through a mouse path containing 1 to 5 points (randomized) to
 	 * a specified destination point.
-	 * 
-	 * @param p
-	 *            The destination.
-	 * @param randX
-	 *            The amount the X-axis can be randomized (in pixels).
-	 * @param randY
-	 *            The amount the Y-axis can be randomized (in pixels).
-	 * 
+	 *
+	 * @param p	 The destination.
+	 * @param randX The amount the X-axis can be randomized (in pixels).
+	 * @param randY The amount the Y-axis can be randomized (in pixels).
 	 * @see #moveMouseByPath(Point, int, int, int)
 	 */
 	public void moveMouseByPath(Point p, int randX, int randY) {
@@ -3647,15 +3535,11 @@ public class Methods implements Constants {
 	 * {@link #moveMousePath(Point[], int, int)} and
 	 * {@link #generateMousePath(int, Point)}  These methods were
 	 * written by Sweed_Raver.
-	 * 
-	 * @param p
-	 *            The destination.
-	 * @param pathPointAmount
-	 *            The amount of points in the path.
-	 * @param randX
-	 *            The amount the X-axis can be randomized (in pixels).
-	 * @param randY
-	 *            The amount the Y-axis can be randomized (in pixels).
+	 *
+	 * @param p			   The destination.
+	 * @param pathPointAmount The amount of points in the path.
+	 * @param randX		   The amount the X-axis can be randomized (in pixels).
+	 * @param randY		   The amount the Y-axis can be randomized (in pixels).
 	 */
 	public void moveMouseByPath(Point p, int pathPointAmount, int randX, int randY) {
 		moveMousePath(generateMousePath(pathPointAmount, p), randX, randY);
@@ -3663,13 +3547,10 @@ public class Methods implements Constants {
 
 	/**
 	 * Moves mouse through a specified mouse path.
-	 * 
-	 * @param path
-	 *            The path to move mouse through.
-	 * @param randX
-	 *            The amount each point can be randomized in the X-axis.
-	 * @param randY
-	 *            The amount each point can be randomized in the Y-axis.
+	 *
+	 * @param path  The path to move mouse through.
+	 * @param randX The amount each point can be randomized in the X-axis.
+	 * @param randY The amount each point can be randomized in the Y-axis.
 	 */
 	public void moveMousePath(Point[] path, int randX, int randY) {
 		for (Point p : path) {
@@ -3691,7 +3572,7 @@ public class Methods implements Constants {
 
 	/**
 	 * Moves the mouse slightly depending on where it currently is.
-	 * 
+	 * <p/>
 	 * Credits: Gnarly
 	 */
 	public void moveMouseSlightly() {
@@ -3713,15 +3594,12 @@ public class Methods implements Constants {
 
 	/**
 	 * Returns the next tile to walk to on a path.
-	 * 
-	 * @param path
-	 *            The path.
-	 * @param maxDist
-	 *            The maximum distance that a path tile should be from the
-	 *            player in order for it to be considered the next tile. The
-	 *            method searches from the end of the path to the beginning.
-	 * @param enableMaxDist
-	 *            If false, this method will ignore the int maxDist.
+	 *
+	 * @param path		  The path.
+	 * @param maxDist	   The maximum distance that a path tile should be from the
+	 *                      player in order for it to be considered the next tile. The
+	 *                      method searches from the end of the path to the beginning.
+	 * @param enableMaxDist If false, this method will ignore the int maxDist.
 	 * @return The next tile to walk to on the provided path.
 	 */
 	public RSTile nextTile(RSTile path[], int maxDist, boolean enableMaxDist) {
@@ -3757,6 +3635,7 @@ public class Methods implements Constants {
 	/*
 	 * Made by countvidal.
 	 */
+
 	public boolean onTile(RSTile tile, String search, String action) {
 		if (!tile.isValid())
 			return false;
@@ -3806,9 +3685,8 @@ public class Methods implements Constants {
 	/**
 	 * Checks if the player is holding one (or more) of the given items in their
 	 * inventory or equipment. Great for checking for axes, picks, etc.
-	 * 
-	 * @param items
-	 *            The IDs of items to check for.
+	 *
+	 * @param items The IDs of items to check for.
 	 * @return <tt>true</tt> if the player has one (or more) of the items in
 	 *         either their equipment or their inventory; otherwise
 	 *         <tt>false</tt>.
@@ -3827,9 +3705,8 @@ public class Methods implements Constants {
 	 * mode it will exclude any points that are less than 253 pixels from the
 	 * right of the screen or less than 169 pixels from the bottom of the
 	 * screen, giving a rough area.
-	 * 
-	 * @param check
-	 *            The point to check.
+	 *
+	 * @param check The point to check.
 	 * @return <tt>true</tt> if the point is within the rectangle; otherwise
 	 *         <tt>false</tt>.
 	 */
@@ -3840,11 +3717,9 @@ public class Methods implements Constants {
 
 	/**
 	 * Returns a random double in a specified range
-	 * 
-	 * @param min
-	 *            Minimum value (inclusive).
-	 * @param max
-	 *            Maximum value (exclusive).
+	 *
+	 * @param min Minimum value (inclusive).
+	 * @param max Maximum value (exclusive).
 	 * @return The random <code>double</code> generated.
 	 */
 	public double random(double min, double max) {
@@ -3853,11 +3728,9 @@ public class Methods implements Constants {
 
 	/**
 	 * Returns a random integer in a specified range.
-	 * 
-	 * @param min
-	 *            Minimum value (inclusive).
-	 * @param max
-	 *            Maximum value (exclusive).
+	 *
+	 * @param min Minimum value (inclusive).
+	 * @param max Maximum value (exclusive).
 	 * @return The random <code>int</code> generated.
 	 */
 	public int random(int min, int max) {
@@ -3871,13 +3744,10 @@ public class Methods implements Constants {
 
 	/**
 	 * Randomises a path of tiles.
-	 * 
-	 * @param path
-	 *            The RSTiles to randomise.
-	 * @param maxXDeviation
-	 *            Max X distance from tile.getX().
-	 * @param maxYDeviation
-	 *            Max Y distance from tile.getY().
+	 *
+	 * @param path		  The RSTiles to randomise.
+	 * @param maxXDeviation Max X distance from tile.getX().
+	 * @param maxYDeviation Max Y distance from tile.getY().
 	 * @return The new, randomised path.
 	 */
 	public RSTile[] randomizePath(RSTile[] path, int maxXDeviation, int maxYDeviation) {
@@ -3890,13 +3760,10 @@ public class Methods implements Constants {
 
 	/**
 	 * Randomises a single tile.
-	 * 
-	 * @param tile
-	 *            The RSTile to randomise.
-	 * @param maxXDeviation
-	 *            Max X distance from tile.getX().
-	 * @param maxYDeviation
-	 *            Max Y distance from tile.getY().
+	 *
+	 * @param tile		  The RSTile to randomise.
+	 * @param maxXDeviation Max X distance from tile.getX().
+	 * @param maxYDeviation Max Y distance from tile.getY().
 	 * @return The randomised tile.
 	 */
 	public RSTile randomizeTile(RSTile tile, int maxXDeviation, int maxYDeviation) {
@@ -3919,9 +3786,8 @@ public class Methods implements Constants {
 
 	/**
 	 * Rests until 100% energy
-	 * 
+	 *
 	 * @return <tt>true</tt> if rest was enabled; otherwise false.
-	 * 
 	 * @see #rest(int)
 	 */
 
@@ -3931,9 +3797,8 @@ public class Methods implements Constants {
 
 	/**
 	 * Rests until a certain amount of energy is reached.
-	 * 
-	 * @param stopEnergy
-	 *            Amount of energy at which it should stop resting.
+	 *
+	 * @param stopEnergy Amount of energy at which it should stop resting.
 	 * @return <tt>true</tt> if rest was enabled; otherwise false.
 	 */
 	public boolean rest(int stopEnergy) {
@@ -4001,9 +3866,8 @@ public class Methods implements Constants {
 	 * <p/>
 	 * Mess around a little to find the altitude percentage you like. In later
 	 * versions, there will be easier-to-work-with methods regarding altitude.
-	 * 
-	 * @param altPercent
-	 *            The percentage of the maximum altitude to set the camera to.
+	 *
+	 * @param altPercent The percentage of the maximum altitude to set the camera to.
 	 * @return <tt>true</tt> if the camera was successfully moved; otherwise
 	 *         <tt>false</tt>.
 	 */
@@ -4045,9 +3909,8 @@ public class Methods implements Constants {
 
 	/**
 	 * Rotates the camera to a specific angle in the closest direction.
-	 * 
-	 * @param degrees
-	 *            The angle to rotate to.
+	 *
+	 * @param degrees The angle to rotate to.
 	 */
 	public void setCameraRotation(int degrees) {
 		char left = 37;
@@ -4139,12 +4002,10 @@ public class Methods implements Constants {
 
 	/**
 	 * Activates/deactivates a prayer via interfaces.
-	 * 
-	 * @param pray
-	 *            The integer that represents the prayer by counting from left
-	 *            to right.
-	 * @param activate
-	 *            <tt>true</tt> to activate; <tt>false</tt> to deactivate.
+	 *
+	 * @param pray	 The integer that represents the prayer by counting from left
+	 *                 to right.
+	 * @param activate <tt>true</tt> to activate; <tt>false</tt> to deactivate.
 	 * @return <tt>true</tt> if the interface was clicked; otherwise
 	 *         <tt>false</tt>.
 	 */
@@ -4166,9 +4027,8 @@ public class Methods implements Constants {
 
 	/**
 	 * Turns run on or off using the new l33t minimap controls :3
-	 * 
-	 * @param enable
-	 *            Turns run on if true, off if false.
+	 *
+	 * @param enable Turns run on if true, off if false.
 	 */
 	public void setRun(boolean enable) {
 		if (isRunning() == enable)
@@ -4232,9 +4092,8 @@ public class Methods implements Constants {
 
 	/**
 	 * Switches worlds. Because the old method was shit.
-	 * 
-	 * @param world
-	 *            World to switch to.
+	 *
+	 * @param world World to switch to.
 	 */
 	public void switchWorld(int world) {
 		if (isLoggedIn()) {
@@ -4267,9 +4126,8 @@ public class Methods implements Constants {
 
 	/**
 	 * Turns to an RSCharacter (RSNPC or RSPlayer).
-	 * 
-	 * @param c
-	 *            The RSCharacter to turn to.
+	 *
+	 * @param c The RSCharacter to turn to.
 	 */
 	public void turnToCharacter(RSCharacter c) {
 		int angle = getAngleToCharacter(c);
@@ -4278,11 +4136,9 @@ public class Methods implements Constants {
 
 	/**
 	 * Turns to within a few degrees of an RSCharacter (RSNPC or RSPlayer).
-	 * 
-	 * @param c
-	 *            The RSCharacter to turn to.
-	 * @param dev
-	 *            The maximum difference in the angle.
+	 *
+	 * @param c   The RSCharacter to turn to.
+	 * @param dev The maximum difference in the angle.
 	 */
 	public void turnToCharacter(RSCharacter c, int dev) {
 		int angle = getAngleToCharacter(c);
@@ -4292,11 +4148,9 @@ public class Methods implements Constants {
 
 	/**
 	 * Turns the camera to a tile specified by x and y coordinates.
-	 * 
-	 * @param x
-	 *            The tile x coordinate
-	 * @param y
-	 *            The tile y coordinate
+	 *
+	 * @param x The tile x coordinate
+	 * @param y The tile y coordinate
 	 */
 	public void turnToCoordinates(int x, int y) {
 		turnToTile(new RSTile(x, y));
@@ -4305,13 +4159,10 @@ public class Methods implements Constants {
 	/**
 	 * Turns the camera to within a few degrees of a tile specified by x and y
 	 * coordinates.
-	 * 
-	 * @param x
-	 *            The tile x coordinate
-	 * @param y
-	 *            The tile y coordinate
-	 * @param dev
-	 *            Maximum difference in angle between actual and chosen
+	 *
+	 * @param x   The tile x coordinate
+	 * @param y   The tile y coordinate
+	 * @param dev Maximum difference in angle between actual and chosen
 	 *            rotation.
 	 */
 	public void turnToCoordinates(int x, int y, int dev) {
@@ -4320,9 +4171,8 @@ public class Methods implements Constants {
 
 	/**
 	 * Turns to an RSObject
-	 * 
-	 * @param o
-	 *            The RSObject to turn to.
+	 *
+	 * @param o The RSObject to turn to.
 	 */
 	public void turnToObject(RSObject o) {
 		int angle = getAngleToObject(o);
@@ -4331,11 +4181,9 @@ public class Methods implements Constants {
 
 	/**
 	 * Turns to within a few degrees of an RSObject.
-	 * 
-	 * @param o
-	 *            The RSObject to turn to.
-	 * @param dev
-	 *            The maximum difference in the turn angle.
+	 *
+	 * @param o   The RSObject to turn to.
+	 * @param dev The maximum difference in the turn angle.
 	 */
 	public void turnToObject(RSObject o, int dev) {
 		int angle = getAngleToObject(o);
@@ -4345,9 +4193,8 @@ public class Methods implements Constants {
 
 	/**
 	 * Turns to a specific RSTile.
-	 * 
-	 * @param tile
-	 *            Tile to turn to.
+	 *
+	 * @param tile Tile to turn to.
 	 */
 	public void turnToTile(RSTile tile) {
 		int angle = getAngleToTile(tile);
@@ -4356,11 +4203,9 @@ public class Methods implements Constants {
 
 	/**
 	 * Turns within a few degrees to a specific RSTile.
-	 * 
-	 * @param tile
-	 *            Tile to turn to.
-	 * @param dev
-	 *            Maximum deviation from the angle to the tile.
+	 *
+	 * @param tile Tile to turn to.
+	 * @param dev  Maximum deviation from the angle to the tile.
 	 */
 	public void turnToTile(RSTile tile, int dev) {
 		int angle = getAngleToTile(tile);
@@ -4387,10 +4232,8 @@ public class Methods implements Constants {
 	/**
 	 * Pauses for a specified number of milliseconds. Try not to use this
 	 * method.
-	 * 
-	 * @param toSleep
-	 *            Time in milliseconds to pause.
-	 * 
+	 *
+	 * @param toSleep Time in milliseconds to pause.
 	 * @see #waitToMove(int)
 	 * @see #waitForAnim(int)
 	 * @see #waitForIface(RSInterface, int)
@@ -4413,9 +4256,8 @@ public class Methods implements Constants {
 	/**
 	 * Waits up to timeout millis for an animation to trigger. Will return the
 	 * instant an animation begins.
-	 * 
-	 * @param timeout
-	 *            Maximum time to wait for an animation (in milliseconds).
+	 *
+	 * @param timeout Maximum time to wait for an animation (in milliseconds).
 	 * @return The animation if an animation triggered, or -1 if there was no
 	 *         animation.
 	 */
@@ -4438,20 +4280,17 @@ public class Methods implements Constants {
 	 * <code>RSIterface</code> in <code>iface</code> becomes "valid".<br />
 	 * If <code>iface</code> is <code>null</code> the method will return false.
 	 * Written by pwnaz0r.
-	 * 
-	 * @param iface
-	 *            The RSInterface to wait for.
-	 * @param timeout
-	 *            The time in milliseconds to wait for iface to become "valid".
+	 *
+	 * @param iface   The RSInterface to wait for.
+	 * @param timeout The time in milliseconds to wait for iface to become "valid".
 	 * @return True - if <code>iface</code> is valid before <code>timeout</code>
 	 *         expires.<br />
 	 *         False - if <code>timeout</code> expires before <code>iface</code>
 	 *         is valid.<br />
 	 *         False - if <code>iface</code> is <code>null</code>.<br />
 	 *         False - if <code>timeout</code> is lesser than 0.
-	 * @since 1.0 - 08-03-2009
-	 * 
 	 * @see #waitForInterface(RSInterfaceChild, int)
+	 * @since 1.0 - 08-03-2009
 	 */
 	public boolean waitForIface(RSInterface iface, int timeout) {
 		if (timeout < 0)
@@ -4475,20 +4314,17 @@ public class Methods implements Constants {
 	 * Waits the value of the <code>timeout</code> parameter, until the
 	 * <code>RSIterface</code> in <code>iface</code> becomes "valid".<br />
 	 * If <code>iface</code> is <code>null</code> the method will return false.
-	 * 
-	 * @param interfaceChild
-	 *            The RSInterface to wait for.
-	 * @param timeout
-	 *            The time in milliseconds to wait for iface to become "valid".
+	 *
+	 * @param interfaceChild The RSInterface to wait for.
+	 * @param timeout		The time in milliseconds to wait for iface to become "valid".
 	 * @return True - if <code>iface</code> is valid before <code>timeout</code>
 	 *         expires.<br />
 	 *         False - if <code>timeout</code> expires before <code>iface</code>
 	 *         is valid.<br />
 	 *         False - if <code>iface</code> is <code>null</code>.<br />
 	 *         False - if <code>timeout</code> is lesser than 0.
-	 * @since 1.0 - 08-03-2009
-	 * 
 	 * @see #waitForIface(RSInterface, int)
+	 * @since 1.0 - 08-03-2009
 	 */
 	public boolean waitForInterface(RSInterfaceChild interfaceChild, int timeout) {
 		if (timeout < 0)
@@ -4508,9 +4344,8 @@ public class Methods implements Constants {
 	 * Waits up to timeout millis to start moving. This will return the instant
 	 * movement starts. You can handle waiting a random amount afterwards by
 	 * yourself.
-	 * 
-	 * @param timeout
-	 *            Maximum time to wait to start moving (in milliseconds).
+	 *
+	 * @param timeout Maximum time to wait to start moving (in milliseconds).
 	 * @return True if we started moving, false if we reached the timeout.
 	 */
 	public boolean waitToMove(int timeout) {
@@ -4526,9 +4361,8 @@ public class Methods implements Constants {
 
 	/**
 	 * Walks to the end of a path. This method should be looped.
-	 * 
-	 * @param path
-	 *            The path to walk along.
+	 *
+	 * @param path The path to walk along.
 	 * @return <tt>true</tt> if the next tile was reached; otherwise
 	 *         <tt>false</tt>.
 	 */
@@ -4538,11 +4372,9 @@ public class Methods implements Constants {
 
 	/**
 	 * Walks to the end of a path. This method should be looped.
-	 * 
-	 * @param path
-	 *            The path to walk along.
-	 * @param maxDist
-	 *            See {@link #nextTile(RSTile[], int)}.
+	 *
+	 * @param path	The path to walk along.
+	 * @param maxDist See {@link #nextTile(RSTile[], int)}.
 	 * @return <tt>true</tt> if the next tile was reached; otherwise
 	 *         <tt>false</tt>.
 	 */
@@ -4571,11 +4403,9 @@ public class Methods implements Constants {
 	 * Walks a path using onScreen clicks and not the MiniMap. If the next tile
 	 * is not on the screen, it will find the closest tile that is on screen and
 	 * it will walk there instead.
-	 * 
-	 * @param path
-	 *            Path to walk.
-	 * @param maxDist
-	 *            Max distance between tiles in the path.
+	 *
+	 * @param path	Path to walk.
+	 * @param maxDist Max distance between tiles in the path.
 	 * @return True if successful.
 	 */
 	public boolean walkPathOnScreen(RSTile[] path, int maxDist) {
@@ -4593,9 +4423,8 @@ public class Methods implements Constants {
 
 	/**
 	 * Walks to the given tile using the minimap with 1 tile randomness.
-	 * 
-	 * @param t
-	 *            The tile to walk to.
+	 *
+	 * @param t The tile to walk to.
 	 * @return <tt>true</tt> if the tile was clicked; otherwise <tt>false</tt>.
 	 */
 	public boolean walkTileMM(RSTile t) {
@@ -4604,13 +4433,10 @@ public class Methods implements Constants {
 
 	/**
 	 * Walks to the given tile using the minimap with given randomness.
-	 * 
-	 * @param t
-	 *            The tile to walk to.
-	 * @param x
-	 *            The x randomness (between 0 and x-1).
-	 * @param y
-	 *            The y randomness (between 0 and y-1).
+	 *
+	 * @param t The tile to walk to.
+	 * @param x The x randomness (between 0 and x-1).
+	 * @param y The y randomness (between 0 and y-1).
 	 * @return <tt>true</tt> if the tile was clicked; otherwise <tt>false</tt>.
 	 */
 	public boolean walkTileMM(RSTile t, int x, int y) {
@@ -4625,9 +4451,8 @@ public class Methods implements Constants {
 	 * Walks to a tile using onScreen clicks and not the MiniMap. If the tile is
 	 * not on the screen, it will find the closest tile that is on screen and it
 	 * will walk there instead.
-	 * 
-	 * @param tile
-	 *            Tile to walk.
+	 *
+	 * @param tile Tile to walk.
 	 * @return True if successful.
 	 */
 	public boolean walkTileOnScreen(RSTile tile) {
@@ -4637,12 +4462,10 @@ public class Methods implements Constants {
 	/**
 	 * Walks to the provided tile by generating the shortest path to it, and
 	 * walking along it.
-	 * 
-	 * @param t
-	 *            The destination tile.
+	 *
+	 * @param t The destination tile.
 	 * @return <tt>true</tt> if the destination was reached; otherwise
 	 *         <tt>false</tt>.
-	 * 
 	 * @see #walkTo(RSTile, int, int)
 	 */
 	public boolean walkTo(RSTile t) {
@@ -4658,15 +4481,12 @@ public class Methods implements Constants {
 	 * returning from the loop() method, otherwise the bot will not be able to
 	 * check for random events (i.e. looping this with a nested while() is
 	 * discouraged).
-	 * 
-	 * @param t
-	 *            The destination tile.
-	 * @param x
-	 *            The x randomness passed to
-	 *            {@link #walkTileMM(RSTile, int, int)}.
-	 * @param y
-	 *            The y randomness passed to
-	 *            {@link #walkTileMM(RSTile, int, int)}.
+	 *
+	 * @param t The destination tile.
+	 * @param x The x randomness passed to
+	 *          {@link #walkTileMM(RSTile, int, int)}.
+	 * @param y The y randomness passed to
+	 *          {@link #walkTileMM(RSTile, int, int)}.
 	 * @return <tt>true</tt> if the destination was reached; otherwise
 	 *         <tt>false</tt>.
 	 */
@@ -4701,15 +4521,12 @@ public class Methods implements Constants {
 	 * Walks to the tile by generating the shortest path to it. While this
 	 * method is walking, false will be returned. When the destination is
 	 * reached, true will be returned.
-	 * 
-	 * @param t
-	 *            The destination tile.
-	 * @param x
-	 *            The x randomness passed to
-	 *            {@link #walkTo(RSTile, int, int)}.
-	 * @param y
-	 *            The y randomness passed to
-	 *            {@link #walkTo(RSTile, int, int)}.
+	 *
+	 * @param t The destination tile.
+	 * @param x The x randomness passed to
+	 *          {@link #walkTo(RSTile, int, int)}.
+	 * @param y The y randomness passed to
+	 *          {@link #walkTo(RSTile, int, int)}.
 	 * @return <tt>true</tt> if the destination was reached; otherwise
 	 *         <tt>false</tt>.
 	 */

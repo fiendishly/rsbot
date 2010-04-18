@@ -21,6 +21,7 @@ import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.logging.Logger;
@@ -78,24 +79,12 @@ public class AccountManager extends JDialog implements ActionListener {
 	}
 
 	/**
-	 * Allows addition of an account
-	 *
-	 * @param info Account info in format of name:pass[:pin]
-	 */
-	public static void addAccount(final String info) throws NamingException {
-		if (!info.contains(AccountManager.SEP_CHAR))
-			throw new NamingException(info + " is not in the correct format.");
-		final String[] parts = info.split(AccountManager.SEP_CHAR);
-		AccountManager.accounts.put(AccountManager.fixName(parts[0]), AccountManager.crypt(parts[1], true));
-		if (parts.length > 2) {
-			AccountManager.accounts.put(AccountManager.fixName(parts[0]), AccountManager.crypt(parts[1], true) + AccountManager.SEP_CHAR + parts[2]);
-		}
-		AccountManager.saveAccounts();
-	}
-
-	/**
 	 * Encrypts/Decrypts a string using a SHA1 hash of <code>key</code>
-	 * -Jacmob
+	 * - Jacmob
+	 *
+	 * @param start The input String
+	 * @param en <tt>true</tt> to encrypt; <tt>false</tt> to decrypt
+	 * @return The crypted String
 	 */
 	private static String crypt(final String start, final boolean en) {
 		final String delim = "a";
@@ -137,63 +126,6 @@ public class AccountManager extends JDialog implements ActionListener {
 			}
 			return new String(password, 0, i);
 		}
-	}
-
-	/**
-	 * Will convert account files from the old format to the new format
-	 * <p/>
-	 * Old Format - key=value, key=value,[key=value,]
-	 * <p/>
-	 * New Format - name:pass[:pin]
-	 *
-	 * @return A mapping of name password/pin pairs
-	 */
-	private static Map<String, String> fixAccounts() throws NamingException {
-		String endResult = "";
-		try {
-			final BufferedReader in = new BufferedReader(new FileReader(AccountManager.FILE_NAME));
-			String temp;
-			while ((temp = in.readLine()) != null) {
-				if (temp.contains("USERNAME")) {
-					String pass = null, name = null, pin = null;
-					// Old Format key=value,
-					for (final String part : temp.split(",")) {
-						// Splits Keys and Values
-						final String[] pieces = part.split("=", 2);
-						if (pieces[0].equals("PASSWORD")) {
-							pass = AccountManager.crypt(pieces[1], true);
-						} else if (pieces[0].equals("USERNAME")) {
-							name = pieces[1];
-						} else if (pieces[0].equals("PIN")) {
-							pin = pieces[1];
-						}
-					}
-					try {
-						// Converts to new format name:pass[:pin]
-						endResult += name + AccountManager.SEP_CHAR + pass + (pin != null ? AccountManager.SEP_CHAR + pin : "");
-					} catch (final NullPointerException e) {
-						// Will only happen if one of the keys is not found
-						try {
-							return AccountManager.loadAccounts();
-						} catch (final NamingException e1) {
-							e1.printStackTrace();
-						}
-					}
-					endResult += System.getProperty("line.separator");
-				}
-			}
-			in.close();
-			// Writes the new format to the file
-			final BufferedWriter out = new BufferedWriter(new FileWriter(AccountManager.FILE_NAME));
-			out.append(endResult);
-			out.close();
-		} catch (final FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (final IOException e) {
-			e.printStackTrace();
-		}
-		// Reload the accounts
-		return AccountManager.loadAccounts();
 	}
 
 	/**
@@ -280,8 +212,12 @@ public class AccountManager extends JDialog implements ActionListener {
 						continue;
 					}
 					// Means that it is in old format
-					if (line.contains("USERNAME"))
-						return AccountManager.fixAccounts();
+					if (line.contains("USERNAME")) {
+						if (!accountFile.delete()) {
+							log.warning("Failed to delete old account file.");
+						}
+						return new HashMap<String, String>();
+					}
 					// If for some reason the format is not as expected
 					if (!line.contains(AccountManager.SEP_CHAR))
 						throw new NamingException("Invalid Storage of: " + line);
@@ -485,7 +421,7 @@ public class AccountManager extends JDialog implements ActionListener {
 		} else if (AccountManager.accounts.keySet().size() < 1) {
 			AccountManager.accounts.put(emptyName, "");
 		}
-		names.setListData(AccountManager.accounts.keySet().toArray(new String[0]));
+		names.setListData(AccountManager.accounts.keySet().toArray(new String[AccountManager.accounts.size()]));
 		names.getParent().validate();
 	}
 

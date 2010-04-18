@@ -26,7 +26,7 @@ import org.rsbot.script.randoms.FrogCave;
 import org.rsbot.script.randoms.GraveDigger;
 import org.rsbot.script.randoms.ImprovedRewardsBox;
 import org.rsbot.script.randoms.LeaveSafeArea;
-import org.rsbot.script.randoms.LoginBot;
+import org.rsbot.script.randoms.antiban.LoginBot;
 import org.rsbot.script.randoms.LostAndFound;
 import org.rsbot.script.randoms.Maze;
 import org.rsbot.script.randoms.Mime;
@@ -39,7 +39,6 @@ import org.rsbot.script.randoms.SandwhichLady;
 import org.rsbot.script.randoms.ScapeRuneIsland;
 import org.rsbot.script.randoms.SystemUpdate;
 import org.rsbot.script.randoms.TeleotherCloser;
-import org.rsbot.script.randoms.WelcomeScreen;
 import org.rsbot.script.randoms.antiban.BreakHandler;
 import org.rsbot.util.GlobalConfiguration;
 import org.rsbot.util.GlobalFile;
@@ -94,7 +93,6 @@ public class ScriptHandler {
 	public ScriptHandler() {
 		try {
 			randoms.add(new LoginBot());
-			randoms.add(new WelcomeScreen());
 			randoms.add(new BreakHandler());
 			randoms.add(new BankPins());
 			randoms.add(new BeehiveSolver());

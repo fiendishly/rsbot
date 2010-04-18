@@ -19,15 +19,7 @@ public class Bot {
 
 	public static boolean disableRandoms = false;
 	public static boolean disableBreakHandler = false;
-
-	public static void characterMoved(final org.rsbot.accessors.RSCharacter c, final int i) {
-		try {
-			final CharacterMovedEvent e = new CharacterMovedEvent(c, i);
-			Bot.eventManager.addToQueue(e);
-		} catch (final Throwable e) { // protect rs
-			e.printStackTrace();
-		}
-	}
+	public static boolean disableAutoLogin = false;
 
 	public static String getAccountName() {
 		return Bot.account;
@@ -49,9 +41,20 @@ public class Bot {
 		return Bot.sh;
 	}
 
+	@SuppressWarnings("unused")
 	public static void notifyServerMessage(final String s) {
 		try {
 			final ServerMessageEvent e = new ServerMessageEvent(s);
+			Bot.eventManager.addToQueue(e);
+		} catch (final Throwable e) { // protect rs
+			e.printStackTrace();
+		}
+	}
+
+	@SuppressWarnings("unused")
+	public static void characterMoved(final org.rsbot.accessors.RSCharacter c, final int i) {
+		try {
+			final CharacterMovedEvent e = new CharacterMovedEvent(c, i);
 			Bot.eventManager.addToQueue(e);
 		} catch (final Throwable e) { // protect rs
 			e.printStackTrace();

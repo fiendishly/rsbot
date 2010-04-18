@@ -1,15 +1,5 @@
 package org.rsbot.script.randoms.antiban;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Iterator;
-
 import org.rsbot.event.events.ServerMessageEvent;
 import org.rsbot.event.listeners.ServerMessageListener;
 import org.rsbot.script.Random;
@@ -17,7 +7,13 @@ import org.rsbot.script.ScriptManifest;
 import org.rsbot.script.wrappers.RSInterfaceComponent;
 import org.rsbot.util.GlobalConfiguration;
 
-@ScriptManifest(authors = { "christel", "Sweed_Raver", "Taha", "regex", "pd", "sean" }, category = "AntiBan", name = "Break Handler", version = 3.0)
+import java.io.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Iterator;
+
+@ScriptManifest(authors = {"christel", "Sweed_Raver", "Taha", "regex", "pd", "sean"}, category = "AntiBan", name = "Break Handler", version = 3.0)
 public class BreakHandler extends Random implements ServerMessageListener {
 	protected class Break {
 		private final long breakAtMax;
@@ -72,7 +68,7 @@ public class BreakHandler extends Random implements ServerMessageListener {
 	}
 
 	@Override
-	public boolean isItemSelected() { // Credits to ByteCode for function
+	public boolean isItemSelected() { // Credits to ByteCode
 		for (final RSInterfaceComponent com : getInventoryInterface().getComponents()) {
 			if (com.getBorderThickness() == 2)
 				return true;
@@ -90,7 +86,7 @@ public class BreakHandler extends Random implements ServerMessageListener {
 	private boolean setConfigs = true;
 	private long startTime = System.currentTimeMillis();
 	private File breaksFile = new File(GlobalConfiguration.Paths.getBreaksDirectory());
-	private String[] props = new String[] { "15|45, 2|4", "75|105, 2|4", "135|165, 10|20", "205|235, 2|4", "265|295, 2|4", "330|360, 120|180", "540|570, 2|4", "600|630, 2|4", "660|690, 10|20", "750|780, 2|4", "810|840, 2|4", "900|960, 360|480" };
+	private String[] props = new String[]{"15|45, 2|4", "75|105, 2|4", "135|165, 10|20", "205|235, 2|4", "265|295, 2|4", "330|360, 120|180", "540|570, 2|4", "600|630, 2|4", "660|690, 10|20", "750|780, 2|4", "810|840, 2|4", "900|960, 360|480"};
 
 	@Override
 	public boolean activateCondition() {
@@ -112,9 +108,7 @@ public class BreakHandler extends Random implements ServerMessageListener {
 			curBreak = it.next();
 		}
 		curTime = System.currentTimeMillis();
-		if (curBreak.shouldBreak(startTime, curTime))
-			return true;
-		return false;
+		return curBreak.shouldBreak(startTime, curTime);
 	}
 
 	private String cTime(long eTime) {
@@ -146,18 +140,19 @@ public class BreakHandler extends Random implements ServerMessageListener {
 	}
 
 	public void getConfig() {
-		if (!breaksFile.exists() || (parseBreaks() == null) || (parseBreaks().length != 12)) {
+		if (!breaksFile.exists() || parseBreaks() == null || parseBreaks().length != 12) {
 			try {
-				breaksFile.createNewFile();
-				final BufferedWriter out = new BufferedWriter(new FileWriter(breaksFile));
-				for (int i = 0; i < props.length; i++) {
-					out.write(props[i]);
-					if (i + 1 < props.length) {
-						out.write(":");
+				if (breaksFile.createNewFile()) {
+					final BufferedWriter out = new BufferedWriter(new FileWriter(breaksFile));
+					for (int i = 0; i < props.length; i++) {
+						out.write(props[i]);
+						if (i + 1 < props.length) {
+							out.write(":");
+						}
 					}
+					out.close();
 				}
-				out.close();
-			} catch (Exception e) {
+			} catch (IOException ignored) {
 			}
 		} else {
 			props = parseBreaks();

@@ -94,15 +94,20 @@ import org.rsbot.util.GlobalConfiguration.OperatingSystem;
 import org.rsbot.util.logging.TextAreaLogHandler;
 
 public class BotGUI extends JFrame implements ActionListener {
+
 	private static final long serialVersionUID = -4411033752001988794L;
+	private static final Logger log = Logger.getLogger(BotGUI.class.getName());
+
+	private static boolean loggedIn = false;
+	public static String cookies;
 
 	static {
 		JPopupMenu.setDefaultLightWeightPopupEnabled(false);
 	}
 
 	private Bot bot;
-	protected Map<String, JCheckBoxMenuItem> commandCheckMap = new HashMap<String, JCheckBoxMenuItem>();
 
+	protected Map<String, JCheckBoxMenuItem> commandCheckMap = new HashMap<String, JCheckBoxMenuItem>();
 	protected Map<String, JMenuItem> commandMenuItem = new HashMap<String, JMenuItem>();
 
 	private final EventMulticaster eventMulticaster = new EventMulticaster();
@@ -110,15 +115,12 @@ public class BotGUI extends JFrame implements ActionListener {
 	private File menuSetting = null;
 	private JScrollPane textScroll;
 
-	private static final Logger log = Logger.getLogger(BotGUI.class.getName());
 
 	private JToolBar toolBar;
 	private JButton userInputButton;
 	private JButton userPauseButton;
-	private final JMenuItem pauseResumeScript;
-	public static String cookies;
-	private static boolean loggedin = false;
 
+	private final JMenuItem pauseResumeScript;
 	private final Dimension minsize;
 
 	public BotGUI() {
@@ -212,9 +214,9 @@ public class BotGUI extends JFrame implements ActionListener {
 			} else if ("Save Screenshot [No censor]".equals(command[1])) {
 				ScreenshotUtil.takeScreenshot(false);
 			} else if ("Login".equals(command[1])) {
-				if (BotGUI.loggedin) {
+				if (BotGUI.loggedIn) {
 					BotGUI.cookies = "";
-					BotGUI.loggedin = false;
+					BotGUI.loggedIn = false;
 					commandMenuItem.get(command[1]).setText("Login");
 					BotGUI.log.info("Logged out.");
 				} else {
@@ -237,6 +239,8 @@ public class BotGUI extends JFrame implements ActionListener {
 				CanvasWrapper.slowGraphics = ((JCheckBoxMenuItem) e.getSource()).isSelected();
 			} else if ("Disable Randoms".equals(command[1])) {
 				Bot.disableRandoms = ((JCheckBoxMenuItem) e.getSource()).isSelected();
+			} else if ("Disable Auto Login".equals(command[1])) {
+				Bot.disableAutoLogin = ((JCheckBoxMenuItem) e.getSource()).isSelected();
 			} else if ("Disable Break Handler".equals(command[1])) {
 				Bot.disableBreakHandler = ((JCheckBoxMenuItem) e.getSource()).isSelected();
 			}
@@ -363,7 +367,7 @@ public class BotGUI extends JFrame implements ActionListener {
 		}
 
 		final String[] titles = new String[] { "File", "Edit", "View", "Help" };
-		final String[][] elements = new String[][] { { "Run Script", "Stop Script", "Pause Script", "-", "Save Screenshot", "Save Screenshot [No censor]", "Login", "-", "Exit" }, { "Accounts", "-", "ToggleF Block User Input", "ToggleF Use Less CPU", "-", "ToggleF Disable Randoms", "ToggleF Disable Break Handler" }, debugItems.toArray(new String[debugItems.size()]), { "Site", "Project", "About" } };
+		final String[][] elements = new String[][] { { "Run Script", "Stop Script", "Pause Script", "-", "Save Screenshot", "Save Screenshot [No censor]", "Login", "-", "Exit" }, { "Accounts", "-", "ToggleF Block User Input", "ToggleF Use Less CPU", "-", "ToggleF Disable Randoms", "ToggleF Disable Auto Login", "ToggleF Disable Break Handler" }, debugItems.toArray(new String[debugItems.size()]), { "Site", "Project", "About" } };
 		final JMenuBar bar = new JMenuBar();
 		for (int i = 0; i < titles.length; i++) {
 			final String title = titles[i];
@@ -484,7 +488,9 @@ public class BotGUI extends JFrame implements ActionListener {
 		}
 		if (!menuSetting.exists()) {
 			try {
-				menuSetting.createNewFile();
+				if (menuSetting.createNewFile()) {
+					BotGUI.log.warning("Failed to create settings file.");
+				}
 			} catch (final IOException e) {
 				BotGUI.log.warning("Failed to create settings file.");
 			}
@@ -535,7 +541,7 @@ public class BotGUI extends JFrame implements ActionListener {
 			writer.write(write);
 			writer.flush();
 			writer.close();
-			String headerName = null;
+			String headerName;
 			for (int i = 1; (headerName = connect.getHeaderFieldKey(i)) != null; i++) {
 				if (headerName.equals("Set-Cookie")) {
 					String cookie = connect.getHeaderField(i);
@@ -605,11 +611,11 @@ public class BotGUI extends JFrame implements ActionListener {
 			public void actionPerformed(final ActionEvent e) {
 				frame.dispose();
 				if (login(name.getText(), new String(pass.getPassword()))) {
-					BotGUI.loggedin = true;
+					BotGUI.loggedIn = true;
 					commandMenuItem.get("Login").setText("Logout");
 					BotGUI.log.info("Successfully logged in as " + name.getText() + ".");
 				} else {
-					BotGUI.loggedin = false;
+					BotGUI.loggedIn = false;
 					BotGUI.log.warning("Could not log in as \"" + name.getText() + "\".");
 				}
 			}
