@@ -10,11 +10,13 @@ import org.rsbot.script.wrappers.RSInterfaceChild;
 import org.rsbot.script.wrappers.RSNPC;
 
 /**
+ * Update by Iscream (Apr 15,2010)
  * @author Pwnaz0r & Velocity
  * @version 2.3 - 04/03/09
  */
-@ScriptManifest(authors = { "Pwnaz0r", "Velocity" }, name = "Bee Hive Random", version = 2.3)
+@ScriptManifest(authors = { "Pwnaz0r", "Velocity" }, name = "Bee Hive Random", version = 2.4)
 public class BeehiveSolver extends Random {
+
 	RSNPC BeehiveKeeper;
 	private static int BEEHIVE_KEEPER_ID = 8649;
 	private static int[] DEST_INTERFACE_IDS = { 16, 17, 18, 19 };
@@ -34,10 +36,10 @@ public class BeehiveSolver extends Random {
 			return false;
 
 		BeehiveKeeper = getNearestNPCByID(BEEHIVE_KEEPER_ID);
-		if ((BeehiveKeeper != null) && getBeehiveInterface().isValid()) {
+		if ((BeehiveKeeper != null) || getBeehiveInterface().isValid()) {
 			wait(random(1000, 1500));
 			BeehiveKeeper = getNearestNPCByID(BEEHIVE_KEEPER_ID);
-			if ((BeehiveKeeper != null) && getBeehiveInterface().isValid()) {
+			if ((BeehiveKeeper != null) || getBeehiveInterface().isValid()) {
 				solved = false;
 				wait(random(1000, 1500));
 				return true;
@@ -57,7 +59,7 @@ public class BeehiveSolver extends Random {
 	}
 
 	public RSInterface getBeehiveInterface() {
-		return getInterface(420); // 420 <3
+		return getInterface(420);
 	}
 
 	@Override
@@ -132,11 +134,11 @@ public class BeehiveSolver extends Random {
 			stopScript();
 		}
 
-		int Model_ID = -1;
-		Model_ID = getBeehiveInterface().getChild(returnSlotId(slot)).getModelID();
+		int Model_ID = getBeehiveInterface().getChild(returnSlotId(slot)).getModelID();
 
 		if (Model_ID == -1) {
 			log.info("Could not retrieve ID.");
+			atInterface(INTERFACE_BUILDBEEHIVE);
 			stopScript();
 		}
 

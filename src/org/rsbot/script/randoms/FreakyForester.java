@@ -1,20 +1,17 @@
 package org.rsbot.script.randoms;
 
+import org.rsbot.bot.Bot;
 import org.rsbot.event.events.ServerMessageEvent;
+import org.rsbot.event.listeners.ServerMessageListener;
+import org.rsbot.script.Constants;
 import org.rsbot.script.Random;
 import org.rsbot.script.ScriptManifest;
-import org.rsbot.script.wrappers.RSInterface;
-import org.rsbot.script.wrappers.RSItemTile;
-import org.rsbot.script.wrappers.RSNPC;
-import org.rsbot.script.wrappers.RSObject;
-import org.rsbot.script.wrappers.RSTile;
-import org.rsbot.event.listeners.ServerMessageListener;
+import org.rsbot.script.wrappers.*;
 
-import org.rsbot.script.Constants;
 /**
- * @version 2.2 - 30/1/10 Fix by Iscream
+ * @version 2.3 - 15/4/10 Fix by Iscream
  */
-@ScriptManifest(authors = { "Pwnaz0r", "Taha", "zqqou", "Zach" }, name = "Freaky Forester", version = 2.2)
+@ScriptManifest(authors = {"Pwnaz0r", "Taha", "zqqou", "Zach"}, name = "Freaky Forester", version = 2.3)
 public class FreakyForester extends Random implements ServerMessageListener {
 
 	private RSNPC forester;
@@ -30,29 +27,25 @@ public class FreakyForester extends Random implements ServerMessageListener {
 
 	@Override
 	public boolean activateCondition() {
-		
 		if (!isLoggedIn())
 			return false;
 
 		forester = getNearestNPCByID(FORESTER_ID);
 		if (forester != null) {
 			wait(random(2000, 3000));
-			if (getNearestNPCByID(FORESTER_ID) != null)  {
+			if (getNearestNPCByID(FORESTER_ID) != null) {
 				RSObject portal = getNearestObjectByID(PORTAL_ID);
-				
-				if (portal==null)  {
-					return false;
-				}
+				return portal != null;
 
-				return true;
 			}
 		}
 		return false;
 	}
+
 	public int getState() {
 		if (done)
 			return 3;
-		else if (canContinue())
+		else if (IScanContinue())
 			return 1;
 		else if (phe == -1)
 			return 0;
@@ -75,7 +68,7 @@ public class FreakyForester extends Random implements ServerMessageListener {
 		else if (getMyPlayer().isMoving())
 			return random(200, 500);
 
-		if (done != true) {
+		if (!done) {
 			done = searchText(241, "Thank you") || getInterface(242, 4).containsText("leave");
 		}
 
@@ -88,10 +81,10 @@ public class FreakyForester extends Random implements ServerMessageListener {
 			if (getCurrentTab() != Constants.TAB_EQUIPMENT) {
 				openTab(Constants.TAB_EQUIPMENT);
 				wait(random(1000, 1500));
-			atInterface(EquipInterface.getChild(17));
-			return (random(1000,1500));
+				atInterface(EquipInterface.getChild(17));
+				return (random(1000, 1500));
 			}
-			return (random(100,500));
+			return (random(100, 500));
 		}
 
 		if ((getInventoryCount(false) == 28) && !inventoryContains(6178)) {
@@ -196,6 +189,7 @@ public class FreakyForester extends Random implements ServerMessageListener {
 
 		return false;
 	}
+
 	public void serverMessageRecieved(final ServerMessageEvent e) {
 		final String serverString = e.getMessage();
 		if (serverString.contains("no ammo left")) {
@@ -203,7 +197,25 @@ public class FreakyForester extends Random implements ServerMessageListener {
 		}
 
 	}
-	@Override
-	public void onFinish() {
+
+	private boolean IScanContinue() {
+		return ISgetContinueChildInterface() != null;
+	}
+
+	private RSInterfaceChild ISgetContinueChildInterface() {
+		if (Bot.getClient().getRSInterfaceCache() == null)
+			return null;
+		RSInterface[] valid = RSInterface.getAllInterfaces();
+		for (RSInterface iface : valid) {
+			if (iface.getIndex() != 137) {
+				int len = iface.getChildCount();
+				for (int i = 0; i < len; i++) {
+					RSInterfaceChild child = iface.getChild(i);
+					if (child.containsText("Click here to continue"))
+						return child;
+				}
+			}
+		}
+		return null;
 	}
 }
