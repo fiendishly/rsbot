@@ -613,10 +613,11 @@ public class Methods implements Constants {
 		if (!isMenuOpen())
 			return false;
 		try {
-			if (getMenuItems().size() < i)
+			ArrayList<String> items = getMenuItems();
+			if (items.size() <= i)
 				return false;
 			RSTile menu = getMenuLocation();
-			int xOff = random(4, getMenuItems().get(i).length() * 4);
+			int xOff = random(4, items.get(i).length() * 4);
 			int yOff = 21 + 15 * i + random(3, 12);
 			moveMouse(menu.getX() + xOff, menu.getY() + yOff, 2, 2);
 			if (!isMenuOpen())

@@ -16,7 +16,7 @@ SET manifest=%res%\Manifest.txt
 SET versionfile=.version
 FOR /F %%G IN (%versionfile%) DO SET version=%%G
 SET scripts=scripts
-SET dist=RSBot.jar
+SET dist=data\RSBot.jar
 SET full=1
 
 IF "%1"=="/S" (

@@ -5,7 +5,7 @@ import org.rsbot.script.ScriptManifest;
 import org.rsbot.script.wrappers.RSInterface;
 import org.rsbot.script.wrappers.RSNPC;
 
-@ScriptManifest(authors = { "PwnZ" }, name = "Quiz Solver", version = 1.0)
+@ScriptManifest(authors = {"PwnZ"}, name = "Quiz Solver", version = 1.0)
 public class QuizSolver extends Random {
 
 	public class QuizQuestion {
@@ -20,7 +20,7 @@ public class QuizSolver extends Random {
 			ID_Three = Three;
 		}
 
-		public boolean ActivateCondition() {
+		public boolean activateCondition() {
 			if (ID_to_Slot(ID_One) != -1) {
 				if (ID_to_Slot(ID_Two) != -1) {
 					if (ID_to_Slot(ID_Three) != -1)
@@ -58,7 +58,7 @@ public class QuizSolver extends Random {
 				if (arrayContains(items[j], ID_Three)) {
 					log.info("Slot 3: " + names
 
-					[j]);
+							[j]);
 					count++;
 				}
 
@@ -97,20 +97,18 @@ public class QuizSolver extends Random {
 	}
 
 	public RSInterface quizInterface = getInterface(191);
-	public int[] Fish = { 1715, 1414, 1753, 1383 };
-	public int[] Jewelry = { 640, 1062, 793, 856 };
-	public int[] Weapons = { 1510, 1218, 1331, 1996 };
-	public int[] Farming = { 908, 1280 };
-	public int[][] items = { Fish, Jewelry, Weapons, Farming };
+	public int[] Fish = {1715, 1414, 1753, 1383};
+	public int[] Jewelry = {640, 1062, 793, 856};
+	public int[] Weapons = {1510, 1218, 1331, 1996};
+	public int[] Farming = {908, 1280};
+	public int[][] items = {Fish, Jewelry, Weapons, Farming};
 
-	public String[] names = { "Fish", "Jewelry", "Weapons", "Farming" };
+	public String[] names = {"Fish", "Jewelry", "Weapons", "Farming"};
 
 	@Override
 	public boolean activateCondition() {
 		final RSNPC quizMaster = getNearestNPCByName("Quiz Master");
-		if (quizMaster != null)
-			return true;
-		return false;
+		return quizMaster != null;
 	}
 
 	public void atRandom() {
