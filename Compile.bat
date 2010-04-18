@@ -6,6 +6,7 @@ SET src=src
 SET lib=lib
 SET res=resources
 SET out=bin
+SET jarout=data
 
 CALL Clean.bat 2>NUL
 CALL "%res%\FindJDK.bat"
@@ -16,7 +17,7 @@ SET manifest=%res%\Manifest.txt
 SET versionfile=.version
 FOR /F %%G IN (%versionfile%) DO SET version=%%G
 SET scripts=scripts
-SET dist=data\RSBot.jar
+SET dist=RSBot.jar
 SET full=1
 
 IF "%1"=="/S" (
@@ -46,8 +47,8 @@ IF EXIST "%lstf%" DEL /F /Q "%lstf%"
 COPY "%manifest%" "%lstf%"
 ECHO Specification-Version: "%version%" >> "%lstf%"
 ECHO Implementation-Version: "%version%" >> "%lstf%"
-
-jar cfm "%dist%" "%lstf%" -C "%out%" . %scripts%\*.class %res%\version.dat %imgdir%\*.png %res%\*.bat %res%\*.sh
+IF NOT EXIST "%jarout%" MKDIR "%jarout%"
+jar cfm "%jarout%\%dist%" "%lstf%" -C "%out%" . %scripts%\*.class %res%\version.dat %imgdir%\*.png %res%\*.bat %res%\*.sh
 DEL /F /Q "%lstf%"
 
 :end
