@@ -3103,13 +3103,28 @@ public class Methods implements Constants {
 	 */
 	public RSInterfaceComponent[] getSelectedPrayers() {
 		ArrayList<RSInterfaceComponent> selected = new ArrayList<RSInterfaceComponent>();
-		RSInterfaceComponent[] prayers = RSInterface.getChildInterface(INTERFACE_TAB_PRAYER, 5).getComponents();
+		RSInterfaceComponent[] prayers = RSInterface.getChildInterface(INTERFACE_TAB_PRAYER, 7).getComponents();
 		for (RSInterfaceComponent prayer : prayers) {
 			if (prayer.getBackgroundColor() != -1) {
 				selected.add(prayer);
 			}
 		}
 		return selected.toArray(new RSInterfaceComponent[selected.size()]);
+	}
+
+	/**
+	 * Returns true if designated prayer is turned on. Written by Iscream.
+	 *
+	 * @param index The prayer to check.
+	 */
+	public boolean isPrayerOn(int index) {
+		RSInterfaceComponent[] prayers = RSInterface.getChildInterface(INTERFACE_TAB_PRAYER, 7).getComponents();
+		for (RSInterfaceComponent prayer : prayers) {
+			if (prayer.getComponentIndex() == index && prayer.getBackgroundColor() != -1) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	public int getSetting(int setting) {
