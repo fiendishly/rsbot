@@ -382,14 +382,23 @@ public class Bank {
 			}
 			if (((bankBooth != null) && (methods.distanceTo(bankBooth) < 8) && methods.tileOnMap(bankBooth.getLocation()) && methods.canReach(bankBooth, true)) || ((banker != null) && (methods.distanceTo(banker) < 8) && methods.tileOnMap(banker.getLocation()) && methods.canReach(banker, true)) || ((bankChest != null) && (methods.distanceTo(bankChest) < 8) && methods.tileOnMap(bankChest.getLocation()) && methods.canReach(bankChest, true) && !isOpen())) {
 				if (bankBooth != null) {
-					methods.atObject(bankBooth, "Use-Quickly");
-					methods.wait(methods.random(200, 400));
+					if (methods.atObject(bankBooth, "Use-Quickly")) {
+						methods.wait(methods.random(200, 400));
+					} else {
+						methods.turnToObject(bankChest);
+					}
 				} else if (banker != null) {
-					methods.atNPC(banker, "Bank ");
-					methods.wait(methods.random(200, 400));
+					if (methods.atNPC(banker, "Bank ")) {
+						methods.wait(methods.random(200, 400));
+					} else {
+						methods.turnToCharacter(banker, 20);
+					}
 				} else if (bankChest != null) {
-					methods.atObject(bankChest, "Bank");
-					methods.wait(methods.random(200, 400));
+					if (methods.atObject(bankChest, "Bank")) {
+						methods.wait(methods.random(200, 400));
+					} else {
+						methods.turnToObject(bankChest);
+					}
 				}
 			} else {
 				if (bankBooth != null) {

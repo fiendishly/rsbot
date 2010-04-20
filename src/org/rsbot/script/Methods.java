@@ -656,7 +656,7 @@ public class Methods implements Constants {
 	 */
 	public boolean atNPC(RSNPC someNPC, String option, boolean mousepath) {
 		for (int i = 0; i < 20; i++) {
-			if (someNPC == null || !pointOnScreen(someNPC.getScreenLocation()) && !tileOnScreen(someNPC.getLocation()))
+			if (someNPC == null || !pointOnScreen(someNPC.getScreenLocation()) || !tileOnScreen(someNPC.getLocation()))
 				return false;
 			if (!mousepath) {
 				moveMouse(new Point((int) Math.round(someNPC.getScreenLocation().getX()) + random(-5, 5), (int) Math.round(someNPC.getScreenLocation().getY()) + random(-5, 5)));
@@ -3474,11 +3474,13 @@ public class Methods implements Constants {
 	 * @see #getMouseSpeed()
 	 */
 	public void moveMouse(int speed, int x, int y, int randX, int randY, int afterOffset, boolean mousePaths) {
-		input.moveMouse(speed, x, y, randX, randY, mousePaths);
-		if (afterOffset > 0) {
-			wait(random(60, 300));
-			Point pos = getMouseLocation();
-			moveMouse(pos.x - afterOffset, pos.y - afterOffset, afterOffset * 2, afterOffset * 2);
+		if (x != -1 || y != -1) {
+			input.moveMouse(speed, x, y, randX, randY, mousePaths);
+			if (afterOffset > 0) {
+				wait(random(60, 300));
+				Point pos = getMouseLocation();
+				moveMouse(pos.x - afterOffset, pos.y - afterOffset, afterOffset * 2, afterOffset * 2);
+			}
 		}
 	}
 
@@ -4456,11 +4458,18 @@ public class Methods implements Constants {
 	 * @return <tt>true</tt> if the tile was clicked; otherwise <tt>false</tt>.
 	 */
 	public boolean walkTileMM(RSTile t, int x, int y) {
-		Point p = tileToMinimap(t);
-		if (p.x == -1 || p.y == -1)
-			return false;
-		clickMouse(p, x, y, true);
-		return true;
+		RSTile dest = new RSTile(t.getX() +
+				random(0, x), t.getY() + random(0, x));
+		Point p = tileToMinimap(dest);
+		if (p.x != -1 && p.y != -1) {
+			moveMouse(p);
+			Point p2 = tileToMinimap(dest);
+			if (p2.x != -1 && p2.y != -1) {
+				clickMouse(p2, true);
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/**
