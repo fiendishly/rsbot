@@ -1165,13 +1165,12 @@ public class Methods implements Constants {
 		Point p;
 		p = getMouseLocation();
 		if (p.x < 563 + col * 42 || p.x >= 563 + col * 42 + 32 || p.y < 213 + row * 36 || p.y >= 213 + row * 36 + 32) {
-			moveMouse(563 + col * 42 + random(0, 32), 213 + row * 36 + random(0, 32));
+			//moveMouse(563 + col * 42 + random(0, 32), 213 + row * 36 + random(0, 32));
+			moveMouse(getInventoryInterface().getComponents()[row * 4 + col].getPoint(), 10, 10);
 		}
 		clickMouse(false);
 		wait(random(10, 25));
-		if (!atDropMenu("drop", col)) {
-			clickMouse(random(516, 546), random(205, 467), true);
-		}
+		atDropMenu("drop", col);
 		wait(random(25, 50));
 	}
 
