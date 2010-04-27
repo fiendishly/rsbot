@@ -3380,9 +3380,26 @@ public class Methods implements Constants {
 	}
 
 	/**
+	 * Returns <tt>true<tt/> if logout tab/window is open.
+	 * - Iscream.
+	 */
+	public boolean isOnLogoutTab() {
+		for (int i = 0; i < TAB_NAMES.length; i++) {
+			org.rsbot.accessors.RSInterface tab = DynamicConstants.getTab(i);
+			if (tab == null) {
+				continue;
+			}
+			if (tab.getTextureID() != -1) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	/**
 	 * Closes the bank if it is open and logs out.
 	 *
-	 * @return True if the player was logged out.
+	 * @return <tt>true</tt> if the player was logged out.
 	 */
 	public boolean logout() {
 		while (bank.isOpen()) {
@@ -3404,16 +3421,18 @@ public class Methods implements Constants {
 				wait(random(400, 800));
 			} while (Bot.getClient().isSpellSelected() || isItemSelected() == true);
 		}
-		while (getCurrentTab() != TAB_LOGOUT) {
-			openTab(TAB_LOGOUT);
+		while (!isOnLogoutTab()) {
+			atInterface(548, 175);
+			//Logout button in the top right hand corner
 			int timesToWait = 0;
-			while (getCurrentTab() != TAB_LOGOUT && timesToWait < 5) {
+			while (!isOnLogoutTab() && timesToWait < 5) {
 				wait(random(200, 400));
 				timesToWait++;
 			}
 		}
-		atInterface(INTERFACE_TAB_LOGOUT, 6);
-		wait(random(1000, 1500));
+		atInterface(182,7);
+		//Final logout button in the logout tab
+		wait(random(1500,2000));
 		return !isLoggedIn();
 	}
 
