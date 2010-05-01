@@ -6,6 +6,8 @@ import org.rsbot.bot.input.Keyboard;
 import org.rsbot.bot.input.Mouse;
 
 public interface Client {
+	
+	ChatLine[] getChatLines();
 
 	NodeList getActionDataList();
 
@@ -26,11 +28,11 @@ public interface Client {
 
 	int getCamPosZ();
 
-	String[] getChatMessages();
+//	String[] getChatMessages();
 
-	String[] getChatNames();
+//	String[] getChatNames();
 
-	int[] getChatTypes();
+//	int[] getChatTypes();
 
 	String getCurrentPassword();
 
