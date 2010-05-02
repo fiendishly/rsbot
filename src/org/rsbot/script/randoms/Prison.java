@@ -12,13 +12,12 @@ import org.rsbot.script.wrappers.RSTile;
 
 /*
  * Written by Iscream(Feb 4, 2010)
- * Updated by Iscream(Feb 7, 2010)
- * Updated by Iscream(Feb 8, 2010)
  * Updated by Iscream(Feb 17, 2010)
  * Updated by zzSleepzz(Mar 1, 2010 to remove false positives)
  * Updated by Iscream(Apr 15, 2010)
+ * Updated by Iscream(Apr 23, 2010)
  */
-@ScriptManifest(authors = {"Iscream"}, name = "Prison Pete", version = 1.4)
+@ScriptManifest(authors = {"Iscream"}, name = "Prison Pete", version = 1.5)
 public class Prison extends Random {
 
 	private static final int PRISON_MATE = 3118, LEVER_ID = 10817, DOOR_KEY = 6966;
@@ -215,6 +214,18 @@ public class Prison extends Random {
 				// Goes to pete
 				pete = getNearestNPCByName("Prison Pete");
 				if (getMyPlayer().isMoving()) {
+					return random(250, 500);
+				}
+				if (getInterface(ISgetInterface("you got all the keys")).isValid()
+						&& getInterface(ISgetInterface("you got all the keys")).containsText("you got all the keys")) {
+					key = true;
+					unlocked = 5;
+					state = 4;
+					balloonToPop = null;
+					if (IScanContinue()) {
+						clickContinue();
+						return random(500, 600);
+					}
 					return random(250, 500);
 				}
 				if (getInterface(ISgetInterface("Hooray")).isValid()

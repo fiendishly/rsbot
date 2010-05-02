@@ -99,7 +99,8 @@ public class Methods implements Constants {
 	private ArrayList<WalkerNode> nodes = new ArrayList<WalkerNode>();
 
 	private RSTile lastDoor = null;
-	private boolean mapLoaded;
+	private boolean mapLoaded = false;
+	private boolean openTabs = true;
 	private long lastTry = 0;
 	private int tryCount = 0;
 
@@ -1741,10 +1742,11 @@ public class Methods implements Constants {
 	 * Gets the equipment interface accessor.
 	 *
 	 * @return the equipment interface
+	 * @see #setEnforceTabFocus(boolean)
 	 */
 	public RSInterface getEquipmentInterface() {
 		// Tab needs to be open for it to update it's content -.-
-		if (getCurrentTab() != TAB_EQUIPMENT) {
+		if (openTabs && getCurrentTab() != TAB_EQUIPMENT) {
 			if (bank.isOpen()) {
 				bank.close();
 			}
@@ -1964,6 +1966,21 @@ public class Methods implements Constants {
 	}
 
 	/**
+	 * Whether or not tabs such as inventory and equipment
+	 * should be opened automatically by the bot when this
+	 * script attempts to get data from them. If you disable
+	 * this feature, be aware that the data in these tabs
+	 * will not be refreshed until they are next opened.
+	 * The default value is <tt>true</tt>.
+	 *
+	 * @param enforce <tt>true</tt> if tabs should be opened
+	 * whenever an attempt is made to get data from them.
+	 */
+	public void setEnforceTabFocus(boolean enforce) {
+		openTabs = enforce;
+	}
+
+	/**
 	 * Gets the inventory array.
 	 *
 	 * @return an array containing all items
@@ -2080,13 +2097,14 @@ public class Methods implements Constants {
 	 * Gets the inventory interface accessor.
 	 *
 	 * @return the inventory interface
+	 * @see #setEnforceTabFocus(boolean)
 	 */
 	public RSInterfaceChild getInventoryInterface() {
 		if (getInterface(INVENTORY_COM_X).isValid())
 			return RSInterface.getChildInterface(INVENTORY_COM_X, INVENTORY_COM_Y);
 
 		// Tab needs to be open for it to update it's content -.-
-		if (getCurrentTab() != TAB_INVENTORY) {
+		if (openTabs && getCurrentTab() != TAB_INVENTORY) {
 			openTab(TAB_INVENTORY);
 			wait(random(900, 1500));
 		}

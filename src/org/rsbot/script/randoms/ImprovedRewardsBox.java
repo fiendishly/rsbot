@@ -9,12 +9,12 @@ import org.rsbot.script.Random;
 import org.rsbot.script.ScriptManifest;
 import org.rsbot.script.wrappers.RSInterfaceComponent;
 
-@ScriptManifest(authors = { "Fred" }, name = "Improved Rewards Box", version = 1.1)
+@ScriptManifest(authors = {"Fred"}, name = "Improved Rewards Box", version = 1.1)
 public class ImprovedRewardsBox extends Random {
 
 	Rectangle temp;
 
-	String[] choices = { "Cash", "Runes", "Coal", "Essence", "Ore", "Bars", "Gems", "Herbs", "Seeds", "Charms", "XP item", "Surprise", "Emote", "Costume" };
+	String[] choices = {"Cash", "Runes", "Coal", "Essence", "Ore", "Bars", "Gems", "Herbs", "Seeds", "Charms", "XP item", "Surprise", "Emote", "Costume"};
 	String XPChoice = "Attack";
 
 	final int bookKnowledgeID = 11640;
@@ -60,10 +60,14 @@ public class ImprovedRewardsBox extends Random {
 	double difference;
 	int endofselection = 0;
 
-	@Override
-	public boolean activateCondition() {
-		return isLoggedIn() && getMyPlayer().isInCombat() != true && (inventoryContains(boxID) || inventoryContains(bookKnowledgeID) || inventoryContains(LampID) || inventoryContains(mysteryBoxID));
+	public ImprovedRewardsBox() {
+		setEnforceTabFocus(false);
 	}
+
+	public boolean activateCondition() {
+		return isLoggedIn() && !getMyPlayer().isInCombat() && (inventoryContains(boxID) || inventoryContains(bookKnowledgeID) || inventoryContains(LampID) || inventoryContains(mysteryBoxID));
+	}
+
 
 	public int getActualY(RSInterfaceComponent Component) {
 		int boxYPos;
@@ -94,11 +98,9 @@ public class ImprovedRewardsBox extends Random {
 	}
 
 	public Rectangle getBoxArea(RSInterfaceComponent Component) {
-		Rectangle boxArea = new Rectangle(Component.getAbsoluteX(), getActualY(Component), Component.getWidth(), Component.getHeight());
-		return boxArea;
+		return new Rectangle(Component.getAbsoluteX(), getActualY(Component), Component.getWidth(), Component.getHeight());
 	}
 
-	@Override
 	public int loop() {
 		if (getInterface(boxIF).isValid()) {
 			String os = System.getProperty("os.name");

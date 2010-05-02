@@ -10,11 +10,12 @@ import org.rsbot.script.wrappers.RSInterfaceChild;
 import org.rsbot.script.wrappers.RSNPC;
 
 /**
+ * Update by Iscream (Apr 24,2010)
  * Update by Iscream (Apr 15,2010)
  * @author Pwnaz0r & Velocity
  * @version 2.3 - 04/03/09
  */
-@ScriptManifest(authors = { "Pwnaz0r", "Velocity" }, name = "Bee Hive Random", version = 2.4)
+@ScriptManifest(authors = { "Pwnaz0r", "Velocity" }, name = "Bee Hive Random", version = 2.5)
 public class BeehiveSolver extends Random {
 
 	RSNPC BeehiveKeeper;
@@ -25,7 +26,7 @@ public class BeehiveSolver extends Random {
 	private static int ID_MIDUP = 16025;
 	private static int ID_TOP = 16036;
 	private static int[] BEEHIVE_ARRAYS = { ID_TOP, ID_MIDUP, ID_MIDDOWN, ID_DOWN };
-	RSInterfaceChild INTERFACE_BUILDBEEHIVE = getInterface(420, 40);
+	RSInterfaceChild INTERFACE_BUILDBEEHIVE = getInterface(420, 40),INTERFACE_CLOSEBWINDOW = getInterface(420, 38);
 	private static String[] MODEL_NAMES = { "Top", "Middle Up", "Middle Down", "Down" };
 	boolean solved;
 	private static int[] START_INTERFACE_IDS = { 12, 13, 14, 15 };
@@ -64,22 +65,19 @@ public class BeehiveSolver extends Random {
 
 	@Override
 	public int loop() {
-		if (solved) {
-			wait(random(1000, 1500));
-			solved = false;
-			return -1;
-		}
 		BeehiveKeeper = getNearestNPCByID(BEEHIVE_KEEPER_ID);
 		if (BeehiveKeeper == null) {
-			log.severe("Could not find beekeeper.");
+			log.severe("Beekeeper Random Finished Succesfully");
 			return -1;
 		}
 
-		if (myClickContinue())
+		if (myClickContinue()) {
 			return 200;
+		}
 
-		if (atInterface(236, 2))
+		if (atInterface(236, 2)) {
 			return random(800, 1200);
+		}
 
 		if (getBeehiveInterface().isValid()) {
 			for (int i = 1; i < 5; i++) {
@@ -87,11 +85,18 @@ public class BeehiveSolver extends Random {
 				final int id = returnIdAtSlot(i);
 				dragInterfaces(getBeehiveInterface().getChild(START_INTERFACE_IDS[i - 1]), getBeehiveInterface().getChild(returnDragTo(id)));
 			}
+			wait(2000);
+			//Wait is necessary for delay in the change of a setting.
+			if (getSetting(805) == 109907968) {
 			solved = true;
-			if (atInterface(INTERFACE_BUILDBEEHIVE))
+			log("All bee pieces have been place, now finishing random");
+			} else {
+				atInterface(INTERFACE_CLOSEBWINDOW);
+				return random(500,1000);
+			}
+			if (solved && atInterface(INTERFACE_BUILDBEEHIVE)) {
 				return random(900, 1600);
-			log.info("Returning -1");
-			return -1;
+			}
 		} else {
 			log.info("Interfaces not valid.");
 		}
@@ -131,15 +136,14 @@ public class BeehiveSolver extends Random {
 	public int returnIdAtSlot(final int slot) {
 		if ((slot < 1) || (slot > 4)) {
 			log.info("Invalid Slot.");
-			stopScript();
+			atInterface(INTERFACE_CLOSEBWINDOW);
 		}
 
 		int Model_ID = getBeehiveInterface().getChild(returnSlotId(slot)).getModelID();
 
 		if (Model_ID == -1) {
-			log.info("Could not retrieve ID.");
-			atInterface(INTERFACE_BUILDBEEHIVE);
-			stopScript();
+			log.info("Could not retrieve ID. Restarting.");
+			atInterface(INTERFACE_CLOSEBWINDOW);
 		}
 
 		for (int i = 0; i < BEEHIVE_ARRAYS.length; i++) {
@@ -172,8 +176,8 @@ public class BeehiveSolver extends Random {
 			case 4:
 				return 21;
 			default:
-				log.info("Invalid slot ID.");
-				stopScript();
+				log.info("Invalid slot ID. Restarting.");
+				atInterface(INTERFACE_CLOSEBWINDOW);
 				break;
 		}
 		return -1;
