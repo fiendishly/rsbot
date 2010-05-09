@@ -1,16 +1,7 @@
 package org.rsbot.script.randoms;
 
-/* Updates
- 1.04 - Logout if inventory full
- 1.1 - Hopefully fixed gravedigger. Next up, dropping. NEED ACCOUNTS!!!!
- 1.2 - Stops getting stuck at the "Use Coffin -> Gravestone", maybe stopped the rapid start&stop bug.
- 1.3 - Deposits EVERYTHING if inventory full
- 1.31 - Deposits the lowest valued item only if inventory full
- 1.32 - Deposits everything except axes, pickaxes, fishing equipment and hammers.
- 1.33 - Added even more items not to deposit
- */
-
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.Iterator;
 
@@ -21,6 +12,7 @@ import org.rsbot.script.Random;
 import org.rsbot.script.ScriptManifest;
 import org.rsbot.script.wrappers.RSCharacter;
 import org.rsbot.script.wrappers.RSInterface;
+import org.rsbot.script.wrappers.RSInterfaceChild;
 import org.rsbot.script.wrappers.RSItem;
 import org.rsbot.script.wrappers.RSNPC;
 import org.rsbot.script.wrappers.RSObject;
@@ -34,18 +26,16 @@ import org.rsbot.script.wrappers.RSObject;
  * Help him by matching the contents of each coffin with the headstones in the
  * graveyard. Easy, huh?
  * </p>
- * 
+ *
+ * Last Update: 1.6 09/05/10 Jacmob. No known issues remain.
+ *
  * @author Qauters
  */
-
-/*
- * Updated by Iscream Feb 03,10
- * Updated by Iscream Feb 08,10
- */
-@ScriptManifest(authors = { "Qauters", "Twisted", "Speed", "Taha"}, name = "Grave Digger", version = 1.5)
+@ScriptManifest(authors = {"Qauters"}, name = "Grave Digger", version = 1.6)
 public class GraveDigger extends Random {
+
 	class Group {
-		// ID's used later
+		// IDs used later
 		int coffinID = -1;
 		int graveID = -1;
 
@@ -81,32 +71,31 @@ public class GraveDigger extends Random {
 
 	}
 
-	private final ArrayList<Group> groups = new ArrayList<Group>();
+	private static final int[] coffinIDs = {7587, 7588, 7589, 7590, 7591};
+	private static final int[] graveStoneIDs = {12716, 12717, 12718, 12719, 12720};
+	private static final int[] filledGraveIDs = {12721, 12722, 12723, 12724, 12725};
+	private static final int[] emptyGraveIDs = {12726, 12727, 12728, 12729, 12730};
 
-	private int tmpID = -1, tmpStatus = -1; // used to store some data across
-	// loops
-	private static final int[] coffinIDs = { 7587, 7588, 7589, 7590, 7591 };
-	private static final int[] graveStoneIDs = { 12716, 12717, 12718, 12719, 12720 };
-	private static final int[] filledGraveIDs = { 12721, 12722, 12723, 12724, 12725 };
-
-	private static final int[] emptyGraveIDs = { 12726, 12727, 12728, 12729, 12730 };
 	private static final int INTERFACE_READ_GRAVESTONE = 143;
 	private static final int INTERFACE_READ_GRAVESTONE_MODEL = 2;
-
 	private static final int INTERFACE_READ_GRAVESTONE_CLOSE = 3;
 	private static final int INTERFACE_CHECK_COFFIN = 141;
-	private static final int[] INTERFACE_CHECK_COFFIN_ITEMS = { 3, 4, 5, 6, 7, 8, 9, 10, 11 };
-
 	private static final int INTERFACE_CHECK_COFFIN_CLOSE = 12;
+	private static final int[] INTERFACE_CHECK_COFFIN_ITEMS = {3, 4, 5, 6, 7, 8, 9, 10, 11};
+
 	@SuppressWarnings("unused")
-	private static final int[] NOT_TO_DEPOSIT = { 1351, 1349, 1353, 1361, 1355, 1357, 1359, 4031, 6739, 13470, 14108, 1265, 1267, 1269, 1296, 1273, 1271, 1275, 15259, 303, 305, 307, 309, 311, 10129, 301, 13431, 313, 314, 2347, 995, 10006, 10031, 10008, 10012, 11260, 10150, 10010, 556, 558, 555, 557, 554, 559, 562, 560, 565, 8013, 4251, 8011, 8010, 8009, 8008, 8007 };
+	private static final int[] NOT_TO_DEPOSIT = {1351, 1349, 1353, 1361, 1355, 1357, 1359, 4031, 6739, 13470, 14108, 1265, 1267, 1269, 1296, 1273, 1271, 1275, 15259, 303, 305, 307, 309, 311, 10129, 301, 13431, 313, 314, 2347, 995, 10006, 10031, 10008, 10012, 11260, 10150, 10010, 556, 558, 555, 557, 554, 559, 562, 560, 565, 8013, 4251, 8011, 8010, 8009, 8008, 8007};
+
+	private final ArrayList<Group> groups = new ArrayList<Group>();
+
+	private int tmpID = -1, tmpStatus = -1; // used to store some data across loops
 
 	public GraveDigger() {
-		groups.add(new Group(7614, new int[] { 7603, 7605, 7612 }));
-		groups.add(new Group(7615, new int[] { 7600, 7601, 7604 }));
-		groups.add(new Group(7616, new int[] { 7597, 7606, 7607 }));
-		groups.add(new Group(7617, new int[] { 7602, 7609, 7610 }));
-		groups.add(new Group(7618, new int[] { 7599, 7608, 7613 }));
+		groups.add(new Group(7614, new int[]{7603, 7605, 7612}));
+		groups.add(new Group(7615, new int[]{7600, 7601, 7604}));
+		groups.add(new Group(7616, new int[]{7597, 7606, 7607}));
+		groups.add(new Group(7617, new int[]{7602, 7609, 7610}));
+		groups.add(new Group(7618, new int[]{7599, 7608, 7613}));
 	}
 
 	@Override
@@ -139,54 +128,52 @@ public class GraveDigger extends Random {
 	}
 
 
-
 	@Override
 	public int loop() {
 		if (getNearestNPCByName("Leo") == null) {
 			return -1;
 		}
-if (getInventoryCountExcept(GraveDigger.coffinIDs) > 23) {
-		if (canContinue()) {
-			clickContinue();
-			wait(random(1500,2000));
-		}
-		RSObject depo = getNearestObjectByID(12731);
-		if (depo != null) {
-			if (!tileOnScreen(depo.getLocation())) {
-				walkTo(depo.getLocation());
-				turnToObject(depo);
-			} else {
-				atObject(depo,"Deposit");
+		if (getInventoryCountExcept(GraveDigger.coffinIDs) > 23) {
+			if (canContinue()) {
+				clickContinue();
+				wait(random(1500, 2000));
 			}
+			RSObject depo = getNearestObjectByID(12731);
+			if (depo != null) {
+				if (!tileOnScreen(depo.getLocation())) {
+					walkTo(depo.getLocation());
+					turnToObject(depo);
+				} else {
+					atObject(depo, "Deposit");
+				}
+			}
+			if (RSInterface.getInterface(INTERFACE_DEPOSITBOX).isValid()) {
+				wait(random(700, 1200));
+				atComponent(getInterface(11).getChild(17), 27, "Dep");
+				wait(random(700, 1200));
+				atComponent(getInterface(11).getChild(17), 26, "Dep");
+				wait(random(700, 1200));
+				atComponent(getInterface(11).getChild(17), 25, "Dep");
+				wait(random(700, 1200));
+				atComponent(getInterface(11).getChild(17), 24, "Dep");
+				wait(random(700, 1200));
+				atComponent(getInterface(11).getChild(17), 23, "Dep");
+				wait(random(700, 1200));
+				atInterface(11, 15);
+				return random(500, 700);
+			}
+			return (random(2000, 3000));
 		}
-		if (RSInterface.getInterface(INTERFACE_DEPOSITBOX).isValid()) {
-wait (random(700,1200));
-atComponent(getInterface(11).getChild(17),27,"Dep");
-wait (random(700,1200));
-atComponent(getInterface(11).getChild(17),26,"Dep");
-wait (random(700,1200));
-atComponent(getInterface(11).getChild(17),25,"Dep");
-wait (random(700,1200));
-atComponent(getInterface(11).getChild(17),24,"Dep");
-wait (random(700,1200));
-atComponent(getInterface(11).getChild(17),23,"Dep");
-wait (random(700,1200));
-atInterface(11, 15);
-return random(500,700);
-		}
-		return (random(2000,3000));
-}
 
 		if (getMyPlayer().isMoving()) {
-			;
+
 		} else if (getMyPlayer().getAnimation() == 827) {
-			;
+
 		} else if (RSInterface.getInterface(242).isValid()) {
 			// Check if we finished before
 			if (RSInterface.getInterface(242).containsText("ready to leave")) {
 				tmpStatus++;
 			}
-
 			atInterface(242, 6);
 		} else if (RSInterface.getInterface(64).isValid()) {
 			atInterface(64, 5);
@@ -219,8 +206,7 @@ return random(500,700);
 					}
 				}
 			}
-
-			atInterface(GraveDigger.INTERFACE_CHECK_COFFIN, GraveDigger.INTERFACE_CHECK_COFFIN_CLOSE);
+			atCloseInterface(GraveDigger.INTERFACE_CHECK_COFFIN, GraveDigger.INTERFACE_CHECK_COFFIN_CLOSE);
 		} else if (RSInterface.getInterface(GraveDigger.INTERFACE_READ_GRAVESTONE).isValid()) {
 			final int modelID = Bot.getClient().getRSInterfaceCache()[GraveDigger.INTERFACE_READ_GRAVESTONE][GraveDigger.INTERFACE_READ_GRAVESTONE_MODEL].getComponentID();
 			for (final Group g : groups) {
@@ -228,8 +214,7 @@ return random(500,700);
 					g.graveID = tmpID;
 				}
 			}
-
-			atInterface(GraveDigger.INTERFACE_READ_GRAVESTONE, GraveDigger.INTERFACE_READ_GRAVESTONE_CLOSE);
+			atCloseInterface(GraveDigger.INTERFACE_READ_GRAVESTONE, GraveDigger.INTERFACE_READ_GRAVESTONE_CLOSE);
 		} else if ((tmpStatus == 0) && (tmpID != -1)) {
 			for (final Group g : groups) {
 				if (g.graveID == tmpID) {
@@ -329,6 +314,22 @@ return random(500,700);
 		return random(1400, 1800);
 	}
 
+	public boolean atCloseInterface(int parent, int child) {
+		RSInterfaceChild i = RSInterface.getChildInterface(parent, child);
+		if (!i.isValid())
+			return false;
+		Rectangle pos = i.getArea();
+		if (pos.x == -1 || pos.y == -1 || pos.width == -1 || pos.height == -1) {
+			return false;
+		}
+		int dx = (int) (pos.getWidth() - 4) / 2;
+		int dy = (int) (pos.getHeight() - 4) / 2;
+		int midx = (int) (pos.getMinX() + pos.getWidth() / 2);
+		int midy = (int) (pos.getMinY() + pos.getHeight() / 2);
+		clickMouse(midx + random(-dx, dx) - 5, midy + random(-dy, dy), true);
+		return true;
+	}
+
 	public boolean setCharacterInScreen(final RSCharacter ch) {
 		// Check if it's on screen, if not make it on screen.
 		for (int i = 0; i < 3; i++) {
@@ -396,9 +397,9 @@ return random(500,700);
 			openTab(Constants.TAB_INVENTORY);
 		}
 
-		if (atInventoryItem2(item.getID(), "Use"))
+		if (atInventoryItem2(item.getID(), "Use")) {
 			return atObject(targetObject, "Use");
-		else {
+		} else {
 			atInventoryItem2(item.getID(), "Use");
 			return atObject(targetObject, "Use");
 		}
