@@ -441,9 +441,17 @@ public class Bank {
 	}
 
 	/**
+	 * @return <tt>true</tt> if currently searching the bank.
+	 */
+	public boolean isSearchOpen() {
+		//Setting 1248 is -2147483648 when search is enabled and -2013265920
+		return (methods.getSetting(1248) == -2147483648);
+	}
+
+	/**
 	 * Searches for an item in the bank. Returns true if succeeded (does not
 	 * necessarily mean it was found).
-	 * 
+	 *
 	 * @param itemName
 	 *            The item name to find.
 	 * @return <tt>true</tt> on success.
@@ -453,9 +461,11 @@ public class Bank {
 			return false;
 
 		methods.atInterface(Constants.INTERFACE_BANK, Constants.INTERFACE_BANK_BUTTON_SEARCH, "Search");
-		methods.wait(methods.random(1000, 2000));
-
-		if (isOpen() && RSInterface.getInterface(Constants.INTERFACE_BANK_SEARCH).isValid()) {
+		methods.wait(methods.random(1000, 1500));
+		if (!isSearchOpen()) {
+			methods.wait(500);
+		}
+		if (isOpen() && isSearchOpen()) {
 			Bot.getInputManager().sendKeys(itemName, false);
 			methods.wait(methods.random(300, 700));
 			return true;

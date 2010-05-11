@@ -12,8 +12,9 @@ import org.rsbot.script.wrappers.RSObject;
  * Updated by Iscream(Feb 17, 2010)
  * Updated by Iscream(Mar 01, 2010)
  * Updated by Iscream(Apr 15, 2010)
+ * Updated by Iscream(May 11, 2010)
  */
-@ScriptManifest(authors = { "endoskeleton", "Johnnei" }, name = "ScapeRune Island", version = 1.25)
+@ScriptManifest(authors = { "endoskeleton", "Johnnei" }, name = "ScapeRune Island", version = 1.27)
 public class ScapeRuneIsland extends Random {
 
 	public RSObject statue1, statue2, statue3, statue4, direction;
@@ -74,26 +75,30 @@ public class ScapeRuneIsland extends Random {
 				return random(2000, 2400);
 			}
 		}
-		if (getInventoryCountExcept(6209,6202,6200) >= 27) {
+		if (getInventoryCountExcept(6209,6202,6200) >= 1) {
 				log("Not enough space for this random. Depositing 2 Items");
 				final RSObject depo = getNearestObjectByID(32930);
-				if (!tileOnScreen(depo.getLocation())
-						&& (distanceTo(getDestination())) < 8
-						|| distanceTo(getDestination()) > 30) {
+				if (!tileOnScreen(depo.getLocation())) {
 					if (!walkTileMM(randomizeTile(depo.getLocation(), 3, 3))) {
 						walkTo(randomizeTile(depo.getLocation(), 3, 3));
 					}
 					wait(random(1000, 1500));
 				}
-				if (atObject(depo, "Deposit")) {
-					wait(random(1800, 2000));
-					atComponent(getInterface(11).getChild(17),
-							 17, "Dep");
-					wait(random(1800, 2000));
-					atComponent(getInterface(11).getChild(17),
-							16, "Dep");
-					return random(400, 1200);
+				if (!getInterface(11).isValid()) {
+					atObject(depo, "Deposit");
+					wait(random(2000, 2500));
 				}
+				if (getInterface(11).isValid()) {
+					atComponent(getInterface(11).getChild(17),
+							 25, "Dep");
+					wait(random(1000, 1200));
+					atComponent(getInterface(11).getChild(17),
+							26, "Dep");
+					wait(random(1000, 1500));
+					atInterface(11,15);
+					wait(random(1000, 1500));
+				}
+					return random(400, 1200);
 		}
 		if (getInventoryCount(6209) == 0) {
 			final RSItemTile net = getGroundItemByID(6209);
