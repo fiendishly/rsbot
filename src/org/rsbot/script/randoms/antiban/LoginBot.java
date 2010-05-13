@@ -26,8 +26,8 @@ public class LoginBot extends Random {
 	private static final int INTERFACE_BUTTON_LOGIN = 75;
 	private static final int INTERFACE_TEXT_RETURN = 30;
 	private static final int INTERFACE_WELCOME_SCREEN = 906;
-	private static final int INTERFACE_WELCOME_SCREEN_BUTTON_PLAY_1 = 168;
-	private static final int INTERFACE_WELCOME_SCREEN_BUTTON_PLAY_2 = 170;
+	private static final int INTERFACE_WELCOME_SCREEN_BUTTON_PLAY_1 = 178;
+	private static final int INTERFACE_WELCOME_SCREEN_BUTTON_PLAY_2 = 180;
 
 	private static final int INDEX_LOGGED_OUT = 2;
 	private static final int INDEX_LOBBY = 6;

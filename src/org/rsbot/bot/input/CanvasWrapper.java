@@ -68,7 +68,7 @@ public class CanvasWrapper extends Canvas {
 						JOptionPane.showMessageDialog(CanvasWrapper.this, 
 								new String[] { 
 									"Your graphics detail level is not set to 'Safe Mode'.",
-									"Please go to 'Graphics Options' and select 'Safe Mode'.",
+									"Please go to 'Graphics Options' press 'Custom' and select 'Safe Mode'.",
 								}, "Graphics Options", JOptionPane.WARNING_MESSAGE);
 					}
 				});

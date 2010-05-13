@@ -48,7 +48,7 @@ public class StatusNodeList {
 	public org.rsbot.accessors.StatusNode getNext() {
 		final org.rsbot.accessors.StatusNode node = c_node;
 
-		if (node == nl.getHead()) {
+		if (node == nl.getHead() || node == null) {
 			c_node = null;
 			return null;
 		}
@@ -60,7 +60,7 @@ public class StatusNodeList {
 	public org.rsbot.accessors.StatusNode getPrevious() {
 		final org.rsbot.accessors.StatusNode node = c_node;
 
-		if (node == nl.getHead()) {
+		if (node == nl.getHead() || node == null) {
 			c_node = null;
 			return null;
 		}

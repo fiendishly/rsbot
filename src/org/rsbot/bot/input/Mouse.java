@@ -37,8 +37,6 @@ public abstract class Mouse extends Focus implements MouseListener, MouseMotionL
 
 	public abstract Component getComponent();
 
-	public abstract org.rsbot.accessors.NodeList getMouseDataList();
-
 	public long getMousePressTime() {
 		return mousePressTime;
 	}
@@ -51,9 +49,15 @@ public abstract class Mouse extends Focus implements MouseListener, MouseMotionL
 		return mousePressY;
 	}
 
-	public abstract int getMouseX();
+	public int getMouseX()
+	{
+		return clientX;
+	}
 
-	public abstract int getMouseY();
+	public int getMouseY()
+	{
+		return clientY;
+	}
 
 	public abstract boolean isLoggingMouseMovements();
 
@@ -170,6 +174,9 @@ public abstract class Mouse extends Focus implements MouseListener, MouseMotionL
 	}
 
 	public final void sendEvent(final MouseEvent e) {
+		this.clientX = e.getX();
+		this.clientY = e.getY();
+		
 		if (e.getID() == MouseEvent.MOUSE_CLICKED) {
 			_mouseClicked(e);
 		} else if (e.getID() == MouseEvent.MOUSE_DRAGGED) {

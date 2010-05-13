@@ -106,7 +106,7 @@ public class RSLoader extends Applet implements Runnable, Loader {
 			} catch (final NumberFormatException e) {
 				log.log(Level.WARNING, "", e);
 			}
-			final Object slInitialized = sl.newInstance(this, i, injector.generateTargetName(), 30);
+			final Object slInitialized = sl.newInstance(this, i, injector.generateTargetName(), 32);
 			final Class<?> c = rSClassLoader.loadClass("client");
 
 			// Run client
