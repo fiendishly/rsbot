@@ -1,73 +1,69 @@
 package org.rsbot.script.randoms;
 
-//Hello! This script will close: Stats; Report; GravrStone; PIN settings; Graphics; Quest; Quick Chat help; -->
-//  -->  Price Check; GE Collection Box; Clan chat Setup; Bank Helper; Audio; Death Items or World map Interface!
+import java.util.LinkedList;
+import java.util.List;
 
-/**
- IMPORTANT! If you do have any of these files, mentioned below, in AntiBan or AntiRandom folder, then DELETE them! */
-//DELETE these from AntiBan or AntiRandom folder if you haven't yet!---> "StatCloser.java & StatCloser.class" ;  -->
-//  -->  "ReportCloser.java & ReportCloser.class" ; "GraphicsCloser.java & GraphicsCloser.class" ; "CloseWorldMap.java & CloseWorldMap.class" ;  -->
-//  -->  "CloseGrave.java & CloseGrave.class" ; "BankHelpCloser.java & BankHelpCloser.class" ; "AudioCloser.java & AudioCloser.class"
 import org.rsbot.script.Random;
 import org.rsbot.script.ScriptManifest;
 import org.rsbot.script.wrappers.RSInterface;
+import org.rsbot.script.wrappers.RSInterfaceChild;
 
 /**
- * Offical Threads in Forum: http://www.rsbot.org/vb/showthread.php?t=5099
+ * This script will close: Stats; Report; GravrStone; PIN settings; Graphics; Quest; Quick Chat help;
+ * Price Check; GE Collection Box; Clan chat Setup; Bank Helper; Audio; Death Items or World map Interface!
+ * Official thread on forums: http://www.rsbot.org/vb/showthread.php?t=5099
+ * Last updated 15.05.2010. 
  */
-
-@ScriptManifest(authors = { "HeyyamaN" }, name = "Interface Closer", version = 1.5)
+@ScriptManifest(authors = { "HeyyamaN" }, name = "Interface Closer", version = 1.6)
 public class CloseAllInterface extends Random {
+	
+	private List<RSInterfaceChild> components = new LinkedList<RSInterfaceChild>();
+	
+	{
+		addChild(743, 20); // Audio
+		addChild(767, 10); // Bank help
+		addChild(499, 29); // Stats
+		addChild(594, 48); // Report
+		addChild(742, 81); // Graphics
+		addChild(275,  8); // Quest
+		addChild(206, 16); // Price check
+		addChild(266, 11); // Grove
+		addChild(109, 13); // GE collection box
+		addChild(102, 13); // Death items
+		addChild(590,  3); // Clan setup
+		addChild( 14,  3); // Pin settings
+		addChild(157, 13); // Quick chat help
+		addChild(764,  2); // Objectives
+		addChild(895, 19); // Advisor
+	}
+	
+	private void addChild(int parent, int idx) {
+		components.add(RSInterface.getInterface(parent).getChild(idx));
+	}
 
-	@Override
 	public boolean activateCondition() {
-		if (!isLoggedIn())
-			return false;
-		if (RSInterface.getInterface(755).getChild(45).isValid()) { // World map
-			if (RSInterface.getChildInterface(755, 0).getComponents().length > 0)
-				return true;
+		if (isLoggedIn()) {
+			if (RSInterface.getInterface(755).getChild(45).isValid()) { // World map
+				if (RSInterface.getChildInterface(755, 0).getComponents().length > 0) {
+					return true;
+				}
+			}
+			for (RSInterfaceChild c : components) {
+				if (c.isValid()) {
+					return true;
+				}
+			}
 		}
-		if (RSInterface.getInterface(743).getChild(20).isValid())
-			return true;
-		if (RSInterface.getInterface(767).getChild(10).isValid())
-			return true;
-		if (RSInterface.getInterface(499).getChild(29).isValid())
-			return true;
-		if (RSInterface.getInterface(594).getChild(48).isValid())
-			return true;
-		if (RSInterface.getInterface(742).getChild(25).isValid())
-			return true;
-		if (RSInterface.getInterface(275).getChild(8).isValid())
-			return true;
-		if (RSInterface.getInterface(206).getChild(16).isValid())
-			// Check
-			return true;
-		if (RSInterface.getInterface(266).getChild(11).isValid())
-			return true;
-		if (RSInterface.getInterface(109).getChild(13).isValid())
-			// Collection
-			// Box
-			return true;
-		if (RSInterface.getInterface(102).getChild(13).isValid())
-			// items
-			return true;
-		if (RSInterface.getInterface(590).getChild(3).isValid())
-			return true;
-		if (RSInterface.getInterface(14).getChild(3).isValid())
-			// settings
-			return true;
-		if (RSInterface.getInterface(157).getChild(13).isValid())
-			// Chat help
-			return true;
-
 		return false;
 	}
 
-	@Override
+	/* 
+	 * (non-Javadoc)
+	 * TODO: Avoid literal coordinate values.
+	 */
 	public int loop() {
 		if (RSInterface.getInterface(755).isValid() && (RSInterface.getChildInterface(755, 0).getComponents().length > 0)) {
-			clickMouse(747 + random(-5, 5), 18 + random(-4, 4), true); // World
-			// map
+			clickMouse(747 + random(-5, 5), 18 + random(-4, 4), true); // World map
 			return random(500, 900);
 		}
 
@@ -76,8 +72,7 @@ public class CloseAllInterface extends Random {
 			wait(random(500, 900));
 		}
 		if (RSInterface.getInterface(767).isValid()) {
-			clickMouse(489 + random(-5, 5), 35 + random(-4, 4), true); // Bank
-			// Help
+			clickMouse(489 + random(-5, 5), 35 + random(-4, 4), true); // Bank Help
 			wait(random(500, 900));
 		}
 		if (RSInterface.getInterface(499).isValid()) {
@@ -89,7 +84,7 @@ public class CloseAllInterface extends Random {
 			wait(random(500, 900));
 		}
 		if (RSInterface.getInterface(742).isValid()) {
-			clickMouse(493 + random(-5, 5), 36 + random(-4, 4), true); // Graphics
+			clickMouse(498 + random(-5, 5), 13 + random(-4, 4), true); // Graphics
 			wait(random(500, 900));
 		}
 		if (RSInterface.getInterface(275).isValid()) {
@@ -97,8 +92,7 @@ public class CloseAllInterface extends Random {
 			wait(random(500, 900));
 		}
 		if (RSInterface.getInterface(206).isValid()) {
-			clickMouse(485 + random(-5, 5), 34 + random(-4, 4), true); // Price
-			// Check
+			clickMouse(485 + random(-5, 5), 34 + random(-4, 4), true); // Price Check
 			wait(random(500, 900));
 		}
 		if (RSInterface.getInterface(266).isValid()) {
@@ -106,30 +100,31 @@ public class CloseAllInterface extends Random {
 			wait(random(500, 900));
 		}
 		if (RSInterface.getInterface(109).isValid()) {
-			clickMouse(426 + random(-5, 5), 74 + random(-4, 4), true); // GE
-			// Collection
-			// Box
+			clickMouse(426 + random(-5, 5), 74 + random(-4, 4), true); // GE Collection Box
 			wait(random(500, 900));
 		}
 		if (RSInterface.getInterface(102).isValid()) {
-			clickMouse(493 + random(-5, 5), 30 + random(-4, 4), true); // Death
-			// items
+			clickMouse(493 + random(-5, 5), 30 + random(-4, 4), true); // Death items
 			wait(random(500, 900));
 		}
 		if (RSInterface.getInterface(590).isValid()) {
-			clickMouse(487 + random(-5, 5), 44 + random(-4, 4), true); // Clan
-			// Setup
+			clickMouse(487 + random(-5, 5), 44 + random(-4, 4), true); // Clan Setup
 			wait(random(500, 900));
 		}
 		if (RSInterface.getInterface(14).isValid()) {
-			atInterface(RSInterface.getInterface(14).getChild(3)); // PIN
-			// settings
+			atInterface(RSInterface.getInterface(14).getChild(3)); // PIN settings
 			wait(random(500, 900));
 		}
 		if (RSInterface.getInterface(157).isValid()) {
-			clickMouse(484 + random(-5, 5), 42 + random(-4, 4), true); // Quick
-			// Chat
-			// help
+			clickMouse(484 + random(-5, 5), 42 + random(-4, 4), true); // Quick Chat help
+			wait(random(500, 900));
+		}
+		if (RSInterface.getInterface(764).isValid()) {
+			clickMouse(490 + random(-4, 4), 15 + random(-4, 4), true); // Objectives
+			wait(random(500, 900));
+		}
+		if (RSInterface.getInterface(895).isValid()) {
+			clickMouse(494 + random(-4, 4), 15 + random(-4, 4), true); // Advisor
 			wait(random(500, 900));
 		}
 

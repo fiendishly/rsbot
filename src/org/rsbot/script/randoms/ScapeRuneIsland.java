@@ -8,6 +8,7 @@ import org.rsbot.script.wrappers.RSInterfaceChild;
 import org.rsbot.script.wrappers.RSItemTile;
 import org.rsbot.script.wrappers.RSNPC;
 import org.rsbot.script.wrappers.RSObject;
+
 /*
  * Updated by Iscream(Feb 17, 2010)
  * Updated by Iscream(Mar 01, 2010)
@@ -21,6 +22,7 @@ public class ScapeRuneIsland extends Random {
 	public int[] statueid = { 8992, 8993, 8990, 8991 };
 	public RSNPC servant;
 	public boolean finished;
+	RSObject a;
 
 	public boolean activateCondition() {
 		return (servant = getNearestNPCByID(2481)) != null;
@@ -40,7 +42,7 @@ public class ScapeRuneIsland extends Random {
 		if (getMyPlayer().isMoving() || getMyPlayer().getAnimation() == 620) {
 			return random(550, 700);
 		}
-		if (IScanContinue()) {
+		if (canContinueIS()) {
 			if (RSInterface.getChildInterface(241, 4).containsText("catnap")) {
 				finished = true;
 			}
@@ -75,30 +77,28 @@ public class ScapeRuneIsland extends Random {
 				return random(2000, 2400);
 			}
 		}
-		if (getInventoryCountExcept(6209,6202,6200) >= 1) {
-				log("Not enough space for this random. Depositing 2 Items");
-				final RSObject depo = getNearestObjectByID(32930);
-				if (!tileOnScreen(depo.getLocation())) {
-					if (!walkTileMM(randomizeTile(depo.getLocation(), 3, 3))) {
-						walkTo(randomizeTile(depo.getLocation(), 3, 3));
-					}
-					wait(random(1000, 1500));
+		if (getInventoryCountExcept(6209, 6202, 6200) >= 27) {
+			log("Not enough space for this random. Depositing 2 Items");
+			final RSObject depo = getNearestObjectByID(32930);
+			if (!tileOnScreen(depo.getLocation())) {
+				if (!walkTileMM(randomizeTile(depo.getLocation(), 3, 3))) {
+					walkTo(randomizeTile(depo.getLocation(), 3, 3));
 				}
-				if (!getInterface(11).isValid()) {
-					atObject(depo, "Deposit");
-					wait(random(2000, 2500));
-				}
-				if (getInterface(11).isValid()) {
-					atComponent(getInterface(11).getChild(17),
-							 25, "Dep");
-					wait(random(1000, 1200));
-					atComponent(getInterface(11).getChild(17),
-							26, "Dep");
-					wait(random(1000, 1500));
-					atInterface(11,15);
-					wait(random(1000, 1500));
-				}
-					return random(400, 1200);
+				wait(random(1000, 1500));
+			}
+			if (!getInterface(11).isValid()) {
+				atObject(depo, "Deposit");
+				wait(random(2000, 2500));
+			}
+			if (getInterface(11).isValid()) {
+				atComponent(getInterface(11).getChild(17), 25, "Dep");
+				wait(random(1000, 1200));
+				atComponent(getInterface(11).getChild(17), 26, "Dep");
+				wait(random(1000, 1500));
+				atInterface(11, 15);
+				wait(random(1000, 1500));
+			}
+			return random(400, 1200);
 		}
 		if (getInventoryCount(6209) == 0) {
 			final RSItemTile net = getGroundItemByID(6209);
@@ -111,7 +111,7 @@ public class ScapeRuneIsland extends Random {
 					return random(800, 1000);
 				}
 			}
-			}
+		}
 
 		if (RSInterface.getChildInterface(246, 5).containsText("contains")
 				&& getSetting(334) == 1 && direction == null) {
@@ -132,10 +132,11 @@ public class ScapeRuneIsland extends Random {
 			return 3000;
 		}
 
-		if (direction != null && getInventoryCount(6200) < 1) {// 6206, 6202
-																// (want), 6200
-																// (cooked) anim
-																// 620
+		if (direction != null && getInventoryCount(6200) < 1) {
+			// 6206, 6202
+			// (want), 6200
+			// (cooked) anim
+			// 620
 			wait(1200);
 			if (distanceTo(direction.getLocation()) > 4) {
 				walkTo(direction.getLocation());
@@ -151,7 +152,7 @@ public class ScapeRuneIsland extends Random {
 			}
 		}
 
-		if (getInventoryCount(6200) > 0 && !IScanContinue()) {
+		if (getInventoryCount(6200) > 0 && !canContinueIS()) {
 			final RSNPC cat = getNearestNPCByID(2479);
 			if (cat != null) {
 				if (!tileOnScreen(cat.getLocation())) {
@@ -165,7 +166,7 @@ public class ScapeRuneIsland extends Random {
 			return random(1900, 2200);
 		}
 		if (servant != null && direction == null && getSetting(344) == 0
-				&& !IScanContinue()) {
+				&& !canContinueIS()) {
 			if (!tileOnScreen(servant.getLocation())) {
 				walkTo(servant.getLocation());
 				return 700;
@@ -176,21 +177,23 @@ public class ScapeRuneIsland extends Random {
 		log("Setting 344: " + getSetting(344));
 		return random(800, 1200);
 	}
-	private boolean IScanContinue() {
-		return ISgetContinueChildInterface() != null;
+
+	private boolean canContinueIS() {
+		return getContinueChildInterfaceIS() != null;
 	}
-	private RSInterfaceChild ISgetContinueChildInterface() {
+
+	private RSInterfaceChild getContinueChildInterfaceIS() {
 		if (Bot.getClient().getRSInterfaceCache() == null)
 			return null;
 		RSInterface[] valid = RSInterface.getAllInterfaces();
 		for (RSInterface iface : valid) {
 			if (iface.getIndex() != 137) {
-			int len = iface.getChildCount();
-			for (int i = 0; i < len; i++) {
-				RSInterfaceChild child = iface.getChild(i);
-				if (child.containsText("Click here to continue"))
-					return child;
-			}
+				int len = iface.getChildCount();
+				for (int i = 0; i < len; i++) {
+					RSInterfaceChild child = iface.getChild(i);
+					if (child.containsText("Click here to continue"))
+						return child;
+				}
 			}
 		}
 		return null;
