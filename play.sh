@@ -13,4 +13,4 @@ if [ "$(uname)" = "Darwin" ]; then
 	if [ -n "$growl" ]; then macargs="-Dgrowl.enabled=true -Dgrowl.path=\"$growl\" $macargs"; fi
 fi
 
-nice java -jar $macargs -Xmx512m "$dist" > /dev/null &
+java -jar $macargs -Xmx512m "$dist" > /dev/null &

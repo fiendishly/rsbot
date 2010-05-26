@@ -17,16 +17,16 @@ DIST=$(DATADIR)/RSBot.jar
 
 all: $(DATADIR) Bot Scripts
 	@rm -f $(DIST)
-	@cp "$(MANIFEST)" "$(LSTF)"
-	@echo "Specification-Version: \"$(VERSION)\"" >> "$(LSTF)"
-	@echo "Implementation-Version: \"$(VERSION)\"" >> "$(LSTF)"
-	jar cfm "$(DIST)" "$(LSTF)" -C "$(BINDIR)" . $(SCRIPTS)/*.class $(IMGDIR)/*.png $(RES)/*.bat $(RES)/*.sh $(RES)/version.dat
+	@cp $(MANIFEST) $(LSTF)
+	@echo "Specification-Version: \"$(VERSION)\"" >> $(LSTF)
+	@echo "Implementation-Version: \"$(VERSION)\"" >> $(LSTF)
+	jar cfm $(DIST) $(LSTF) -C $(BINDIR) . $(SCRIPTS)/*.class $(IMGDIR)/*.png $(RES)/*.bat $(RES)/*.sh $(RES)/version.dat
 
 Bot: $(BINDIR)
-	"$(CC)" $(CFLAGS) -d "$(BINDIR)" `find "$(SRC)" -name "*.java"`
+	$(CC) $(CFLAGS) -d $(BINDIR) `find $(SRC) -name *.java`
 
 Scripts: mostlyclean
-	"$(CC)" $(CFLAGS) -cp "$(BINDIR)" $(SCRIPTS)/*.java
+	$(CC) $(CFLAGS) -cp $(BINDIR) $(SCRIPTS)/*.java
 
 mostlyclean:
 	@rm -f $(SCRIPTS)/*.class

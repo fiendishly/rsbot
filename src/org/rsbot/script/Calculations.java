@@ -305,10 +305,10 @@ public class Calculations {
 		final int x = X >> 7;
 		final int z = Z >> 7;
 
-		if ((x < 0) || (x > 104) || (z < 0) || (z > 104))
+		if ((x < 0) || (x >= 104) || (z < 0) || (z >= 104))
 			return 0;
 
-		if ((p < 3) && ((Bot.getClient().getGroundByteArray()[1][x][z] & 2) != 0)) {
+		if ((p <= 3) && ((Bot.getClient().getGroundByteArray()[1][x][z] & 2) != 0)) {
 			p++;
 		}
 
@@ -319,9 +319,8 @@ public class Calculations {
 		return 0;
 	}
 
-	// Calculations
 	public static Point tileToScreen(final int x, final int y, final double dX, final double dY, final int height) {
-		return Calculations.worldToScreen((int) ((x - Bot.getClient().getBaseX() + dX) * 128), (int) ((y - Bot.getClient().getBaseY() + dY) * 128), height);
+		return Calculations.worldToScreen((int) ((x - Bot.getClient().getBaseX() + dX) * 512), (int) ((y - Bot.getClient().getBaseY() + dY) * 512), height);
 	}
 
 	public static Point tileToScreen(final int x, final int y, final int height) {
@@ -374,8 +373,8 @@ public class Calculations {
 	public static Point worldToMinimap(double x, double y) {
 		x -= Bot.getClient().getBaseX();
 		y -= Bot.getClient().getBaseY();
-		final int calculatedX = (int) (x * 4 + 2) - Bot.getClient().getMyRSPlayer().getX() / 32;
-		final int calculatedY = (int) (y * 4 + 2) - Bot.getClient().getMyRSPlayer().getY() / 32;
+		final int calculatedX = (int) (x * 4 + 2) - Bot.getClient().getMyRSPlayer().getX() / 128;
+		final int calculatedY = (int) (y * 4 + 2) - Bot.getClient().getMyRSPlayer().getY() / 128;
 
 		try {
 			final org.rsbot.accessors.RSInterface mm = DynamicConstants.getMinimapInterface();
@@ -406,9 +405,7 @@ public class Calculations {
 				final int screenx = calcCenterX + mm2.getAbsoluteX() + mm2.getWidth() / 2;
 				final int screeny = -calcCenterY + mm2.getAbsoluteY() + mm2.getHeight() / 2;
 
-				// Check if point is within the circel of the minimap instead of
-				// the
-				// rectangle!
+				// Check whether point is within the circle of the minimap rather than the rectangle.
 				if ((Math.max(calcCenterY, -calcCenterY) <= mm2.getWidth() / 2.0 * .8) && (Math.max(calcCenterX, -calcCenterX) <= mm2.getHeight() / 2 * .8))
 					return new Point(screenx, screeny);
 				else
@@ -429,12 +426,12 @@ public class Calculations {
 		
 		if(detail_lvl == 0 || detail_lvl == 2)
 		{
-			int _z = (int) (RenderData.zOff + ((int) (RenderData.zX * x + RenderData.zY * y + RenderData.zZ * z) >> 15));
+			int _z = (int) (RenderData.zOff + ((int) (RenderData.zX * x + RenderData.zY * y + RenderData.zZ * z) >> 14));
 			if( (_z < Render.zNear) || (_z > Render.zFar) )
 				return new Point(-1, -1);
 
-			int _x = Render.xMultiplier * ((int) RenderData.xOff + ((int) (RenderData.xX * x + RenderData.xY * y + RenderData.xZ * z) >> 15)) / _z;
-			int _y = Render.yMultiplier * ((int) RenderData.yOff + ((int) (RenderData.yX * x + RenderData.yY * y + RenderData.yZ * z) >> 15)) / _z;
+			int _x = Render.xMultiplier * ((int) RenderData.xOff + ((int) (RenderData.xX * x + RenderData.xY * y + RenderData.xZ * z) >> 14)) / _z;
+			int _y = Render.yMultiplier * ((int) RenderData.yOff + ((int) (RenderData.yX * x + RenderData.yY * y + RenderData.yZ * z) >> 14)) / _z;
 
 			if ((_x >= Render.absoluteX1) && (_x <= Render.absoluteX2) && (_y >= Render.absoluteY1) && (_y <= Render.absoluteY2))
 				return new Point((int) (_x - Render.absoluteX1), (int) (_y - Render.absoluteY1));
@@ -456,7 +453,7 @@ public class Calculations {
 	}
 	public static Point worldToScreen(final int x, final int z, final int height) {
 
-		if ((Bot.getClient().getGroundByteArray() == null) || (Bot.getClient().getTileData() == null) || (Bot.getClient().getDetailInfo() == null) || (x < 128) || (z < 128) || (x > 13056) || (z > 13056))
+		if ((Bot.getClient().getGroundByteArray() == null) || (Bot.getClient().getTileData() == null) || (Bot.getClient().getDetailInfo() == null) || (x < 512) || (z < 512) || (x > 52224) || (z > 52224))
 			return new Point(-1, -1);
 
 		int y = Calculations.tileHeight(x, z) - height;
