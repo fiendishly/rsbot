@@ -2310,8 +2310,8 @@ public class Methods implements Constants {
 			actions = menuActionsCache.toArray(new String[menuActionsCache.size()]);
 		}
 		ArrayList<String> output = new ArrayList<String>();
-		for(int i = Math.min(options.length, actions.length) - 1; i >= 0; i--) {
-		//for (int i = 0; i < Math.min(options.length, actions.length); i++) {
+		//for(int i = Math.min(options.length, actions.length) - 1; i >= 0; i--) {
+		for (int i = 0; i < Math.min(options.length, actions.length); i++) {
 			String option = options[i];
 			String action = actions[i];
 			if (option != null && action != null) {
@@ -2996,10 +2996,10 @@ public class Methods implements Constants {
 				org.rsbot.accessors.RSObject rsObj;
 				org.rsbot.accessors.RSInteractable obj;
 
-				// Interactable objects like trees
+				// Interactable objects like trees (it will skip the players etc!)
 				for (RSAnimableNode node = rsGround.getRSAnimableList(); node != null; node = node.getNext()) {
 					obj = node.getRSAnimable();
-					if (obj != null) {
+					if (obj != null && obj instanceof org.rsbot.accessors.RSObject) {
 						rsObj = (org.rsbot.accessors.RSObject) obj;
 						if (rsObj.getID() != -1)
 							return new RSObject(rsObj, x, y, 0);
@@ -3047,14 +3047,15 @@ public class Methods implements Constants {
 					}
 				}
 
-				obj = rsGround.getRSObject4();
-				if (obj != null) {
-					rsObj = (org.rsbot.accessors.RSObject) obj;
-					if (rsObj.getID() != -1)
-						return new RSObject(rsObj, x, y, 4);
-				}
+//				obj = rsGround.getRSObject4();
+//				if (obj != null) {
+//					rsObj = (org.rsbot.accessors.RSObject) obj;
+//					if (rsObj.getID() != -1)
+//						return new RSObject(rsObj, x, y, 4);
+//				}
 			}
 		} catch (Exception ignored) {
+			ignored.printStackTrace();
 		}
 
 		return null;

@@ -65,8 +65,8 @@ public class RSCharacter {
 	public RSTile getLocation() {
 		if (c == null)
 			return new RSTile(-1, -1);
-		final int x = Bot.getClient().getBaseX() + (c.getX() >> 7);
-		final int y = Bot.getClient().getBaseY() + (c.getY() >> 7);
+		final int x = Bot.getClient().getBaseX() + (c.getX() >> 9);
+		final int y = Bot.getClient().getBaseY() + (c.getY() >> 9);
 		return new RSTile(x, y);
 	}
 

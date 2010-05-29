@@ -302,8 +302,8 @@ public class Calculations {
 
 	public static int tileHeight(final int X, final int Z) {
 		int p = Bot.getClient().getPlane();
-		final int x = X >> 7;
-		final int z = Z >> 7;
+		final int x = X >> 9;
+		final int z = Z >> 9;
 
 		if ((x < 0) || (x >= 104) || (z < 0) || (z >= 104))
 			return 0;
