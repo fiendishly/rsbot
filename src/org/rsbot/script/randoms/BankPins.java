@@ -13,12 +13,15 @@ public class BankPins extends Random {
 	@Override
 	public boolean activateCondition() {
 		pin = getAccountPin();
-		if (RSInterface.getInterface(13).isValid() && ((pin == null) || (pin.length() != 4))) {
-			log.severe("You must add a bank pin to your account");
-			stopScript();
-			return false;
+		if (RSInterface.getInterface(13).isValid()) {
+			if ((pin == null) || (pin.length() != 4)) {
+				log.severe("You must add a bank pin to your account.");
+				stopScript();
+			} else {
+				return true;
+			}
 		}
-		return RSInterface.getInterface(13).isValid();
+		return false;
 	}
 
 	public void enterCode(final String pin) {

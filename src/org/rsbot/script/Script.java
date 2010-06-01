@@ -16,7 +16,9 @@ public abstract class Script extends Methods implements EventListener {
 
 	/**
 	 * The main loop. Called if you return true from main. Called until you
-	 * return a negative number.
+	 * return a negative number. Avoid causing execution to pause using wait()
+	 * within this method in favor of returning the number of milliseconds to
+	 * wait. This ensures that pausing and anti-randoms perform normally.
 	 *
 	 * @return The number of milliseconds that the manager should wait before
 	 *         calling it again. Returning a negative number will stop the
@@ -38,10 +40,8 @@ public abstract class Script extends Methods implements EventListener {
 	 * @param map The arguments passed in from the description.
 	 * @return <tt>true</tt> if the script should be started.
 	 */
-	@SuppressWarnings("deprecation")
 	public boolean onStart(final Map<String, String> map) {
-		final String args = map.get("args");
-		return args == null ? onStart(new String[0]) : onStart(args.split(","));
+		return true;
 	}
 
 	/**
@@ -53,7 +53,6 @@ public abstract class Script extends Methods implements EventListener {
 	 * @deprecated Use {@link #onStart(Map)} instead.
 	 */
 	@Deprecated
-	@SuppressWarnings("unused")
 	public boolean onStart(final String[] args) {
 		return true;
 	}
@@ -66,8 +65,8 @@ public abstract class Script extends Methods implements EventListener {
 		try {
 			start = onStart(map);
 		} catch (final ThreadDeath ignored) {
-		} catch (final Throwable e) {
-			log.log(Level.SEVERE, "Error starting script: ", e);
+		} catch (final Throwable ex) {
+			log.log(Level.SEVERE, "Error starting script: ", ex);
 		}
 		if (start) {
 			isActive = true;
@@ -82,8 +81,8 @@ public abstract class Script extends Methods implements EventListener {
 							timeOut = loop();
 						} catch (final ThreadDeath td) {
 							break;
-						} catch (final Throwable e) {
-							log.log(Level.WARNING, "Uncaught exception from script: ", e);
+						} catch (final Exception ex) {
+							log.log(Level.WARNING, "Uncaught exception from script: ", ex);
 						}
 						if (timeOut == -1) {
 							break;

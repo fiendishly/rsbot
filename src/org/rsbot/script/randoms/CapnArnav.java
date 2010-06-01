@@ -35,7 +35,6 @@ public class CapnArnav extends Random {
 	private boolean talkedto = false;
 	private static final int CAPTAIN_ID = 2308;
 	private static final int PORTAL_ID = 11369;
-	private int i = 0;
 
 	private boolean done = false;
 

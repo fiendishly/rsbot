@@ -11,7 +11,6 @@ import org.rsbot.script.wrappers.RSInterface;
 import org.rsbot.script.wrappers.RSInterfaceChild;
 import org.rsbot.script.wrappers.RSNPC;
 import org.rsbot.script.wrappers.RSObject;
-import org.rsbot.script.wrappers.RSTile;
 import org.rsbot.util.ScreenshotUtil;
 
 /*

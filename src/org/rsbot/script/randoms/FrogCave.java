@@ -6,7 +6,6 @@ import org.rsbot.bot.Bot;
 import org.rsbot.script.Calculations;
 import org.rsbot.script.Random;
 import org.rsbot.script.ScriptManifest;
-import org.rsbot.script.internal.NodeCache;
 import org.rsbot.script.wrappers.RSNPC;
 /*
  * Updated by Iscream Feb 22,10
