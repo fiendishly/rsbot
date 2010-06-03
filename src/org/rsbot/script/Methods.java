@@ -3679,17 +3679,12 @@ public class Methods implements Constants {
 	}
 
 	/**
-	 * Calls {@link #stopScript()} by default. You may override this in a
-	 * subclass of Script in order to execute code whenever the script is
-	 * stopped.
+	 * You may override this in a subclass of Script in order
+	 * to execute code whenever the script is stopped.
 	 */
 	public void onFinish() {
-		stopScript();
+		
 	}
-
-	/*
-	 * Made by countvidal.
-	 */
 
 	public boolean onTile(RSTile tile, String search, String action) {
 		if (!tile.isValid())
