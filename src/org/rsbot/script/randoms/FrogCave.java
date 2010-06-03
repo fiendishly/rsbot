@@ -43,7 +43,7 @@ public class FrogCave extends Random {
 					continue;
 				}
 				if (// npc.getName().equals("Frog") &&
-				npc.getHeight() == -68) {
+				npc.getHeight() == -278) {
 					return npc;
 				}
 			} catch (final Exception e) {
