@@ -3055,7 +3055,6 @@ public class Methods implements Constants {
 //				}
 			}
 		} catch (Exception ignored) {
-			ignored.printStackTrace();
 		}
 
 		return null;

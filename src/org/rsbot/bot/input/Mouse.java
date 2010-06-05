@@ -8,6 +8,7 @@ import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 
 public abstract class Mouse extends Focus implements MouseListener, MouseMotionListener, MouseWheelListener {
+	
 	public int clientX;
 	public int clientY;
 	public boolean present;
@@ -168,7 +169,11 @@ public abstract class Mouse extends Focus implements MouseListener, MouseMotionL
 	public void mouseWheelMoved(final MouseWheelEvent e) {
 		// System.out.println(("WHL");
 		if (!Listener.blocked) {
-			try { _mouseWheelMoved(e); }catch(AbstractMethodError ame){} //it might not be implemented!
+			try {
+				_mouseWheelMoved(e);
+			} catch(AbstractMethodError ame){
+				// it might not be implemented!
+			}
 		}
 		e.consume();
 	}
@@ -176,28 +181,36 @@ public abstract class Mouse extends Focus implements MouseListener, MouseMotionL
 	public final void sendEvent(final MouseEvent e) {
 		this.clientX = e.getX();
 		this.clientY = e.getY();
-		
-		if (e.getID() == MouseEvent.MOUSE_CLICKED) {
-			_mouseClicked(e);
-		} else if (e.getID() == MouseEvent.MOUSE_DRAGGED) {
-			_mouseDragged(e);
-		} else if (e.getID() == MouseEvent.MOUSE_ENTERED) {
-			_mouseEntered(e);
-		} else if (e.getID() == MouseEvent.MOUSE_EXITED) {
-			_mouseExited(e);
-		} else if (e.getID() == MouseEvent.MOUSE_MOVED) {
-			_mouseMoved(e);
-		} else if (e.getID() == MouseEvent.MOUSE_PRESSED) {
-			_mousePressed(e);
-		} else if (e.getID() == MouseEvent.MOUSE_RELEASED) {
-			mousePressX = e.getX();
-			mousePressY = e.getY();
-			mousePressTime = System.currentTimeMillis();
-
-			_mouseReleased(e);
-		} else if(e.getID() == MouseEvent.MOUSE_WHEEL) {
-			try { _mouseWheelMoved((MouseWheelEvent) e); }catch(AbstractMethodError ame){} //it might not be implemented!
-		} else
-			throw new InternalError(e.toString());
+		try {
+			if (e.getID() == MouseEvent.MOUSE_CLICKED) {
+				_mouseClicked(e);
+			} else if (e.getID() == MouseEvent.MOUSE_DRAGGED) {
+				_mouseDragged(e);
+			} else if (e.getID() == MouseEvent.MOUSE_ENTERED) {
+				_mouseEntered(e);
+			} else if (e.getID() == MouseEvent.MOUSE_EXITED) {
+				_mouseExited(e);
+			} else if (e.getID() == MouseEvent.MOUSE_MOVED) {
+				_mouseMoved(e);
+			} else if (e.getID() == MouseEvent.MOUSE_PRESSED) {
+				_mousePressed(e);
+			} else if (e.getID() == MouseEvent.MOUSE_RELEASED) {
+				mousePressX = e.getX();
+				mousePressY = e.getY();
+				mousePressTime = System.currentTimeMillis();
+				_mouseReleased(e);
+			} else if(e.getID() == MouseEvent.MOUSE_WHEEL) {
+				try {
+					_mouseWheelMoved((MouseWheelEvent) e);
+				} catch(AbstractMethodError ignored) {
+					// it might not be implemented!
+				}
+			} else {
+				throw new InternalError(e.toString());
+			}
+		} catch (NullPointerException ignored) {
+			// client may throw NPE when a listener
+			// is being re-instantiated.
+		}
 	}
 }
