@@ -3,4 +3,4 @@ SET dist=data\RSBot.jar
 
 IF NOT EXIST "%dist%" CALL Compile.bat
 
-START /BELOWNORMAL javaw -jar -Xmx512m "%dist%"
+START /BELOWNORMAL javaw -classpath "%dist%" org.rsbot.Application

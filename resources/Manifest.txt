@@ -1,4 +1,4 @@
-Main-Class: org.rsbot.Application
+Main-Class: org.rsbot.Boot
 
 Name: org/rsbot
 Sealed: true
