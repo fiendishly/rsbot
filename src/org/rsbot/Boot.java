@@ -14,7 +14,7 @@ public class Boot {
 			Runtime.getRuntime().exec("javaw -Xmx512m -classpath \"" +
 					location + "\" org.rsbot.Application");
 		} else {
-			Runtime.getRuntime().exec(new String[] { "/bin/bash",
+			Runtime.getRuntime().exec(new String[] { "/bin/sh",
 					"-c", "java -Xmx512m -classpath \"" +
 					location + "\" org.rsbot.Application"});
 		}
