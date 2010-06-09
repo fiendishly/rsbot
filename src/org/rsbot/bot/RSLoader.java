@@ -6,13 +6,12 @@ import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.io.File;
-import java.lang.reflect.Constructor;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.rsbot.accessors.Loader;
-import org.rsbot.util.Injector;
 import org.rsbot.util.GlobalConfiguration;
+import org.rsbot.util.Injector;
 
 /**
  * @author Qauters This class will be used instead of the their own
@@ -94,7 +93,7 @@ public class RSLoader extends Applet implements Runnable, Loader {
 	public void run() {
 		try {
 			rSClassLoader = new RSClassLoader(injector);
-			// Load required classes
+/*			// Load required classes
 			final Class<?> signLink = rSClassLoader.loadClass("SignLink");
 			final Constructor<?> sl = signLink.getConstructors()[0];
 			int i = 32;
@@ -106,17 +105,28 @@ public class RSLoader extends Applet implements Runnable, Loader {
 			} catch (final NumberFormatException e) {
 				log.log(Level.WARNING, "", e);
 			}
-			final Object slInitialized = sl.newInstance(this, i, injector.generateTargetName(), 32);
+			final Object slInitialized = sl.newInstance(this, i, injector.generateTargetName(), 32);*/
+			
+			/*  Loader is changed from version #611.
+				A small note to this is:
+				The loader now loads ClientDiskCache (thats how Jagex calls it) and initializes it.
+				This is a static class, however this class is also reinitialized in Signlink.
+				This is the reason I didn't do it here, and it seems to work perfectly.
+				We now call provideLoaderApplet instead of provideSignlink,
+				the loader applet thats provided is 'this', which used to be provided through Signlink
+			*/
+				
 			final Class<?> c = rSClassLoader.loadClass("client");
 
 			// Run client
 			client = (Applet) c.newInstance();
 			loadedCallback.run();
-			c.getMethod("providesignlink", new Class[] { signLink }).invoke(null, new Object[] { slInitialized });
+			c.getMethod("provideLoaderApplet", new Class[] { java.applet.Applet.class }).invoke(null, new Object[] { this });
 			client.init();
 			client.start();
 		} catch (final Exception e) {
 			log.log(Level.SEVERE, "Unable to load client, please check your firewall and internet connection");
+			e.printStackTrace();
 			File versionFile = new File(GlobalConfiguration.Paths.getVersionCache());
 			versionFile.delete();
 		}
