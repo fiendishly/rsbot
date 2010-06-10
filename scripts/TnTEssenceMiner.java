@@ -31,9 +31,8 @@ import org.rsbot.script.wrappers.RSObject;
 import org.rsbot.script.wrappers.RSPlayer;
 import org.rsbot.script.wrappers.RSTile;
 
-@ScriptManifest( authors = {"TwistedMind"}, category = "Mining", version = 1.37, name = "TnT Essence Miner", description = "<html><body bgcolor=\"#000033\" text=\"#FFFFFF\" link=\"#00CC00\"><div align=\"center\"><font face=\"Century Gothic\"><h1>TnT Essence Miner</h1></font></div><br><br><div align=\"center\"><font face=\"Century Gothic\"><b>This script mines Rune essence and Pure essence in Varrock and Yanille!</b><br><br>This script still contains some working methods of Garrett's script and I credit him for that!<br>This script also has a built in updater, that asks you if it can update on start-up!</font><h5> (Note: If you choose yes, this establishes a connection to my website, to download the newer version of the script. After it finishes downloading, it writes the file onto your hard drive!!!)</h5><br><br><h3><font face=\"Century Gothic\">RSBot Thread: <a href=\"http://www.rsbot.org/vb/showthread.php?t=275420\">http://www.rsbot.org/vb/showthread.php?t=275420</a><br><br>Happy botting!<br><b>TwistedMind</b></font></div></body></html>")
+@ScriptManifest( authors = {"TwistedMind"}, category = "Mining", version = 1.38, name = "TnT Essence Miner", description = "<html><body bgcolor=\"#000033\" text=\"#FFFFFF\" link=\"#00CC00\"><div align=\"center\"><font face=\"Century Gothic\"><h1>TnT Essence Miner</h1></font></div><br><br><div align=\"center\"><font face=\"Century Gothic\"><b>This script mines Rune essence and Pure essence in Varrock and Yanille!</b><br><br>This script still contains some working methods of Garrett's script and I credit him for that!<br>This script also has a built in updater, that asks you if it can update on start-up!</font><h5> (Note: If you choose yes, this establishes a connection to my website, to download the newer version of the script. After it finishes downloading, it writes the file onto your hard drive!!!)</h5><br><br><h3><font face=\"Century Gothic\">RSBot Thread: <a href=\"http://www.rsbot.org/vb/showthread.php?t=275420\">http://www.rsbot.org/vb/showthread.php?t=275420</a><br><br>Happy botting!<br><b>TwistedMind</b></font></div></body></html>")
 public class TnTEssenceMiner extends Script implements PaintListener, ServerMessageListener{
-	
 	public double version = getClass().getAnnotation(ScriptManifest.class).version();
 	public long startTime;
 	public int startXP;
@@ -54,6 +53,7 @@ public class TnTEssenceMiner extends Script implements PaintListener, ServerMess
 	final RSTile varrockDoorCheck = new RSTile(3253, 3398);
 	final int varrockUpStairsArea[] = { 3257, 3423, 3250, 3416 };
 	final int yanilleDownStairsArea[] = {2594, 9489, 2582, 9484};
+	final int varrockSmithArea[] = {3251, 3410, 3246, 3403};
 	final RSTile varrockPath[] = { new RSTile(3253, 3421),new RSTile(3258, 3411), new RSTile(3253, 3401), new RSTile(3253, 3400) };
 	final RSTile yanillePath[] = {new RSTile(2611, 3093), new RSTile(2604,3090), new RSTile(2597, 3087)};
 	final RSTile[] miningTiles = { new RSTile(2927, 4818), new RSTile(2931, 4818), new RSTile(2931, 4814),
@@ -119,7 +119,8 @@ public class TnTEssenceMiner extends Script implements PaintListener, ServerMess
 		try{
 			if(startXP <= 1){
 				if(skills.getCurrentSkillExp(STAT_MINING) <= 0 && skills.getCurrentSkillExp(STAT_WOODCUTTING) <= 0){
-					return 1;
+					log("You're not logged in yet!");
+					return 1000;
 				}
 			}
 			if(!t1.isAlive()){
@@ -128,12 +129,18 @@ public class TnTEssenceMiner extends Script implements PaintListener, ServerMess
 				log.severe("Bring a pickaxe! The script fails if you don't have one with you!");
 				startXP = skills.getCurrentSkillExp(STAT_MINING);
 			}
-			if(RSInterface.getInterface(620) != null){
-				atInterface(RSInterface.getInterface(620).getChild(18));
-			}
-			if (RSInterface.getInterface(109) != null){
-				atInterface(RSInterface.getInterface(109).getChild(13));
-			}
+				if(atInterface(RSInterface.getInterface(620).getChild(18))){
+					log("Aubury shop window detected! Closing...");
+					return random(1000,2000);
+				}
+				if(atInterface(RSInterface.getInterface(109).getChild(13))){
+					log("Collect window detected! Closing...");
+					return random(1000,2000);
+				}
+				if(atInterface(RSInterface.getInterface(335).getChild(19))){
+					log("Trade window detected! Closing...");
+					return random(1000,2000);
+				}
 			if (getPlane() == 1 && playerInArea(varrockUpStairsArea)) {
 				if (onTile(new RSTile(3256, 3421), "Climb", 0.5, 0.5, 0)) {
 					wait(random(1500, 2000));
@@ -166,6 +173,9 @@ public class TnTEssenceMiner extends Script implements PaintListener, ServerMess
 					return random(1000,2000);
 				}
 			}
+			if(playerInArea(varrockSmithArea) && doorCheckVar2()){
+				return random(1000,2000);
+			}
 			
 			getMouseSpeed();
 			if(!foundValue){
@@ -195,9 +205,9 @@ public class TnTEssenceMiner extends Script implements PaintListener, ServerMess
 						walkTileOnScreen(nearestTile);
 					}
 				}
-				while(getMyPlayer().getAnimation() == -1){
+				while(getMyPlayer().getAnimation() == -1 && getInventoryCount() < 28){
 					wait(random(1000,2000));
-					if(getMyPlayer().getAnimation() != -1){
+					if(getMyPlayer().getAnimation() != -1 || getInventoryCount() >= 28){
 						break;
 					}
 					onTile(nearestTile, "Mine", useX, useY, 0);
@@ -524,6 +534,9 @@ public class TnTEssenceMiner extends Script implements PaintListener, ServerMess
 	            int totalEss = expGained / 5;
 	            int totalMoney = totalEss * value;
 	            //Ensure a high quality and Smooth paint :)
+	            g.setColor(Color.WHITE);
+	            g.setFont(new Font("Microsoft Sans Serif", Font.PLAIN, 8));
+	            g.drawString("V. " + Double.toString(version), 399, 41);
 	            ((Graphics2D)g).setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 	            ((Graphics2D)g).setRenderingHint(RenderingHints.KEY_COLOR_RENDERING, RenderingHints.VALUE_COLOR_RENDER_QUALITY);
 	            ((Graphics2D)g).setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
@@ -538,8 +551,6 @@ public class TnTEssenceMiner extends Script implements PaintListener, ServerMess
 	            g.drawRect(320,7,190,120);
 	            g.setFont(new Font("Century Gothic", Font.BOLD, 16));
 	            g.drawString("TnT Essence miner",345,30);
-	            g.setFont(new Font("Microsoft Sans Serif", Font.PLAIN, 8));
-	            g.drawString("V. " + Double.toString(version), 399, 41);//391,41
 	            g.setFont(new Font("Microsoft Sans Serif", Font.PLAIN, 10));
 	            g.drawString("Timer: " + hours + ":" + minutes + ":" + seconds, 330, 60);
 	            g.drawString("Status: " + status, 330, 70);
@@ -624,6 +635,25 @@ public class TnTEssenceMiner extends Script implements PaintListener, ServerMess
 				}
 			}
 			if (getObjectAt(varrockDoor) == null) {
+				wait(random(50, 100));
+			}
+		}else{
+			return false;
+		}
+		return true;
+	}
+	
+	public boolean doorCheckVar2(){
+		int failCount;
+		if (getObjectAt(new RSTile(3248,3411)) != null) {
+			if (onTile(new RSTile(3248,3410), "Open", random(0.39, 0.61),	random(0, 0.05), random(20, 50))) {
+				failCount = 0;
+				while (getObjectAt(new RSTile(3248,3410)) == null && failCount < 40) {
+					wait(random(50, 100));
+					failCount++;
+				}
+			}
+			if (getObjectAt(new RSTile(3248,3411)) == null) {
 				wait(random(50, 100));
 			}
 		}else{

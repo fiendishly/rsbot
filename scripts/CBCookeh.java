@@ -2,8 +2,8 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Point;
-import java.util.ArrayList;
 import java.util.Map;
+
 import org.rsbot.bot.Bot;
 import org.rsbot.event.events.ServerMessageEvent;
 import org.rsbot.event.listeners.PaintListener;
@@ -13,12 +13,12 @@ import org.rsbot.script.Constants;
 import org.rsbot.script.Script;
 import org.rsbot.script.ScriptManifest;
 import org.rsbot.script.wrappers.RSInterface;
-import org.rsbot.script.wrappers.RSObject;
 import org.rsbot.script.wrappers.RSNPC;
+import org.rsbot.script.wrappers.RSObject;
 import org.rsbot.script.wrappers.RSTile;
 
-@ScriptManifest(authors = { "Cblair91" }, name = "CB-Cookeh", category = "Cooking", version = 2.5, description = "<html><body><b><center>CB-Cookeh</center></b><br />"
-		+ "<center>by Cblair91</center><p>thread: http://www.rsbot.org/vb/showthread.php?t=250576</p><p>"
+@ScriptManifest(authors = { "Cblair91" }, name = "CB-Cookeh", category = "Cooking", version = 3.0, description = "<html><body><b><center>CB-Cookeh</center></b><br />"
+		+ "<center>by Cblair91</center><p>thread: http://www.rsbot.org/vb/showthread.php?t=279177</p><p>"
 		+ "<b>Stop at level?</b><br>"
 		+ "<select name='stop'>"
 		+ "<option>NONE</option>"
@@ -164,30 +164,19 @@ import org.rsbot.script.wrappers.RSTile;
 		+ "If Cooking at Rogues Den:<br>"
 		+ "Start at Den near fire and banker!<br>"
 		+ "If cooking in Catherby:<br>" + "Be in the bank or at the range")
-public class CBCookeh extends Script implements ServerMessageListener,
-		PaintListener {
+public class CBCookeh extends Script implements ServerMessageListener, PaintListener {
 	
 	private RSTile[] toRange = { new RSTile(3269, 3169),
 			new RSTile(3276, 3175), new RSTile(3274, 3180) };
 	private RSTile[] toBank = reversePath(toRange);
-	private RSTile Bank;
 	private RSTile Range;
+	private RSTile Bank;
 	private RSTile rogueFire = new RSTile(3043, 4973);
-	private int RANGE;
-	private int BANK;
-	private int STOP;
+	private int RANGE, BANK, STOP, cookXP = 0, foodCooked = 0, foodBurnt = 0,
+			startLevel = 0, foodID = 0, foodXP = 0;
 	private static final int COOKANIM = 896;
-	private int cookXP = 0;
-	private int foodCooked = 0;
-	private int foodBurnt = 0;
-	private int startLevel;
-	private int foodID = 0;
-	private int foodXP;
-	private String cooking;
-	private String spot;
-	public int tries = 0;
-	public int count;
-	public int roll = 0;
+	private String cooking, spot;
+	public int tries = 0, roll = 0, count;
 
 	private enum Status {
 		bank, cook, walkb, walkr;
@@ -200,7 +189,7 @@ public class CBCookeh extends Script implements ServerMessageListener,
 	public boolean onStart(Map<String, String> args) {
 		log("Starting CB-Cookeh, please wait");
 		// Script and suggestion by "Aion" of RSBot.
-		// His suggestion was appreciated and saved a lot of lines :D
+		// His suggestion was appreciated and saved allot of lines :D
 		if (args.get("stop").equals("NONE")) {
 			STOP = 200;
 		} else {
@@ -210,7 +199,7 @@ public class CBCookeh extends Script implements ServerMessageListener,
 				STOP = 200;
 			}
 		}
-		// End script and sugestion by "Aion" of RSBOT.
+		// End script and suggestion by "Aion" of RSBOT.
 		if (args.get("location").equals("Al Kharid")) {
 			BANK = 35647;
 			RANGE = 25730;
@@ -358,6 +347,7 @@ public class CBCookeh extends Script implements ServerMessageListener,
 			if (startLevel == 0) {
 				startLevel = skills.getRealSkillLevel(STAT_COOKING);
 			}
+			skills.getCurrentSkillExp(Constants.STAT_COOKING);
 			log("You are cooking " + cooking);
 		}
 		return true;
@@ -387,6 +377,10 @@ public class CBCookeh extends Script implements ServerMessageListener,
 		}
 		if (word.contains("accidentally burn")) {
 			foodBurnt++;
+		}
+		if (word.contains("You've just advanced")) {
+			log("You just leveled up, congratulations");
+			clickcontinue();
 		}
 	}
 
@@ -423,90 +417,42 @@ public class CBCookeh extends Script implements ServerMessageListener,
 		try {
 			if (!bank.isOpen()) {
 				openBank();
-				wait(random(400, 500));
+				wait(random(375, 550));
 				useBank();
-				return 400;
+				return random(300, 400);
 			} else if (bank.isOpen()) {
 				useBank();
-				return 400;
+				return random(275, 375);
 			}
 		} catch (final Exception e) {
 		}
 		return 30;
 	}
 
-	public boolean nearBank() {
-		if (spot == "kharid") {
-			RSObject banker = getNearestObjectByID(BANK);
-			if (banker == null || distanceTo(banker) >= 5) {
-				return false;
-			} else {
-				return true;
-			}
-		} else if (spot == "catherby") {
-			RSObject banker = getNearestObjectByID(BANK);
-			if (banker == null || distanceTo(banker) >= 5) {
-				return false;
-			} else {
-				return true;
-			}
-		} else {
-			RSNPC banker = getNearestNPCByID(BANK);
-			if (banker == null || distanceTo(banker) >= 7) {
-				return false;
-			} else {
-				return true;
-			}
-		}
-	}
-
+	@SuppressWarnings("deprecation")
 	public void openBank() {
 		try {
 			if (spot == "kharid") {
-				final RSObject bankbooth = getNearestObjectByID(BANK);
+				final RSObject bankbooth = findObject(BANK);
 				if (bankbooth != null) {
 					while (getMyPlayer().isMoving()) {
-						wait(10);
+						wait(random(5, 10));
 					}
 					if (nearBank()) {
-						status = "About to Bank";
+						status = "Banking";
 						Bank = bankbooth.getLocation();
 						final Point location = Calculations.tileToScreen(Bank);
 						if (location.x == -1 || location.y == -1) {
-							wait(500);
+							wait(random(350, 475));
 						}
 						clickMouse(location, 2, 2, false);
 						wait(200);
 						if (getMenuActions().contains("Use-quickly")) {
 							atMenu("Use-quickly");
-							wait(500);
+							wait(random(400, 500));
 						} else {
 							atMenu("Cancel");
 							setCameraRotation(random(1, 360));
-						}
-					}
-				} else if (spot == "catherby") {
-					if (bankbooth != null) {
-						while (getMyPlayer().isMoving()) {
-							wait(10);
-						}
-						if (nearBank()) {
-							status = "About to Bank";
-							Bank = bankbooth.getLocation();
-							final Point location = Calculations
-									.tileToScreen(Bank);
-							if (location.x == -1 || location.y == -1) {
-								wait(500);
-							}
-							clickMouse(location, 2, 2, false);
-							wait(200);
-							if (getMenuActions().contains("Use-quickly")) {
-								atMenu("Use-quickly");
-								wait(500);
-							} else {
-								atMenu("Cancel");
-								setCameraRotation(random(1, 360));
-							}
 						}
 					}
 				} else {
@@ -516,14 +462,14 @@ public class CBCookeh extends Script implements ServerMessageListener,
 				final RSNPC bankbooth = getNearestNPCByID(BANK);
 				if (bankbooth != null) {
 					while (getMyPlayer().isMoving()) {
-						wait(10);
+						wait(random(5, 10));
 					}
 					if (nearBank()) {
-						status = "About to Bank";
+						status = "Banking";
 						Bank = bankbooth.getLocation();
 						final Point location = Calculations.tileToScreen(Bank);
 						if (location.x == -1 || location.y == -1) {
-							wait(500);
+							wait(random(350, 475));
 						}
 						clickMouse(location, 2, 2, false);
 						wait(200);
@@ -541,6 +487,33 @@ public class CBCookeh extends Script implements ServerMessageListener,
 		}
 	}
 
+	@SuppressWarnings("deprecation")
+	public boolean nearBank() {
+		if (spot == "kharid") {
+			RSObject banker = findObject(BANK);
+			if (banker == null || distanceTo(banker) >= 5) {
+				return false;
+			} else {
+				return true;
+			}
+		} else if (spot == "catherby") {
+			RSObject banker = findObject(BANK);
+			if (banker == null || distanceTo(banker) >= 5) {
+				return false;
+			} else {
+				return true;
+			}
+		} else {
+			RSNPC banker = getNearestNPCByID(BANK);
+			if (banker == null || distanceTo(banker) >= 7) {
+				return false;
+			} else {
+				return true;
+			}
+		}
+	}
+
+	// Updated in 3.0 thanks to a piece of source by "Ryan5646"
 	public void useBank() {
 		try {
 			if (RSInterface.getInterface(Constants.INTERFACE_BANK).isValid()) {
@@ -551,12 +524,12 @@ public class CBCookeh extends Script implements ServerMessageListener,
 				} else if (getInventoryCount(foodID) == 0) {
 					if (getInventoryCount() == 0) {
 						if (bank.getCount(foodID) == 0) {
-							log("There is no " + cooking + "(" + foodID
-									+ ") left, Script has stopped");
+							log("There is no " + cooking
+									+ " left, Script has stopped");
 							stopScripts();
 						}
 						for (int i = 0; i < 1; i++) {
-							bank.withdraw(foodID, 0);
+							bank.withdraw(foodID, 28);
 							wait(1000);
 							bank.close();
 						}
@@ -564,11 +537,11 @@ public class CBCookeh extends Script implements ServerMessageListener,
 						bank.depositAll();
 						wait(200);
 						if (bank.getCount(foodID) == 0) {
-							log("There is no " + cooking + "(" + foodID
-									+ ") left, Script has stopped");
+							log("There is no " + cooking
+									+ " left, Script has stopped");
 							stopScripts();
 						}
-						bank.withdraw(foodID, 0);
+						bank.withdraw(foodID, 28);
 						wait(1000);
 						bank.close();
 					}
@@ -579,16 +552,18 @@ public class CBCookeh extends Script implements ServerMessageListener,
 		}
 	}
 
+	// End 3.0 update
+	@SuppressWarnings("deprecation")
 	public boolean nearRange() {
 		if (spot == "kharid") {
-			final RSObject range = getNearestObjectByID(RANGE);
+			final RSObject range = findObject(RANGE);
 			if (range == null || distanceTo(range) >= 5) {
 				return false;
 			} else {
 				return true;
 			}
 		} else if (spot == "catherby") {
-			final RSObject range = getNearestObjectByID(RANGE);
+			final RSObject range = findObject(RANGE);
 			if (range == null || distanceTo(range) >= 5) {
 				return false;
 			} else {
@@ -610,33 +585,15 @@ public class CBCookeh extends Script implements ServerMessageListener,
 				&& !RSInterface.getInterface(INTERFACE_STORE).isValid()) {
 			openTab(TAB_INVENTORY);
 		}
-		int[] items = getInventoryArray();
-		java.util.List<Integer> possible = new ArrayList<Integer>();
-		for (int i = 0; i < items.length; i++) {
-			if (items[i] == itemID) {
-				possible.add(i);
-			}
-		}
-		if (possible.size() == 0)
-			return false;
-		int idx = possible.get(random(0, possible.size()));
-		Point t = getInventoryItemPoint(idx);
-		int x = (int) t.getX();
-		int y = (int) t.getY();
-		moveMouse(x + 15, y + 15, 2, 2);
-		wait(100);
-		if (getMenuIndex("Use") == 0) {
-			clickMouse(true);
-		} else {
-			atInventoryItemUse(foodID);
-		}
+		atInventoryItem(foodID, "Use");
 		return true;
 	}
 
+	@SuppressWarnings("deprecation")
 	public void moveRange() {
 		if (getInventoryCount(foodID) > 0) {
 			if (spot == "kharid") {
-				final RSObject range = getNearestObjectByID(RANGE);
+				final RSObject range = findObject(RANGE);
 				Range = range.getLocation();
 				final Point location = Calculations.tileToScreen(Range);
 				if (location.x == -1 || location.y == -1) {
@@ -658,7 +615,7 @@ public class CBCookeh extends Script implements ServerMessageListener,
 					}
 				}
 			} else if (spot == "catherby") {
-				final RSObject range = getNearestObjectByID(RANGE);
+				final RSObject range = findObject(RANGE);
 				Range = range.getLocation();
 				final Point location = Calculations.tileToScreen(Range);
 				if (location.x == -1 || location.y == -1) {
@@ -705,11 +662,12 @@ public class CBCookeh extends Script implements ServerMessageListener,
 		}
 	}
 
+	@SuppressWarnings("deprecation")
 	public void Cook() {
 		try {
 			if (getInventoryCount(foodID) > 0) {
 				if (spot == "kharid") {
-					final RSObject range = getNearestObjectByID(RANGE);
+					final RSObject range = findObject(RANGE);
 					if (range != null) {
 						while (getMyPlayer().isMoving()) {
 							wait(10);
@@ -892,10 +850,6 @@ public class CBCookeh extends Script implements ServerMessageListener,
 					&& getInventoryCount(foodID) >= 1) {
 				bank.close();
 			}
-			if (RSInterface.getInterface(Constants.INTERFACE_LEVELUP).isValid()) {
-				clickContinue();
-			}
-
 			while (animationCheck(COOKANIM)) {
 				wait(1238);
 			}

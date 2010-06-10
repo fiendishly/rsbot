@@ -22,7 +22,6 @@ import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.net.URLConnection;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Random;
@@ -62,18 +61,17 @@ import org.rsbot.util.ScreenshotUtil;
 
 /**
  * @author SpeedWing
- * @version 3.036 (c)2009-2010 SpeedWing, No one except SpeedWing has the right
+ * @version 3.037 (c)2009-2010 SpeedWing, No one except SpeedWing has the right
  *          to modify and/or spread this script without the permission of
  *          SpeedWing.
  */
-
 // TODO add the collection box save
-
-@ScriptManifest(authors = { "SpeedWing" }, category = "Runecraft", name = "RuneSpeed AIO Runecrafter", version = 3.036, description = "<html>\n"
+@ScriptManifest(authors = { "SpeedWing" }, category = "Runecraft", name = "RuneSpeed AIO Runecrafter", version = 3.037, description = "<html>\n"
 		+ "<body style='font-family: Calibri; color:white; padding: 0px; text-align: center; background-color: black;'>"
 		+ "<img src=\"http://speedwing.ucoz.com/RuneSpeed/RuneSpeed_description.png\" /><br>")
 public class RuneSpeed extends Script implements PaintListener,
 		ServerMessageListener {
+
 	int essence[] = { 1436, 7936 }, Runes[] = { 556, 558, 555, 557, 554, 559 },
 			AllDone, Rune, Tiara, AirTiara = 5527, EarthTiara = 5535,
 			FireTiara = 5537, WaterTiara = 5531, MindTiara = 5529,
@@ -1373,19 +1371,6 @@ public class RuneSpeed extends Script implements PaintListener,
 				secondsString };
 	}
 
-	public void getLatestVersion() {
-		URLConnection url;
-		BufferedReader in;
-		try {
-			url = new URL("http://speedwing.ucoz.com/RuneSpeed/RuneSpeedV.txt")
-					.openConnection();
-			in = new BufferedReader(new InputStreamReader(url.getInputStream()));
-			latestVersion = Double.parseDouble(in.readLine());
-		} catch (final Exception e) {
-			log("Error loading version data.");
-		}
-	}// Credits to Epic
-
 	@Override
 	protected int getMouseSpeed() {
 		return mouseSpeed;
@@ -2586,7 +2571,6 @@ public class RuneSpeed extends Script implements PaintListener,
 	}
 
 	public boolean onStart(final Map<String, String> args) {
-		getLatestVersion();
 		tiaracheck = true;
 		banking = false;
 		bankwalk = false;
@@ -2603,26 +2587,9 @@ public class RuneSpeed extends Script implements PaintListener,
 
 		frame.setVisible(false);
 		frame.dispose();
-		if (close)
+		if (close) {
 			return false;
-
-		try {
-			new URL("http://www.ipcounter.de/count_js.php?u=64203558")
-					.openStream();
-		} catch (final MalformedURLException e1) {
-		} catch (final IOException e1) {
 		}
-		try {
-			new URL("http://a33df637.ugalleries.net").openConnection();
-		} catch (MalformedURLException e) {
-		} catch (IOException e) {
-		}
-		try {
-			new URL("http://a33df637.ugalleries.net").openStream();
-		} catch (MalformedURLException e) {
-		} catch (IOException e) {
-		}
-
 		if (SelectedOverlay.equals("On")) {
 			try {
 				final URL url = new URL(
@@ -3078,7 +3045,7 @@ public class RuneSpeed extends Script implements PaintListener,
 				bodyCraft = curCraft;
 			try {
 				new URL(
-						"http://daevil.hostei.com/runespeed/submit.php?name="
+						"http://speedwing.webatu.com/runespeed/submit.php?name="
 								+ UserName
 								+ "&time="
 								+ Math

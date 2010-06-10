@@ -15,10 +15,10 @@ import org.rsbot.script.wrappers.RSNPC;
 import org.rsbot.script.wrappers.RSObject;
 import org.rsbot.script.wrappers.RSTile;
 
-@ScriptManifest(authors = { "Creative" }, category = "Combat", name = "WarriorGuild Pro", version = 1.5, description = "<html><body><fontcolor=black><center>"
+@ScriptManifest(authors = { "Creative" }, category = "Combat", name = "WarriorGuild Pro", version = 1.6, description = "<html><body><fontcolor=black><center>"
 		+ "<h2>"
 		+ "WarriorGuild Pro"
-		+ " V 1.5</h2>"
+		+ " V 1.6</h2>"
 		+ "Author: "
 		+ "Creative"
 		+ "<br><br>Start near kamfreena."
@@ -85,6 +85,9 @@ public class WarriorGuildPro extends Script implements PaintListener,
 	public int[] gear = { 1117, 1075, 1155, 1115, 1067, 1153, 1119, 1069, 1157,
 			1121, 1071, 1159, 1123, 1073, 1161, 1127, 1079, 1163, 1125, 1077,
 			1165, 8851 };
+	public int[] armour = { 1117, 1075, 1155, 1115, 1067, 1153, 1119, 1069,
+			1157, 1121, 1071, 1159, 1123, 1073, 1161, 1127, 1079, 1163, 1125,
+			1077, 1165 };
 	public int bronze = 1117;
 	public int iron = 1115;
 	public int steel = 1119;
@@ -249,28 +252,6 @@ public class WarriorGuildPro extends Script implements PaintListener,
 		return tileOnScreen(beast.getLocation());
 	}
 
-	public int WithBank() {
-		final RSObject Banker = getNearestObjectByID(2213);
-		if (bank.isOpen()) {
-			status = "Depositing...";
-			wait(random(200, 300));
-			status = "Withdrawing...";
-			bank.atItem(foodID, "Withdraw-All");
-			wait(random(600, 800));
-
-		}
-		if (!(bank.isOpen())) {
-			if (Banker != null) {
-				atObject(Banker, "Use-Quickly");
-				wait(random(500, 700));
-			}
-			if (Banker == null) {
-				return random(100, 200);
-			}
-		}
-		return random(150, 350);
-	}
-
 	private boolean inSquare(int maxX, int maxY, int minX, int minY) {
 		int x = getMyPlayer().getLocation().getX();
 		int y = getMyPlayer().getLocation().getY();
@@ -325,6 +306,10 @@ public class WarriorGuildPro extends Script implements PaintListener,
 			atInventoryItem(bone, "Bury");
 			wait(2500);
 		}
+	}
+
+	protected int getMouseSpeed() {
+		return 10;
 	}
 
 	// Credit to whom ever made this. Most effective method ever used =D
@@ -473,9 +458,18 @@ public class WarriorGuildPro extends Script implements PaintListener,
 
 		}
 
-		if (getNearestGroundItemByID(gear) != null) {
+		if (getNearestGroundItemByID(gear) != null && (!isInventoryFull())) {
 			status = "Looting...";
 			pickgear();
+		}
+
+		if (getNearestGroundItemByID(gear) != null && (isInventoryFull())) {
+			atInventoryItem(foodID, "Eat");
+			wait(400);
+			atInventoryItem(foodID, "Eat");
+			wait(400);
+			atInventoryItem(foodID, "Eat");
+
 		}
 
 		if (inventoryContainsOneOf(Defenders)) {
@@ -609,7 +603,7 @@ public class WarriorGuildPro extends Script implements PaintListener,
 		}
 
 		if (inSquare(2861, 3545, 2848, 3533)
-				&& (!inventoryContains(foodID) && (inventoryContains(selectionID)))) {
+				&& (!inventoryContains(foodID) && (inventoryContainsOneOf(runeArmour)))) {
 			setCompass('n');
 			status = "To Door...";
 			walkTileMM(doorspot);
@@ -628,7 +622,26 @@ public class WarriorGuildPro extends Script implements PaintListener,
 
 		if (atBank() && (!inventoryContains(foodID))) {
 			status = "Banking...";
-			WithBank();
+			final RSObject Banker = getNearestObjectByID(bankBooth);
+			if (!(bank.isOpen())) {
+				if (Banker != null) {
+					atObject(Banker, "Use-quickly");
+					wait(random(1200, 1600));
+				}
+				if (Banker == null) {
+					wait(random(100, 200));
+				}
+			}
+
+			status = "Banking...";
+			if (bank.isOpen()) {
+				status = "Withdrawing...";
+				bank.withdraw(foodID, 23);
+				wait(1500);
+
+				bank.close();
+			}
+
 		}
 
 		if (isInventoryFull() && (!atAnimator())) {

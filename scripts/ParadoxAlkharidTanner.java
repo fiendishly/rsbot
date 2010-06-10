@@ -1,10 +1,3 @@
-/*
- / Project: Paradox' Al Kharid Tanner
- / Email: info@paradox-productions.net
- / Website: http://rsbot.paradox-productions.net/
- / © 2009 - 2010 Wouter De Schuyter
- / NOTE: Please don't steal code!!
- */
 import java.awt.Font;
 import java.awt.Color;
 import java.awt.Graphics;

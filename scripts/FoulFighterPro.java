@@ -7,6 +7,7 @@ import java.awt.Polygon;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -14,9 +15,6 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.URL;
-import java.net.URLConnection;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Map;
@@ -29,7 +27,6 @@ import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSlider;
@@ -62,8 +59,9 @@ import org.rsbot.util.GlobalConfiguration;
 import org.rsbot.util.ScreenshotUtil;
 
 @ScriptManifest(authors = { "OneThatWalks/Foulwerp" }, category = "Combat", name = "Foul Fighter Pro", version = 0.70, description = "Settings In GUI <html> <head> </head> <body><br>Thanks to,<br> -Marselo for some Locations <br> -Javac and Pervy Shuya for help <br> -Foulwerp for original script <br> and To anyone else that helped </body> </html>")
-public class FoulFighterPro extends Script implements PaintListener, ServerMessageListener {
-	
+public class FoulFighterPro extends Script implements PaintListener,
+		ServerMessageListener {
+
 	/*
 	 * Credits to Ruski for Food ID's
 	 */
@@ -254,74 +252,6 @@ public class FoulFighterPro extends Script implements PaintListener, ServerMessa
 
 	@Override
 	public final boolean onStart(final Map<String, String> s) {
-
-		/*****************
-		 * Auto updater
-		 *****************/
-		URLConnection url = null;
-		BufferedReader in = null;
-		BufferedWriter out = null;
-
-		try {
-
-			url = new URL(
-					"http://singletonweb.no-ip.org/RSBot/Scripts/FoulFighterProVERSION.txt")
-					.openConnection();
-
-			in = new BufferedReader(new InputStreamReader(url.getInputStream()));
-
-			if (Double.parseDouble(in.readLine()) > getVersion()) {
-
-				if (JOptionPane.showConfirmDialog(null,
-						"Update found. Do you want to update?") == 0) {
-
-					JOptionPane
-							.showMessageDialog(null,
-									"Please choose 'FoulFighterPro.java' in your scripts folder and hit 'Open'");
-					JFileChooser fc = new JFileChooser();
-
-					if (fc.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
-
-						url = new URL(
-								"http://singletonweb.no-ip.org/RSBot/Scripts/FoulFighterPro.java")
-								.openConnection();
-						in = new BufferedReader(new InputStreamReader(url
-								.getInputStream()));
-						out = new BufferedWriter(new FileWriter(fc
-								.getSelectedFile().getPath()));
-						String inp;
-
-						while ((inp = in.readLine()) != null) {
-							out.write(inp);
-							out.newLine();
-							out.flush();
-						}
-
-						log("Script successfully downloaded. Please recompile and reload your scripts!");
-						return false;
-					} else {
-						log("Update canceled");
-					}
-				} else {
-					log("Update canceled");
-				}
-			} else {
-				JOptionPane.showMessageDialog(null,
-						"You have the latest version. :)");
-			}
-			if (in != null) {
-				in.close();
-			}
-			if (out != null) {
-				out.close();
-			}
-		} catch (IOException e) {
-			log("Problem getting version :/");
-			return false;
-		}
-
-		// END UPDATER
-
 		start = System.currentTimeMillis();
 		gui = new FoulFighterGUI();
 		while (gui.isActive() || gui.isVisible()) {
@@ -480,9 +410,11 @@ public class FoulFighterPro extends Script implements PaintListener, ServerMessa
 							wait(random(400, 600));
 						}
 						if (priorityEating) {
-							if (inventoryContains(FID_1) && (!inventoryContains(FID_2) && twoFoods)) {
+							if (inventoryContains(FID_1)
+									&& (!inventoryContains(FID_2) && twoFoods)) {
 								atInventoryItem(FID_1, "Eat");
-							} else if (inventoryContains(FID_2) && twoFoods && (!inventoryContains(FID_3) && thrFoods)) {
+							} else if (inventoryContains(FID_2) && twoFoods
+									&& (!inventoryContains(FID_3) && thrFoods)) {
 								atInventoryItem(FID_2, "Eat");
 							} else if (inventoryContains(FID_3) && thrFoods) {
 								atInventoryItem(FID_3, "Eat");
@@ -1031,12 +963,12 @@ public class FoulFighterPro extends Script implements PaintListener, ServerMessa
 
 	/*****************************************************
 	 * My Own Walk Method
-	 *
+	 * 
 	 * @author OneThatWalks Credits If You copy/paste from me -.-
-	 *
+	 * 
 	 * @param path
 	 *            The Path set or generated
-	 *
+	 * 
 	 *****************************************************/
 	final boolean Walk(final RSTile[] path) {
 		final RSTile[] randPath = randomizePath(path, 2, 2);
@@ -1067,9 +999,9 @@ public class FoulFighterPro extends Script implements PaintListener, ServerMessa
 
 	/**
 	 * Gets you current life points
-	 *
+	 * 
 	 * @returns HP
-	 *
+	 * 
 	 */
 	final double getHP() {
 		if (RSInterface.getInterface(748).getChild(8).isValid()) {
@@ -1113,16 +1045,22 @@ public class FoulFighterPro extends Script implements PaintListener, ServerMessa
 			}
 			return random(0, 400);
 		} else if ((ii == 3) || (ii == 12)) {
-			char dir = 37;
+			char dir = KeyEvent.VK_LEFT;
 			if (random(0, 3) == 2) {
-				dir = 39;
+				dir = KeyEvent.VK_RIGHT;
 			}
 			Bot.getInputManager().pressKey(dir);
 			wait(random(500, 2000));
 			Bot.getInputManager().releaseKey(dir);
 			return random(0, 500);
 		} else if ((i == 7) || (i == 4)) {
-			setCameraAltitude(random(35, 150));
+			char dir = KeyEvent.VK_UP;
+			if (random(0, 3) == 2) {
+				dir = KeyEvent.VK_DOWN;
+			}
+			Bot.getInputManager().pressKey(dir);
+			wait(random(500, 2000));
+			Bot.getInputManager().releaseKey(dir);
 			return random(0, 500);
 		} else if ((i == 5) || (i == 10) || (i == 11) || (i == 13) || (i == 18)
 				|| (i == 27)) {
@@ -1131,9 +1069,9 @@ public class FoulFighterPro extends Script implements PaintListener, ServerMessa
 			Thread camera = new Thread() {
 				@Override
 				public void run() {
-					char dir = 37;
-					if (random(0, 3) == 2) {
-						dir = 39;
+					char dir = KeyEvent.VK_LEFT;
+					if (random(0, 2) == 2) {
+						dir = KeyEvent.VK_RIGHT;
 					}
 					Bot.getInputManager().pressKey(dir);
 					try {
@@ -1559,7 +1497,7 @@ public class FoulFighterPro extends Script implements PaintListener, ServerMessa
 	}
 
 	/**
-	 *
+	 * 
 	 * @param g
 	 *            graphics
 	 * @param posX
@@ -1732,7 +1670,7 @@ public class FoulFighterPro extends Script implements PaintListener, ServerMessa
 
 		/**
 		 * This method initializes this
-		 *
+		 * 
 		 * @return void
 		 */
 		private void initialize() {
@@ -1743,7 +1681,7 @@ public class FoulFighterPro extends Script implements PaintListener, ServerMessa
 
 		/**
 		 * This method initializes jContentPane
-		 *
+		 * 
 		 * @return javax.swing.JPanel
 		 */
 		private JPanel getJContentPane() {
@@ -1763,7 +1701,7 @@ public class FoulFighterPro extends Script implements PaintListener, ServerMessa
 
 		/**
 		 * This method initializes jTabbedPane
-		 *
+		 * 
 		 * @return javax.swing.JTabbedPane
 		 */
 		private JTabbedPane getJTabbedPane() {
@@ -1784,7 +1722,7 @@ public class FoulFighterPro extends Script implements PaintListener, ServerMessa
 
 		/**
 		 * This method initializes jButton
-		 *
+		 * 
 		 * @return javax.swing.JButton
 		 */
 		private JButton getJButton() {
@@ -1799,7 +1737,7 @@ public class FoulFighterPro extends Script implements PaintListener, ServerMessa
 
 		/**
 		 * This method initializes FightingTab
-		 *
+		 * 
 		 * @return javax.swing.JPanel
 		 */
 		private JPanel getFightingTab() {
@@ -1819,7 +1757,7 @@ public class FoulFighterPro extends Script implements PaintListener, ServerMessa
 
 		/**
 		 * This method initializes InternalFightTab
-		 *
+		 * 
 		 * @return javax.swing.JTabbedPane
 		 */
 		private JTabbedPane getInternalFightTab() {
@@ -1834,7 +1772,7 @@ public class FoulFighterPro extends Script implements PaintListener, ServerMessa
 
 		/**
 		 * This method initializes Main
-		 *
+		 * 
 		 * @return javax.swing.JPanel
 		 */
 		private JPanel getMain() {
@@ -1887,7 +1825,7 @@ public class FoulFighterPro extends Script implements PaintListener, ServerMessa
 
 		/**
 		 * This method initializes Training
-		 *
+		 * 
 		 * @return javax.swing.JPanel
 		 */
 		private JPanel getTraining() {
@@ -1905,7 +1843,7 @@ public class FoulFighterPro extends Script implements PaintListener, ServerMessa
 
 		/**
 		 * This method initializes Items
-		 *
+		 * 
 		 * @return javax.swing.JPanel
 		 */
 		private JPanel getItems() {
@@ -1996,7 +1934,7 @@ public class FoulFighterPro extends Script implements PaintListener, ServerMessa
 
 		/**
 		 * This method initializes AlchItems
-		 *
+		 * 
 		 * @return javax.swing.JPanel
 		 */
 		private JPanel getAlchItems() {
@@ -2049,7 +1987,7 @@ public class FoulFighterPro extends Script implements PaintListener, ServerMessa
 
 		/**
 		 * This method initializes Potions
-		 *
+		 * 
 		 * @return javax.swing.JPanel
 		 */
 		private JPanel getPotions() {
@@ -2089,7 +2027,7 @@ public class FoulFighterPro extends Script implements PaintListener, ServerMessa
 
 		/**
 		 * This method initializes Special
-		 *
+		 * 
 		 * @return javax.swing.JPanel
 		 */
 		private JPanel getSpecial() {
@@ -2156,7 +2094,7 @@ public class FoulFighterPro extends Script implements PaintListener, ServerMessa
 
 		/**
 		 * This method initializes Range
-		 *
+		 * 
 		 * @return javax.swing.JPanel
 		 */
 		private JPanel getRange() {
@@ -2215,7 +2153,7 @@ public class FoulFighterPro extends Script implements PaintListener, ServerMessa
 
 		/**
 		 * This method initializes Banking
-		 *
+		 * 
 		 * @return javax.swing.JPanel
 		 */
 		private JPanel getBanking() {
@@ -2230,7 +2168,7 @@ public class FoulFighterPro extends Script implements PaintListener, ServerMessa
 
 		/**
 		 * This method initializes Other
-		 *
+		 * 
 		 * @return javax.swing.JPanel
 		 */
 		private JPanel getOther() {
@@ -2322,7 +2260,7 @@ public class FoulFighterPro extends Script implements PaintListener, ServerMessa
 
 		/**
 		 * This method initializes chckbxSYO
-		 *
+		 * 
 		 * @return javax.swing.JCheckBox
 		 */
 		private JCheckBox getChckbxSYO() {
@@ -2336,7 +2274,7 @@ public class FoulFighterPro extends Script implements PaintListener, ServerMessa
 
 		/**
 		 * This method initializes sldbrMouseSpeed
-		 *
+		 * 
 		 * @return javax.swing.JSlider
 		 */
 		private JSlider getSldbrMouseSpeed() {
@@ -2358,7 +2296,7 @@ public class FoulFighterPro extends Script implements PaintListener, ServerMessa
 
 		/**
 		 * This method initializes TabsBank
-		 *
+		 * 
 		 * @return javax.swing.JTabbedPane
 		 */
 		private JTabbedPane getTabsBank() {
@@ -2374,7 +2312,7 @@ public class FoulFighterPro extends Script implements PaintListener, ServerMessa
 
 		/**
 		 * This method initializes Main_2
-		 *
+		 * 
 		 * @return javax.swing.JPanel
 		 */
 		private JPanel getMain_2() {
@@ -2463,7 +2401,7 @@ public class FoulFighterPro extends Script implements PaintListener, ServerMessa
 
 		/**
 		 * This method initializes ObstacleTab
-		 *
+		 * 
 		 * @return javax.swing.JPanel
 		 */
 		private JPanel getObstacleTab() {
@@ -2936,12 +2874,12 @@ public class FoulFighterPro extends Script implements PaintListener, ServerMessa
 
 	/*
 	 * gui2.java
-	 *
+	 * 
 	 * Created on Feb 28, 2010, 1:22:54 PM
 	 */
 
 	/**
-	 *
+	 * 
 	 * @author OneThatWalks
 	 */
 	public class gui2 extends javax.swing.JFrame implements ActionListener {
