@@ -33,7 +33,6 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
@@ -61,12 +60,12 @@ import org.rsbot.util.ScreenshotUtil;
 
 /**
  * @author SpeedWing
- * @version 3.037 (c)2009-2010 SpeedWing, No one except SpeedWing has the right
+ * @version 3.038 (c)2009-2010 SpeedWing, No one except SpeedWing has the right
  *          to modify and/or spread this script without the permission of
  *          SpeedWing.
  */
-// TODO add the collection box save
-@ScriptManifest(authors = { "SpeedWing" }, category = "Runecraft", name = "RuneSpeed AIO Runecrafter", version = 3.037, description = "<html>\n"
+
+@ScriptManifest(authors = { "SpeedWing" }, category = "Runecraft", name = "RuneSpeed AIO Runecrafter", version = 3.038, description = "<html>\n"
 		+ "<body style='font-family: Calibri; color:white; padding: 0px; text-align: center; background-color: black;'>"
 		+ "<img src=\"http://speedwing.ucoz.com/RuneSpeed/RuneSpeed_description.png\" /><br>")
 public class RuneSpeed extends Script implements PaintListener,
@@ -270,7 +269,6 @@ public class RuneSpeed extends Script implements PaintListener,
 			new RSTile(3063, 3449), new RSTile(3055, 3443) };
 	RSTile[][] BodyPath = { BodyAltar1, BodyAltar2, BodyAltar3 };
 
-	public double latestVersion;
 	public double CurrentVersion = getClass().getAnnotation(
 			ScriptManifest.class).version();
 	// ///////
@@ -423,9 +421,6 @@ public class RuneSpeed extends Script implements PaintListener,
 			}
 		}
 
-		/**
-		 * Create the frame.
-		 */
 		public GUI() {
 			addWindowListener(new WindowAdapter() {
 				@Override
@@ -912,18 +907,11 @@ public class RuneSpeed extends Script implements PaintListener,
 			btnStart.setFont(new Font("Calibri", Font.PLAIN, 12));
 			getContentPane().add(btnStart);
 
-			JLabel lblLoadingVersion = new JLabel("Your Version: "
-					+ CurrentVersion + "    Newest Version: " + latestVersion);
+			JLabel lblLoadingVersion = new JLabel("Version: " + CurrentVersion);
 			lblLoadingVersion.setBounds(10, 202, 222, 19);
 			lblLoadingVersion.setFont(new Font("Calibri", Font.PLAIN, 11));
 			getContentPane().add(lblLoadingVersion);
 
-			if (CurrentVersion < latestVersion) {
-				JOptionPane.showMessageDialog(null,
-						"You do not have the latest version of RuneSpeed!");
-				tabbedPane.setSelectedIndex(5);
-			}
-			TabCombo.setSelectedIndex(1);
 			loadSettings();
 			loadChangeLog();
 		}
@@ -1043,7 +1031,7 @@ public class RuneSpeed extends Script implements PaintListener,
 	}
 
 	public void cameraHeight() {
-		if (antibanstate && Bot.getClient().getCamPosZ() > -1600)
+		if (antibanstate && Bot.getClient().getCameraPitch() < 2750)
 			setCameraAltitude(true);
 
 	}
@@ -1370,6 +1358,8 @@ public class RuneSpeed extends Script implements PaintListener,
 		return new String[] { dayString, hoursString, minutesString,
 				secondsString };
 	}
+
+
 
 	@Override
 	protected int getMouseSpeed() {
@@ -2570,7 +2560,7 @@ public class RuneSpeed extends Script implements PaintListener,
 		}
 	}
 
-	public boolean onStart(final Map<String, String> args) {
+	public boolean onStart(final Map<String, String> args) {;
 		tiaracheck = true;
 		banking = false;
 		bankwalk = false;
@@ -2587,9 +2577,11 @@ public class RuneSpeed extends Script implements PaintListener,
 
 		frame.setVisible(false);
 		frame.dispose();
-		if (close) {
+		if (close)
 			return false;
-		}
+
+		// just a simple counter that counts the amount of runs
+
 		if (SelectedOverlay.equals("On")) {
 			try {
 				final URL url = new URL(
@@ -2749,11 +2741,6 @@ public class RuneSpeed extends Script implements PaintListener,
 		if (SelectedTab.equals("On"))
 			tabTeleport = true;
 
-		if (latestVersion > CurrentVersion) {
-			log.warning("Runespeed " + latestVersion + " is avaible.");
-		} else if (latestVersion < CurrentVersion) {
-			log.info("Good luck beta testing.");
-		}
 		antiban = new AntiBan();
 		t = new Thread(antiban);
 		return true;

@@ -29,6 +29,7 @@ import org.rsbot.script.Constants;
 import org.rsbot.script.Methods;
 import org.rsbot.script.Script;
 import org.rsbot.script.ScriptManifest;
+import org.rsbot.script.wrappers.RSInterface;
 import org.rsbot.script.wrappers.RSInterfaceChild;
 import org.rsbot.script.wrappers.RSInterfaceComponent;
 import org.rsbot.script.wrappers.RSNPC;
@@ -41,9 +42,9 @@ import org.rsbot.util.GlobalConfiguration;
  * RSBot AIO Firemaker
  * 
  * @author Jacmob
- * @version 1.33
+ * @version 1.35
  */
-@ScriptManifest(authors = { "Jacmob" }, category = "Firemaking", name = "AIO Firemaker", version = 1.33, description = "<html><body style='font-family: Arial; padding: 0px; text-align: center; background-color: #EEDDAA;'><div style=\"background-color: #BB3300; width: 100%; height: 34px; border: 3px coral solid;\"><h1 style=\"font-size: 13px; color: #FFFF00;\">AIO Firemaker</h1></div><br />The intelligent, all-in-one firemaker by Jacmob.<br />Select your account and press OK.<br /><br /><small>Your bank must be scrolled all the way up.</small></body></html>")
+@ScriptManifest(authors = { "Jacmob" }, category = "Firemaking", name = "AIO Firemaker", version = 1.35, description = "<html><body style='font-family: Arial; padding: 0px; text-align: center; background-color: #EEDDAA;'><div style=\"background-color: #BB3300; width: 100%; height: 34px; border: 3px coral solid;\"><h1 style=\"font-size: 13px; color: #FFFF00;\">AIO Firemaker</h1></div><br />The intelligent, all-in-one firemaker by Jacmob.<br />Select your account and press OK.<br /><br /><small>Your bank must be scrolled all the way up.</small></body></html>")
 public class AIOFiremaker extends Script implements PaintListener {
 
 	private enum State {
@@ -54,8 +55,7 @@ public class AIOFiremaker extends Script implements PaintListener {
 	public final int FIRE_RING = 13659;
 
 	public final int FLAME_GLOVES = 13660;
-	private final int[] FireObjects = { 2732, 2982, 2983, 2984, 2985, 2986,
-			1189 };
+	private final int[] FireObjects = { 2732, 2982, 2983, 2984, 2985, 2986, 1189 };
 	private final Color BG = new Color(100, 0, 0, 150);
 	private final Color DROP = new Color(20, 0, 0, 255);
 
@@ -84,8 +84,8 @@ public class AIOFiremaker extends Script implements PaintListener {
 			return tile;
 		}
 		final RSTile loc = getMyPlayer().getLocation();
-		final RSTile walk = new RSTile((loc.getX() + tile.getX()) / 2, (loc
-				.getY() + tile.getY()) / 2);
+		final RSTile walk = new RSTile((loc.getX() + tile.getX()) / 2,
+				(loc.getY() + tile.getY()) / 2);
 		return distanceTo(walk) < 17 ? walk : checkTile(walk);
 	}
 
@@ -100,7 +100,7 @@ public class AIOFiremaker extends Script implements PaintListener {
 			if (random(0, 2) == 1) {
 				moveMouse(random(575, 695), random(240, 435), 10);
 			}
-			moveMouse(688, 372, 7, 7);
+			moveMouse(RSInterface.getChildInterface(320, 85).getPosition());
 			wait(random(800, 3400));
 		}
 		if (random(0, 2) == 0) {
@@ -873,13 +873,14 @@ public class AIOFiremaker extends Script implements PaintListener {
 		}
 		RSInterfaceChild bankItem = bank.getItemByID(ID);
 		if (bankItem == null) {
-			log.severe("Unable to withraw " + name
-					+ ". You will be logged out in ten seconds.");
-			wait(random(9000, 11000));
-			while (bank.isOpen()) {
+			wait(2000);
+			if (bank.getItemByID(ID) == null) {
+				log.severe("Unable to withraw " + name
+						+ ". You will be logged out in ten seconds.");
+				wait(random(9000, 11000));
 				bank.close();
+				stopScript();
 			}
-			stopScript();
 		} else if (bankItem.getAbsoluteY() > 270
 				&& atInterface(getChildInterface(Constants.INTERFACE_BANK,
 						Constants.INTERFACE_BANK_BUTTON_SEARCH), "Search")) {
@@ -906,185 +907,183 @@ public class AIOFiremaker extends Script implements PaintListener {
 				atInterface(getChildInterface(Constants.INTERFACE_BANK, 50));
 			}
 		} else {
-			bank
-					.atItem(ID, all ? "Withdraw-All " + name : "Withdraw-1 "
-							+ name);
+			bank.atItem(ID, all ? "Withdraw-All " + name : "Withdraw-1 " + name);
 		}
 	}
+	
+	static class AStar {
 
-}
+		private class Node {
 
-class AStar {
+			public int x, y;
+			public Node parent;
+			public double g, f;
 
-	private class Node {
-
-		public int x, y;
-		public Node parent;
-		public double g, f;
-
-		public Node(final int x, final int y) {
-			this.x = x;
-			this.y = y;
-			g = f = 0;
-		}
-
-		public boolean isAt(final Node another) {
-			return x == another.x && y == another.y;
-		}
-
-		public RSTile toRSTile(final int baseX, final int baseY) {
-			return new RSTile(x + baseX, y + baseY);
-		}
-
-	}
-
-	private int[][] blocks;
-
-	public AStar() {
-
-	}
-
-	private Node cheapestNode(final ArrayList<Node> open) {
-		Node c = null;
-		for (final Node t : open) {
-			if (c == null || t.f < c.f) {
-				c = t;
+			public Node(final int x, final int y) {
+				this.x = x;
+				this.y = y;
+				g = f = 0;
 			}
-		}
-		return c;
-	}
 
-	private double diagonalHeuristic(final Node current, final Node end) {
-		final double dx = Math.abs(current.x - end.x);
-		final double dy = Math.abs(current.y - end.y);
-		final double diag = Math.min(dx, dy);
-		final double straight = dx + dy;
-		return Math.sqrt(2.0) * diag + straight - 2 * diag;
-	}
+			public boolean isAt(final Node another) {
+				return x == another.x && y == another.y;
+			}
 
-	public RSTile[] findPath(final RSTile cur, final RSTile dest) {
-		final int baseX = Bot.getClient().getBaseX(), baseY = Bot.getClient()
-				.getBaseY();
-		final int currX = cur.getX() - baseX, currY = cur.getY() - baseY;
-		final int destX = dest.getX() - baseX, destY = dest.getY() - baseY;
-		if (currX < 0 || currY < 0 || currX > 103 || currY > 103 || destX < 0
-				|| destY < 0 || destX > 103 || destY > 103) {
-			return null;
+			public RSTile toRSTile(final int baseX, final int baseY) {
+				return new RSTile(x + baseX, y + baseY);
+			}
+
 		}
-		final ArrayList<Node> closed = new ArrayList<Node>(), open = new ArrayList<Node>();
-		blocks = Bot.getClient().getRSGroundDataArray()[Bot.getClient()
-				.getPlane()].getBlocks();
-		Node current = new Node(currX, currY);
-		final Node destination = new Node(destX, destY);
-		open.add(current);
-		while (open.size() > 0) {
-			current = cheapestNode(open);
-			closed.add(current);
-			open.remove(open.indexOf(current));
-			for (final Node n : getSurroundingWalkableNodes(current)) {
-				if (!isIn(closed, n)) {
-					if (!isIn(open, n)) {
-						n.parent = current;
-						n.g = current.g + getAdditionalCost(n, current);
-						n.f = n.g + diagonalHeuristic(n, destination);
-						open.add(n);
-					} else {
-						final Node old = getNode(open, n);
-						if (current.g + getAdditionalCost(old, current) < old.g) {
-							old.parent = current;
-							old.g = current.g + getAdditionalCost(old, current);
-							old.f = old.g + diagonalHeuristic(old, destination);
+
+		private int[][] blocks;
+
+		public AStar() {
+
+		}
+
+		private Node cheapestNode(final ArrayList<Node> open) {
+			Node c = null;
+			for (final Node t : open) {
+				if (c == null || t.f < c.f) {
+					c = t;
+				}
+			}
+			return c;
+		}
+
+		private double diagonalHeuristic(final Node current, final Node end) {
+			final double dx = Math.abs(current.x - end.x);
+			final double dy = Math.abs(current.y - end.y);
+			final double diag = Math.min(dx, dy);
+			final double straight = dx + dy;
+			return Math.sqrt(2.0) * diag + straight - 2 * diag;
+		}
+
+		public RSTile[] findPath(final RSTile cur, final RSTile dest) {
+			final int baseX = Bot.getClient().getBaseX(), baseY = Bot.getClient()
+					.getBaseY();
+			final int currX = cur.getX() - baseX, currY = cur.getY() - baseY;
+			final int destX = dest.getX() - baseX, destY = dest.getY() - baseY;
+			if (currX < 0 || currY < 0 || currX > 103 || currY > 103 || destX < 0
+					|| destY < 0 || destX > 103 || destY > 103) {
+				return null;
+			}
+			final ArrayList<Node> closed = new ArrayList<Node>(), open = new ArrayList<Node>();
+			blocks = Bot.getClient().getRSGroundDataArray()[Bot.getClient()
+					.getPlane()].getBlocks();
+			Node current = new Node(currX, currY);
+			final Node destination = new Node(destX, destY);
+			open.add(current);
+			while (open.size() > 0) {
+				current = cheapestNode(open);
+				closed.add(current);
+				open.remove(open.indexOf(current));
+				for (final Node n : getSurroundingWalkableNodes(current)) {
+					if (!isIn(closed, n)) {
+						if (!isIn(open, n)) {
+							n.parent = current;
+							n.g = current.g + getAdditionalCost(n, current);
+							n.f = n.g + diagonalHeuristic(n, destination);
+							open.add(n);
+						} else {
+							final Node old = getNode(open, n);
+							if (current.g + getAdditionalCost(old, current) < old.g) {
+								old.parent = current;
+								old.g = current.g + getAdditionalCost(old, current);
+								old.f = old.g + diagonalHeuristic(old, destination);
+							}
 						}
 					}
 				}
+				if (isIn(closed, destination)) {
+					return getPath(closed.get(closed.size() - 1), baseX, baseY);
+				}
 			}
-			if (isIn(closed, destination)) {
-				return getPath(closed.get(closed.size() - 1), baseX, baseY);
+			return null;
+		}
+
+		private double getAdditionalCost(final Node start, final Node end) {
+			double cost = 1.0;
+			if (!(start.x == end.y) || start.x == end.y) {
+				cost = Math.sqrt(2.0);
 			}
+			return cost;
 		}
-		return null;
-	}
 
-	private double getAdditionalCost(final Node start, final Node end) {
-		double cost = 1.0;
-		if (!(start.x == end.y) || start.x == end.y) {
-			cost = Math.sqrt(2.0);
-		}
-		return cost;
-	}
-
-	private Node getNode(final ArrayList<Node> nodes, final Node key) {
-		for (final Node n : nodes) {
-			if (n.isAt(key)) {
-				return n;
+		private Node getNode(final ArrayList<Node> nodes, final Node key) {
+			for (final Node n : nodes) {
+				if (n.isAt(key)) {
+					return n;
+				}
 			}
+			return null;
 		}
-		return null;
-	}
 
-	private RSTile[] getPath(final Node endNode, final int baseX,
-			final int baseY) {
-		final ArrayList<RSTile> reversePath = new ArrayList<RSTile>();
-		Node p = endNode;
-		while (p.parent != null) {
-			reversePath.add(p.toRSTile(baseX, baseY));
-			final int next = (int) (Math.random() * 4 + 5);
-			for (int i = 0; i < next && p.parent != null; i++) {
-				p = p.parent;
+		private RSTile[] getPath(final Node endNode, final int baseX,
+				final int baseY) {
+			final ArrayList<RSTile> reversePath = new ArrayList<RSTile>();
+			Node p = endNode;
+			while (p.parent != null) {
+				reversePath.add(p.toRSTile(baseX, baseY));
+				final int next = (int) (Math.random() * 4 + 5);
+				for (int i = 0; i < next && p.parent != null; i++) {
+					p = p.parent;
+				}
 			}
+			final RSTile[] fixedPath = new RSTile[reversePath.size()];
+			for (int i = 0; i < fixedPath.length; i++) {
+				fixedPath[i] = reversePath.get(fixedPath.length - 1 - i);
+			}
+			return fixedPath;
 		}
-		final RSTile[] fixedPath = new RSTile[reversePath.size()];
-		for (int i = 0; i < fixedPath.length; i++) {
-			fixedPath[i] = reversePath.get(fixedPath.length - 1 - i);
+
+		private ArrayList<Node> getSurroundingWalkableNodes(final Node t) {
+			final ArrayList<Node> tiles = new ArrayList<Node>();
+			final int curX = t.x, curY = t.y;
+			if (curX > 0 && curY < 103
+					&& (blocks[curX - 1][curY + 1] & 0x1280138) == 0
+					&& (blocks[curX - 1][curY] & 0x1280108) == 0
+					&& (blocks[curX][curY + 1] & 0x1280120) == 0) {
+				tiles.add(new Node(curX - 1, curY + 1));
+			}
+			if (curY < 103 && (blocks[curX][curY + 1] & 0x1280120) == 0) {
+				tiles.add(new Node(curX, curY + 1));
+			}
+			if (curX > 0 && curY < 103
+					&& (blocks[curX - 1][curY + 1] & 0x1280138) == 0
+					&& (blocks[curX - 1][curY] & 0x1280108) == 0
+					&& (blocks[curX][curY + 1] & 0x1280120) == 0) {
+				tiles.add(new Node(curX + 1, curY + 1));
+			}
+			if (curX > 0 && (blocks[curX - 1][curY] & 0x1280108) == 0) {
+				tiles.add(new Node(curX - 1, curY));
+			}
+			if (curX < 103 && (blocks[curX + 1][curY] & 0x1280180) == 0) {
+				tiles.add(new Node(curX + 1, curY));
+			}
+			if (curX > 0 && curY > 0
+					&& (blocks[curX - 1][curY - 1] & 0x128010e) == 0
+					&& (blocks[curX - 1][curY] & 0x1280108) == 0
+					&& (blocks[curX][curY - 1] & 0x1280102) == 0) {
+				tiles.add(new Node(curX - 1, curY - 1));
+			}
+			if (curY > 0 && (blocks[curX][curY - 1] & 0x1280102) == 0) {
+				tiles.add(new Node(curX, curY - 1));
+			}
+			if (curX < 103 && curY > 0
+					&& (blocks[curX + 1][curY - 1] & 0x1280183) == 0
+					&& (blocks[curX + 1][curY] & 0x1280180) == 0
+					&& (blocks[curX][curY - 1] & 0x1280102) == 0) {
+				tiles.add(new Node(curX + 1, curY - 1));
+			}
+			return tiles;
 		}
-		return fixedPath;
+
+		private boolean isIn(final ArrayList<Node> nodes, final Node key) {
+			return getNode(nodes, key) != null;
+		}
 	}
 
-	private ArrayList<Node> getSurroundingWalkableNodes(final Node t) {
-		final ArrayList<Node> tiles = new ArrayList<Node>();
-		final int curX = t.x, curY = t.y;
-		if (curX > 0 && curY < 103
-				&& (blocks[curX - 1][curY + 1] & 0x1280138) == 0
-				&& (blocks[curX - 1][curY] & 0x1280108) == 0
-				&& (blocks[curX][curY + 1] & 0x1280120) == 0) {
-			tiles.add(new Node(curX - 1, curY + 1));
-		}
-		if (curY < 103 && (blocks[curX][curY + 1] & 0x1280120) == 0) {
-			tiles.add(new Node(curX, curY + 1));
-		}
-		if (curX > 0 && curY < 103
-				&& (blocks[curX - 1][curY + 1] & 0x1280138) == 0
-				&& (blocks[curX - 1][curY] & 0x1280108) == 0
-				&& (blocks[curX][curY + 1] & 0x1280120) == 0) {
-			tiles.add(new Node(curX + 1, curY + 1));
-		}
-		if (curX > 0 && (blocks[curX - 1][curY] & 0x1280108) == 0) {
-			tiles.add(new Node(curX - 1, curY));
-		}
-		if (curX < 103 && (blocks[curX + 1][curY] & 0x1280180) == 0) {
-			tiles.add(new Node(curX + 1, curY));
-		}
-		if (curX > 0 && curY > 0
-				&& (blocks[curX - 1][curY - 1] & 0x128010e) == 0
-				&& (blocks[curX - 1][curY] & 0x1280108) == 0
-				&& (blocks[curX][curY - 1] & 0x1280102) == 0) {
-			tiles.add(new Node(curX - 1, curY - 1));
-		}
-		if (curY > 0 && (blocks[curX][curY - 1] & 0x1280102) == 0) {
-			tiles.add(new Node(curX, curY - 1));
-		}
-		if (curX < 103 && curY > 0
-				&& (blocks[curX + 1][curY - 1] & 0x1280183) == 0
-				&& (blocks[curX + 1][curY] & 0x1280180) == 0
-				&& (blocks[curX][curY - 1] & 0x1280102) == 0) {
-			tiles.add(new Node(curX + 1, curY - 1));
-		}
-		return tiles;
-	}
-
-	private boolean isIn(final ArrayList<Node> nodes, final Node key) {
-		return getNode(nodes, key) != null;
-	}
 }
 
 class FMAntiBanThread extends Thread {

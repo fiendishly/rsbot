@@ -101,12 +101,13 @@ class Stream
 
 	String readString()
 	{
-		String s = "";
+		StringBuilder builder = new StringBuilder();
 		while(data[off] != 0)
-			s += String.valueOf((char) data[off++]);
-		
+		{
+			builder.append((char) data[off++]);
+		}
 		off++;
-		return s;
+		return builder.toString();
 	}
 }
 

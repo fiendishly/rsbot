@@ -61,13 +61,12 @@ import org.rsbot.util.ScreenshotUtil;
 
 /**
  * @author BeanXMan (XScripting Inc.)
- * @version 5.11 (c)2009-2010 BeanXMan, No one except BeanXMan has the right to
+ * @version 5.2 (c)2009-2010 BeanXMan, No one except BeanXMan has the right to
  *          modify and/or spread this script without the permission of BeanXMan.
  *          I'm not held responsible for any damage that may occur to your
  *          property.
  */
-
-@ScriptManifest(authors = { "BeanXMan Xscripting Inc." }, category = "Combat", name = "XChickenSlaughter", version = 5.11, description = "<html><head>"
+@ScriptManifest(authors = { "BeanXMan Xscripting Inc." }, category = "Combat", name = "XChickenSlaughter", version = 5.2, description = "<html><head>"
 		+ "</head><body>"
 		+ "<center><img src=\"http://binaryx.nl/beanman/scriptdescription.png\" /></center>"
 		+ "</body></html>")
@@ -81,7 +80,7 @@ public class XChickenSlaughter extends Script implements PaintListener,
 			stopAtLevel, Xmin, Xmax, Ymin, Ymax, bronzeArrowID = 882,
 			ironArrowID = 884, steelArrowID = 886, mithrilArrowID = 888,
 			addyArrowID = 890, runeArrowID = 892, attackSwapLvl,
-			strengthSwapLvl, defenseSwapLvl;
+			strengthSwapLvl, defenseSwapLvl, failSafe;
 	public int arrowID[] = { bronzeArrowID, ironArrowID, steelArrowID,
 			mithrilArrowID, addyArrowID, runeArrowID };
 	public int thingsToDrop[];
@@ -92,7 +91,8 @@ public class XChickenSlaughter extends Script implements PaintListener,
 			bronzeArrow, ironArrow, steelArrow, mithrilArrow, addyArrow,
 			runeArrow, takeArrow, noAmmo, stopScriptAtLevel = true, swapMode,
 			attackSwap, strengthSwap, defenseSwap, attackBusy, strengthBusy,
-			defenseBusy, reachedAllLevels, reachedAllLevels2, clickContinue;
+			defenseBusy, reachedAllLevels, reachedAllLevels2, clickContinue,
+			firstRun = true;
 	public String location, settings, status = "Starting up...",
 			locationString;
 	public RSTile lumbridge = new RSTile(3238, 3295), guild = new RSTile(3197,
@@ -112,9 +112,7 @@ public class XChickenSlaughter extends Script implements PaintListener,
 			GlobalConfiguration.Paths.getSettingsDirectory()),
 			"XChickenSlaughter Settings.txt");
 
-	// Credits to Garrett because of the nice paint he made!
-	// If there is anyone willing to make me a custom paint, pls don't hesitate
-	// to tell me !
+	// CUSTOM PAINT REQUESTED !!
 
 	public class GarrettsPaint {
 
@@ -2255,6 +2253,10 @@ public class XChickenSlaughter extends Script implements PaintListener,
 
 	public int loop() {
 		try {
+			if (firstRun) {
+				setCameraAltitude(true);
+				firstRun = false;
+			}
 
 			if (antibanGui) {
 				if (!t.isAlive()) {
@@ -2285,6 +2287,7 @@ public class XChickenSlaughter extends Script implements PaintListener,
 							wait(random(1000, 1500));
 							break;
 						} else {
+							setCompass('e');
 							atDoor(8695, 'e');
 							moveMouseSlightly();
 							wait(random(1000, 1500));
@@ -2313,6 +2316,7 @@ public class XChickenSlaughter extends Script implements PaintListener,
 							wait(random(1000, 1500));
 							break;
 						} else {
+							setCompass('s');
 							atDoor(8695, 's');
 							moveMouseSlightly();
 							wait(random(1000, 1500));
@@ -2340,7 +2344,7 @@ public class XChickenSlaughter extends Script implements PaintListener,
 							wait(random(1000, 1500));
 							break;
 						} else {
-
+							setCompass('w');
 							atDoor(8695, 'w');
 							moveMouseSlightly();
 							wait(random(1000, 1500));
@@ -2357,13 +2361,6 @@ public class XChickenSlaughter extends Script implements PaintListener,
 
 				} else {
 					walkTo(new RSTile(3026, 3287));
-					moveMouseSlightly();
-					if (waitToMove(random(1000, 1500))) {
-						while (getMyPlayer().isMoving()) {
-							wait(random(20, 30));
-						}
-
-					}
 
 				}
 				break;
@@ -2381,6 +2378,7 @@ public class XChickenSlaughter extends Script implements PaintListener,
 							wait(random(1000, 1500));
 							break;
 						} else {
+							setCompass('w');
 							atDoor(45206, 'w');
 							moveMouseSlightly();
 							wait(random(1000, 1500));
@@ -2396,13 +2394,6 @@ public class XChickenSlaughter extends Script implements PaintListener,
 					}
 				} else {
 					walkTo(new RSTile(3238, 3295));
-					moveMouseSlightly();
-					if (waitToMove(random(1000, 1500))) {
-						while (getMyPlayer().isMoving()) {
-							wait(random(20, 30));
-						}
-
-					}
 					break;
 				}
 
@@ -2420,6 +2411,7 @@ public class XChickenSlaughter extends Script implements PaintListener,
 							wait(random(1000, 1500));
 							break;
 						} else {
+							setCompass('w');
 							atDoor(15536, 'w');
 							moveMouseSlightly();
 							wait(random(1000, 1500));
@@ -2442,6 +2434,7 @@ public class XChickenSlaughter extends Script implements PaintListener,
 							wait(random(1000, 1500));
 							break;
 						} else {
+							setCompass('n');
 							atDoor(15536, 'n');
 							moveMouseSlightly();
 							wait(random(1000, 1500));
@@ -2455,6 +2448,7 @@ public class XChickenSlaughter extends Script implements PaintListener,
 					}
 				} else if (3189 <= posx && posx <= 3193 && 3365 >= posy
 						&& posy >= 3363) {
+					setCompass('s');
 					atDoor(1805, 's');
 					moveMouseSlightly();
 					wait(random(1000, 1500));
@@ -2462,12 +2456,6 @@ public class XChickenSlaughter extends Script implements PaintListener,
 
 				} else {
 					walkTo(new RSTile(3191, 3363));
-					moveMouseSlightly();
-					if (waitToMove(random(1000, 1500))) {
-						while (getMyPlayer().isMoving()) {
-							wait(random(20, 30));
-						}
-					}
 				}
 				break;
 
@@ -2719,10 +2707,17 @@ public class XChickenSlaughter extends Script implements PaintListener,
 				break;
 
 			case SWAPTODEFENSE:
-				setFightMode(2);
+
+				setFightMode(3);
 				moveMouseSlightly();
 				log("Attack Style changed to Defense");
 				wait(random(500, 1000));
+				if (getFightMode() != 3) {
+					setFightMode(2);
+					log("Second attempt: Attack Style changed to Defense");
+					wait(random(500, 1000));
+				}
+
 				break;
 
 			case SETRUN:
@@ -2738,6 +2733,7 @@ public class XChickenSlaughter extends Script implements PaintListener,
 
 				if (canContinue()) {
 					ScreenshotUtil.takeScreenshot(true);
+					log("Screenshot taken of level up");
 					wait(500);
 					clickContinue();
 				}
@@ -2763,42 +2759,21 @@ public class XChickenSlaughter extends Script implements PaintListener,
 		return attackSwap
 				&& skills.getCurrentSkillLevel(STAT_ATTACK) < attackSwapLvl
 				&& !attackBusy && !strengthBusy && !defenseBusy;
-		// if (attackSwap
-		// && skills.getCurrentSkillLevel(STAT_ATTACK) < attackSwapLvl
-		// && !attackBusy && !strengthBusy && !defenseBusy) {
-		// return true;
-		// } else {
-		//
-		// return false;
-		// }
+
 	}
 
 	public boolean needToSwapToDefense() {
 		return defenseSwap
 				&& skills.getCurrentSkillLevel(STAT_DEFENSE) < defenseSwapLvl
 				&& !attackBusy && !strengthBusy && !defenseBusy;
-		// if (defenseSwap
-		// && skills.getCurrentSkillLevel(STAT_DEFENSE) < defenseSwapLvl
-		// && !attackBusy && !strengthBusy && !defenseBusy) {
-		// return true;
-		// } else {
-		//
-		// return false;
-		// }
+
 	}
 
 	public boolean needToSwapToStrength() {
 		return strengthSwap
 				&& skills.getCurrentSkillLevel(STAT_STRENGTH) < strengthSwapLvl
 				&& !attackBusy && !strengthBusy && !defenseBusy;
-		// if (strengthSwap
-		// && skills.getCurrentSkillLevel(STAT_STRENGTH) < strengthSwapLvl
-		// && !attackBusy && !strengthBusy && !defenseBusy) {
-		// return true;
-		// } else {
-		//
-		// return false;
-		// }
+
 	}
 
 	public void onFinish() {
@@ -2908,7 +2883,7 @@ public class XChickenSlaughter extends Script implements PaintListener,
 			log("Location: East of Lumbridge");
 		}
 		log
-				.warning("It's normal when the bot takes a while before he starts running !");
+				.warning("It's possible that the bot takes a while before he starts running if your not in coop yet !");
 		log(">>>>>>>>>>>>>>>> START-UP FINISHED <<<<<<<<<<<<<<<<");
 		return !guiExit;
 	}
@@ -2916,50 +2891,33 @@ public class XChickenSlaughter extends Script implements PaintListener,
 	public void openURL(final String url) {
 
 		final String osName = System.getProperty("os.name");
-
 		try {
-
 			if (osName.startsWith("Mac OS")) {
-
 				final Class<?> fileMgr = Class
 						.forName("com.apple.eio.FileManager");
-
 				final Method openURL = fileMgr.getDeclaredMethod("openURL",
-
-				new Class[] { String.class });
-
+						new Class[] { String.class });
 				openURL.invoke(null, new Object[] { url });
-
 			} else if (osName.startsWith("Windows")) {
 				Runtime.getRuntime().exec(
-
-				"rundll32 url.dll,FileProtocolHandler " + url);
+						"rundll32 url.dll,FileProtocolHandler " + url);
 			} else {
-
 				final String[] browsers = { "firefox", "opera", "konqueror",
-
-				"epiphany", "mozilla", "netscape" };
-
+						"epiphany", "mozilla", "netscape" };
 				String browser = null;
-
 				for (int count = 0; count < browsers.length && browser == null; count++) {
 					if (Runtime.getRuntime().exec(
-
-					new String[] { "which", browsers[count] })
-
-					.waitFor() == 0) {
+							new String[] { "which", browsers[count] })
+							.waitFor() == 0) {
 						browser = browsers[count];
 					}
 				}
-
 				if (browser == null) {
 					throw new Exception("Could not find web browser");
 				} else {
 					Runtime.getRuntime().exec(new String[] { browser, url });
 				}
-
 			}
-
 		} catch (final Exception e) {
 
 		}
@@ -2997,14 +2955,6 @@ public class XChickenSlaughter extends Script implements PaintListener,
 		final RSTile pos = getMyPlayer().getLocation();
 		return Xmin <= pos.getX() && pos.getX() <= Xmax && Ymax >= pos.getY()
 				&& pos.getY() >= Ymin;
-		// if (Xmin <= getMyPlayer().getLocation().getX() &&
-		// getMyPlayer().getLocation().getX() <= Xmax && Ymax >=
-		// getMyPlayer().getLocation().getY() &&
-		// getMyPlayer().getLocation().getY() >= Ymin) {
-		// return true;
-		// } else {
-		// return false;
-		// }
 	}
 
 	public void serverMessageRecieved(ServerMessageEvent e) {
@@ -3023,40 +2973,42 @@ public class XChickenSlaughter extends Script implements PaintListener,
 	public boolean swapAttackFinished() {
 		return skills.getCurrentSkillLevel(STAT_ATTACK) >= attackSwapLvl
 				&& attackBusy;
-
-		// if (skills.getCurrentSkillLevel(STAT_ATTACK) >= attackSwapLvl
-		// && attackBusy) {
-		//
-		// return true;
-		// } else {
-		//
-		// return false;
-		// }
 	}
 
 	public boolean swapDefenseFinished() {
 		return skills.getCurrentSkillLevel(STAT_DEFENSE) >= defenseSwapLvl
 				&& defenseBusy;
-		// if (skills.getCurrentSkillLevel(STAT_DEFENSE) >= defenseSwapLvl
-		// && defenseBusy) {
-		//
-		// return true;
-		// } else {
-		//
-		// return false;
-		// }
 	}
 
 	public boolean swapStrengthFinished() {
 		return skills.getCurrentSkillLevel(STAT_STRENGTH) >= strengthSwapLvl
 				&& strengthBusy;
-		// if (skills.getCurrentSkillLevel(STAT_STRENGTH) >= strengthSwapLvl
-		// && strengthBusy) {
-		//
-		// return true;
-		// } else {
-		//
-		// return false;
-		// }
+
+	}
+
+	final boolean Walk(RSTile[] pathWalk) {
+		RSTile[] path = randomizePath(pathWalk, 2, 2);
+
+		try {
+			if (distanceTo(getDestination()) < random(3, 5)
+					|| distanceTo(getDestination()) > 40) {
+				if (!walkPathMM(path)) {
+					if (distanceTo(nextTile(path)) >= 7) {
+						walkToClosestTile(path);
+						moveMouseSlightly();
+					} else {
+						wait(random(50, 150));
+					}
+				}
+			}
+		} catch (final Exception e) {
+			e.printStackTrace();
+		}
+		wait(random(50, 300));
+		return false;
+	}
+
+	public boolean walkTo(RSTile endTile) {
+		return Walk(cleanPath(generateFixedPath(endTile)));
 	}
 }
