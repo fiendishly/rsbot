@@ -2,7 +2,7 @@
 
 res=resources
 name=RSBot
-dist=data/RSBot.jar
+dist=data/$name.jar
 
 if [ ! -e "$dist" ]; then make; fi
 
