@@ -30,7 +30,7 @@ IF EXIST "%lstf%" DEL /F /Q "%lstf%"
 FOR /F "usebackq tokens=*" %%G IN (`DIR /B /S "%src%\*.java"`) DO CALL :append "%%G"
 IF EXIST "%out%" RMDIR /S /Q "%out%" > NUL
 MKDIR "%out%"
-"%cc%" %cflags% -d "%out%" "@%lstf%"
+"%cc%" %cflags% -d "%out%" "@%lstf%" 2>NUL
 DEL /F /Q "%lstf%"
 
 :scripts
