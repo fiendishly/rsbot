@@ -5,9 +5,11 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Insets;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -52,6 +54,8 @@ import org.rsbot.script.Constants;
 import org.rsbot.script.Script;
 import org.rsbot.script.ScriptManifest;
 import org.rsbot.script.Skills;
+import org.rsbot.script.wrappers.RSInterface;
+import org.rsbot.script.wrappers.RSInterfaceChild;
 import org.rsbot.script.wrappers.RSItemTile;
 import org.rsbot.script.wrappers.RSNPC;
 import org.rsbot.script.wrappers.RSObject;
@@ -61,12 +65,12 @@ import org.rsbot.util.ScreenshotUtil;
 
 /**
  * @author BeanXMan (XScripting Inc.)
- * @version 5.2 (c)2009-2010 BeanXMan, No one except BeanXMan has the right to
+ * @version 5.3 (c)2009-2010 BeanXMan, No one except BeanXMan has the right to
  *          modify and/or spread this script without the permission of BeanXMan.
  *          I'm not held responsible for any damage that may occur to your
  *          property.
  */
-@ScriptManifest(authors = { "BeanXMan Xscripting Inc." }, category = "Combat", name = "XChickenSlaughter", version = 5.2, description = "<html><head>"
+@ScriptManifest(authors = { "BeanXMan Xscripting Inc." }, category = "Combat", name = "XChickenSlaughter", version = 5.3, description = "<html><head>"
 		+ "</head><body>"
 		+ "<center><img src=\"http://binaryx.nl/beanman/scriptdescription.png\" /></center>"
 		+ "</body></html>")
@@ -2360,7 +2364,7 @@ public class XChickenSlaughter extends Script implements PaintListener,
 					break;
 
 				} else {
-					walkTo(new RSTile(3026, 3287));
+					myWalkTo(new RSTile(3026, 3287));
 
 				}
 				break;
@@ -2393,10 +2397,9 @@ public class XChickenSlaughter extends Script implements PaintListener,
 
 					}
 				} else {
-					walkTo(new RSTile(3238, 3295));
-					break;
+					myWalkTo(new RSTile(3238, 3295));
 				}
-
+				break;
 			case TOCHAMPIONSGUILD:
 				int posx = getMyPlayer().getLocation().getX();
 				int posy = getMyPlayer().getLocation().getY();
@@ -2455,7 +2458,7 @@ public class XChickenSlaughter extends Script implements PaintListener,
 					break;
 
 				} else {
-					walkTo(new RSTile(3191, 3363));
+					myWalkTo(new RSTile(3191, 3363));
 				}
 				break;
 
@@ -2556,28 +2559,22 @@ public class XChickenSlaughter extends Script implements PaintListener,
 						walkTileOnScreen(chicken.getLocation());
 						wait(random(1000, 1500));
 					} else {
-						walkTo(chicken.getLocation());
+						myWalkTo(chicken.getLocation());
 						if (waitToMove(random(1000, 1500))) {
 							while (getMyPlayer().isMoving()) {
 								wait(random(20, 30));
 							}
-
 						}
 					}
-
 				} else {
-
 					atNPC(chicken, "Attack");
 					moveMouseSlightly();
 					if (waitToMove(random(1000, 1500))) {
 						while (getMyPlayer().isMoving()) {
 							wait(random(20, 30));
 						}
-
 					}
-
 				}
-
 				break;
 
 			case PICKUPFEATHERS:
@@ -2707,17 +2704,18 @@ public class XChickenSlaughter extends Script implements PaintListener,
 				break;
 
 			case SWAPTODEFENSE:
-
-				setFightMode(3);
-				moveMouseSlightly();
-				log("Attack Style changed to Defense");
-				wait(random(500, 1000));
-				if (getFightMode() != 3) {
-					setFightMode(2);
-					log("Second attempt: Attack Style changed to Defense");
-					wait(random(500, 1000));
+				openTab(TAB_ATTACK);
+				final RSInterface rsin = RSInterface.getInterface(884);
+				if (rsin.isValid()) {
+					for (RSInterfaceChild child : rsin.getChildren()) {
+						if (child.isValid()
+								&& child.getText().contains("Block")) {
+							atInterface(child);
+							moveMouseSlightly();
+							log("Attack Style changed to Defense");
+						}
+					}
 				}
-
 				break;
 
 			case SETRUN:
@@ -2783,6 +2781,8 @@ public class XChickenSlaughter extends Script implements PaintListener,
 	}
 
 	public void onRepaint(final Graphics g) {
+		((Graphics2D) g).setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+				RenderingHints.VALUE_ANTIALIAS_ON);
 		thePainter.paint(g);
 	}
 
@@ -2883,7 +2883,8 @@ public class XChickenSlaughter extends Script implements PaintListener,
 			log("Location: East of Lumbridge");
 		}
 		log
-				.warning("It's possible that the bot takes a while before he starts running if your not in coop yet !");
+				.warning("It's possible that the bot takes a while before he starts running if");
+		log.warning("your not in the chickencoop yet !");
 		log(">>>>>>>>>>>>>>>> START-UP FINISHED <<<<<<<<<<<<<<<<");
 		return !guiExit;
 	}
@@ -3008,7 +3009,7 @@ public class XChickenSlaughter extends Script implements PaintListener,
 		return false;
 	}
 
-	public boolean walkTo(RSTile endTile) {
+	public boolean myWalkTo(RSTile endTile) {
 		return Walk(cleanPath(generateFixedPath(endTile)));
 	}
 }

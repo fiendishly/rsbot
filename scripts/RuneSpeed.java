@@ -64,7 +64,6 @@ import org.rsbot.util.ScreenshotUtil;
  *          to modify and/or spread this script without the permission of
  *          SpeedWing.
  */
-
 @ScriptManifest(authors = { "SpeedWing" }, category = "Runecraft", name = "RuneSpeed AIO Runecrafter", version = 3.038, description = "<html>\n"
 		+ "<body style='font-family: Calibri; color:white; padding: 0px; text-align: center; background-color: black;'>"
 		+ "<img src=\"http://speedwing.ucoz.com/RuneSpeed/RuneSpeed_description.png\" /><br>")

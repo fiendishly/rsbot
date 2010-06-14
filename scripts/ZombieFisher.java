@@ -8,15 +8,11 @@
  * TBT and Aelin for scripting this.
  * The Immortal for letting me use his paint thingy :D
  */
+
 import java.awt.event.*;
-import java.io.*;
-import java.net.*;
 import java.awt.Color;
 import java.awt.Graphics;
-import java.io.IOException;
-import java.lang.reflect.Method;
 import java.util.Map;
-import javax.swing.JOptionPane;
 
 import org.rsbot.util.ScreenshotUtil;
 import org.rsbot.bot.Bot;
@@ -32,8 +28,7 @@ import org.rsbot.script.wrappers.RSPlayer;
 import org.rsbot.script.wrappers.RSTile;
 import org.rsbot.script.*;
 
-@ScriptManifest(authors = { "ZombieKnight" }, category = "Fishing", name = "ZombieFisherEXTREME", version = 7.51, description =
-"<html><head><style type='text/css'> hr {color: white} p {margin-left: 20px}</style></head><body><center><b><font size='4' color='Blue'>ZombieFisherEXTREME v7.51</font></b><br></center><center><table border='0'><tr><td colspan='2'><center><font size='4'><b>:: Script Settings ::</b></font></center></td></tr><tr><td colspan='2'><hr></td></tr><tr><td><center><table border='0'><tr><td colspan='2'><center><font size='4'><b>Contact me at ZombieKnight_RSBot@hotmail.com</b></font></center></td></tr><tr><td colspan='2'><hr></td></tr><tr><td><tr><td><b>Location: </b></td><td><center><select name='locationName'><option>Al-Kharid<option>Barb Village(EV)<option>Catherby<option>Draynor<option>Fishing Guild<option>Otto-Grotto<option>[STILES]Karamja<option>Shilo<option>Piscatoris</select></center></td></tr><tr><td><b>Catch: </b></td><td><center><select name='catchName'><option>Pike<option>Bass/Cod/Mackerel<option>Shrimp/Anchovies<option>Herring/Sardines<option>Leaping<option>Trout/Salmon<option>Tuna/Swordfish<option>Tuna/Swordfish(CHARPOON)<option>Lobsters<option>Sharks<option>Sharks(CHARPOON)<option>Rainbow Fish<option>Monkfish</select></center></td></tr><tr><td><b>Paint Color: </b></td><td><center><select name='pColor'><option>PinkPanther<option>SunKist<option>ClearSky<option>Monochrome<option>Nightmare<option>BloodShed</select></center></td></tr><tr><td><b>ZombieWalking:</b></td><td><center><input type=\"checkbox\" name=\"zombieWalking\" value=\"true\"><B>Yes</b></center></td></tr><tr><td><b>AntiTunas:</b></td><td><center><input type=\"checkbox\" name=\"antiTunas\" value=\"true\"><B>Yes</b></center></td></tr><tr><td><b>Powerfishing Mode:</b></td><td><center><input type='checkbox' name='powerFishing' value='true'><B>Yes</b></center></td></tr><tr><td><b>Wield Equipment:</b></td><td><center><input type='checkbox' name='barbarianMode' value='true'><B>Yes</b></center></td></tr><tr><td><b>Paint Report:</b></td><td><center><input type='checkbox' name='usePaint' checked='true' value='true'><B>Yes</b></center></td></tr></table><center><p>For Support/Comments, Pls click <a href='http://www.rsbot.org/vb/showthread.php?t=52649'>HERE</a></p><center><center><p>For Suggestions/Requests/Bug reports, Pls click <a href='http://www.rsbot.org/vb/showthread.php?t=48599'>HERE</a></p><center></center></body></html>")
+@ScriptManifest(authors = { "ZombieKnight" }, category = "Fishing", name = "ZombieFisherEXTREME", version = 7.51, description = "<html><head><style type='text/css'> hr {color: white} p {margin-left: 20px}</style></head><body><center><b><font size='4' color='Blue'>ZombieFisherEXTREME v7.51</font></b><br></center><center><table border='0'><tr><td colspan='2'><center><font size='4'><b>:: Script Settings ::</b></font></center></td></tr><tr><td colspan='2'><hr></td></tr><tr><td><center><table border='0'><tr><td colspan='2'><center><font size='4'><b>Contact me at ZombieKnight_RSBot@hotmail.com</b></font></center></td></tr><tr><td colspan='2'><hr></td></tr><tr><td><tr><td><b>Location: </b></td><td><center><select name='locationName'><option>Al-Kharid<option>Barb Village(EV)<option>Catherby<option>Draynor<option>Fishing Guild<option>Otto-Grotto<option>[STILES]Karamja<option>Shilo<option>Piscatoris</select></center></td></tr><tr><td><b>Catch: </b></td><td><center><select name='catchName'><option>Pike<option>Bass/Cod/Mackerel<option>Shrimp/Anchovies<option>Herring/Sardines<option>Leaping<option>Trout/Salmon<option>Tuna/Swordfish<option>Tuna/Swordfish(CHARPOON)<option>Lobsters<option>Sharks<option>Sharks(CHARPOON)<option>Rainbow Fish<option>Monkfish</select></center></td></tr><tr><td><b>Paint Color: </b></td><td><center><select name='pColor'><option>PinkPanther<option>SunKist<option>ClearSky<option>Monochrome<option>Nightmare<option>BloodShed</select></center></td></tr><tr><td><b>ZombieWalking:</b></td><td><center><input type=\"checkbox\" name=\"zombieWalking\" value=\"true\"><B>Yes</b></center></td></tr><tr><td><b>AntiTunas:</b></td><td><center><input type=\"checkbox\" name=\"antiTunas\" value=\"true\"><B>Yes</b></center></td></tr><tr><td><b>Powerfishing Mode:</b></td><td><center><input type='checkbox' name='powerFishing' value='true'><B>Yes</b></center></td></tr><tr><td><b>Wield Equipment:</b></td><td><center><input type='checkbox' name='barbarianMode' value='true'><B>Yes</b></center></td></tr><tr><td><b>Paint Report:</b></td><td><center><input type='checkbox' name='usePaint' checked='true' value='true'><B>Yes</b></center></td></tr></table><center><p>For Support/Comments, Pls click <a href='http://www.rsbot.org/vb/showthread.php?t=52649'>HERE</a></p><center><center><p>For Suggestions/Requests/Bug reports, Pls click <a href='http://www.rsbot.org/vb/showthread.php?t=48599'>HERE</a></p><center></center></body></html>")
 public class ZombieFisher extends Script implements ServerMessageListener,
 		PaintListener {
 	int randomInt;
@@ -186,22 +181,7 @@ public class ZombieFisher extends Script implements ServerMessageListener,
 	 * Pre-runtime configuration takes place within this method.
 	 */
 	public boolean onStart(final Map<String, String> args) {
-
-		final int welcome = JOptionPane
-				.showConfirmDialog(
-						null,
-						"Before using my script, would you like to thank me\nby clicking some adverts?",
-						"Welcome", JOptionPane.YES_NO_OPTION);
-		if (welcome == 0) {
-			final String message = "<html><h1>Thank you for your support!</h1><br/>"
-					+ "<p>You will now be redirected to my adverts page. <br/>"
-					+ "Click the adverts on the page few times a day if you can.</p>"
-					+ "</html>";
-			JOptionPane.showMessageDialog(null, message);
-			openURL("http://49237d3d.tinybucks.net");
-		}
 		Reset();
-		checkupdate();
 		// Set script start time
 		scriptStartTime = System.currentTimeMillis();
 		// Load script configuration from arguements.
@@ -667,82 +647,9 @@ public class ZombieFisher extends Script implements ServerMessageListener,
 
 	final ScriptManifest props = getClass().getAnnotation(ScriptManifest.class);
 
-	public void checkupdate() {
-		double curV = getOVersion();
-		if (curV > props.version()) {
-			log.severe("Please update your ZombieFisher to v" + curV);
-			return;
-		} else {
-			log("You've got latest ZombieFisher");
-		}
-		return;
-	}
-
-	public void checkupdate2() {
-		double curV = getOVersion();
-		if (curV > props.version()) {
-			log
-					.severe("A new update was just released! Pls refer to the thread for more details.");
-			beep(5);
-			return;
-		}
-		return;
-	}
-
-	// If the URL doesnt work, try this http://zombiebboi12.webs.com/Version
-	public static double getOVersion() {
-		try {
-			URL url = new URL(
-					"http://preview8.awardspace.com/zombiebboi12.co.cc/");
-			BufferedReader br = new BufferedReader(new InputStreamReader(
-					new BufferedInputStream(url.openConnection()
-							.getInputStream())));
-			double ver = Double.parseDouble(br.readLine().trim());
-			br.close();
-			return ver;
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
-	}
-
 	public void Reset() {
 		StartedY = false;
 		currentFails = 0;
-	}
-
-	public void openURL(final String url) { // Credits to Dave who gave credits
-		// to
-		// some guy who made this.
-		final String osName = System.getProperty("os.name");
-		try {
-			if (osName.startsWith("Mac OS")) {
-				final Class<?> fileMgr = Class
-						.forName("com.apple.eio.FileManager");
-				final Method openURL = fileMgr.getDeclaredMethod("openURL",
-						new Class[] { String.class });
-				openURL.invoke(null, new Object[] { url });
-			} else if (osName.startsWith("Windows")) {
-				Runtime.getRuntime().exec(
-						"rundll32 url.dll,FileProtocolHandler " + url);
-			} else { // assume Unix or Linux
-				final String[] browsers = { "firefox", "opera", "konqueror",
-						"epiphany", "mozilla", "netscape" };
-				String browser = null;
-				for (int count = 0; count < browsers.length && browser == null; count++) {
-					if (Runtime.getRuntime().exec(
-							new String[] { "which", browsers[count] })
-							.waitFor() == 0) {
-						browser = browsers[count];
-					}
-				}
-				if (browser == null) {
-					throw new Exception("Could not find web browser");
-				} else {
-					Runtime.getRuntime().exec(new String[] { browser, url });
-				}
-			}
-		} catch (final Exception e) {
-		}
 	}
 
 	public int loop() {
@@ -806,7 +713,7 @@ public class ZombieFisher extends Script implements ServerMessageListener,
 					return tradeAllKaramja();
 				else if (locationName.equals("Piscatoris"))
 					return useBankNPCPiscatoris();
-				else if (locationName.equals("Piscatoris"))
+				else if (locationName.equals("Shilo"))
 					return useBankNPCShilo();
 				else
 					return useBank();
@@ -934,7 +841,7 @@ public class ZombieFisher extends Script implements ServerMessageListener,
 		}
 
 		if (banker != null) {
-			if (atNPC(banker, "bank")) {
+			if (atNPC(banker, "bank banker")) {
 				log("Accessed bank account.");
 				state = S_DEPOSIT;
 				currentFails = 0;
@@ -1022,9 +929,8 @@ public class ZombieFisher extends Script implements ServerMessageListener,
 
 	}
 
-	@SuppressWarnings("deprecation")
 	public int useBank() {
-		RSObject bankBooth = findObject(bankID);
+		RSObject bankBooth = getNearestObjectByID(bankID);
 
 		if (getMyPlayer().isMoving())
 			return random(250, 500);
@@ -1532,11 +1438,10 @@ public class ZombieFisher extends Script implements ServerMessageListener,
 		}
 	}
 
-	@SuppressWarnings("deprecation")
 	public boolean takeBoatFromKaramja() {
 		RSNPC customsOfficer = getNearestNPCByID(380);
 		@SuppressWarnings("unused")
-		RSObject plank = findObject(242);
+		RSObject plank = getNearestObjectByID(242);
 		RSTile location = new RSTile(3031, 3217);
 
 		if (!locationName.equals("Karamja"))
@@ -1604,11 +1509,10 @@ public class ZombieFisher extends Script implements ServerMessageListener,
 		return false;
 	}
 
-	@SuppressWarnings("deprecation")
 	public boolean takeBoatToKaramja() {
 		int[] seamanIDs = new int[] { 376, 377, 378 }; // Pay-fare
 		RSNPC seaman = getNearestNPCByID(seamanIDs);
-		RSObject plank = findObject(2082);
+		RSObject plank = getNearestObjectByID(2082);
 
 		if (!locationName.equals("Karamja"))
 			return false;

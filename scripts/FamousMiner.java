@@ -5,12 +5,6 @@ import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.RenderingHints;
 import java.awt.event.KeyEvent;
-import java.io.BufferedInputStream;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.URL;
-import java.util.ArrayList;
 import java.util.Map;
 
 import org.rsbot.bot.Bot;
@@ -23,7 +17,6 @@ import org.rsbot.script.Constants;
 import org.rsbot.script.GEItemInfo;
 import org.rsbot.script.Script;
 import org.rsbot.script.ScriptManifest;
-import org.rsbot.script.Skills;
 import org.rsbot.script.wrappers.RSInterface;
 import org.rsbot.script.wrappers.RSInterfaceChild;
 import org.rsbot.script.wrappers.RSObject;
@@ -31,12 +24,12 @@ import org.rsbot.script.wrappers.RSPlayer;
 import org.rsbot.script.wrappers.RSTile;
 import org.rsbot.util.ScreenshotUtil;
 
-@ScriptManifest(authors = { "Famous" }, category = "Mining", name = "Famous Miner", version = 3.36, description = "<html><head>"
+@ScriptManifest(authors = { "Famous" }, category = "Mining", name = "Famous Miner", version = 3.4, description = "<html><head>"
 		+ "</head><body>"
 		+ "<center>"
 		+ "<b><font size=\"5\" color=\"green\">"
 		+ "Famous Miner"
-		+ " V3.36"
+		+ " V3.4"
 		+ "</font></b>"
 		+ "<br></br>"
 		+ "<i><font size=\"4\" color=\"black\">Mines and banks ores in various locations with the option to PowerMine. This script checks for the latest updates.</font></i>"
@@ -48,7 +41,8 @@ import org.rsbot.util.ScreenshotUtil;
 		+ "<option>West Varrock"
 		+ "<option>Rimmington"
 		+ "<option>Al Kharid"
-		+ "<option>Falador"
+		+ "<option>Dwarven Mines"
+		+ "<option>West Falador"
 		+ "<option>West Lumbridge"
 		+ "<option>Draynor"
 		+ "<option>Barbarian Village"
@@ -84,39 +78,39 @@ public class FamousMiner extends Script implements PaintListener,
 
 	// Variables
 	int[] gemID = { 1617, 1619, 1621, 1623 };
-	int[] pickaxe = { 1265, 1267, 1269, 1271, 1273, 1275, 1296, 380302, 379433,
-			379181 };
+	int[] pickaxe = { 1265, 1267, 1269, 1271, 1273, 1275, 1296, 13661, 14107,
+			380302, 379433, 379181, 995, 14664, 2528 };
 	int[] ores = { 434, 453, 449, 436, 444, 440, 447, 451, 442, 438, 6983,
 			6981, 6979, 6977, 6971, 6973, 6975 };
 	int rocksMined = 0, gemsMined = 0, levelsGained = 0, bankID, banker,
 			mouseSpeed, cskill, ore;
 	String Location, Rock = "", Tile = "", location = "", status = "",
-			update = "Checking for updates...", rockSelected = "";
+			rockSelected = "";
 	int[] rock;
 	int miningAnimation = 625;
 	int[] miningAnimations = { 624, 625, 626, 627, 629 };
 	public boolean powerMine, paintE;
 	final ScriptManifest properties = getClass().getAnnotation(
 			ScriptManifest.class);
+	public double version = getClass().getAnnotation(ScriptManifest.class)
+			.version();
 
 	// AntiBan
 	FamousMinerAntiBan antiban;
 	Thread t;
 
 	// Paint Variables
-	public static final int MINING_STAT = Skills.getStatIndex("Mining");
 	int startLVL = skills.getCurrentSkillLevel(Constants.STAT_MINING);
-	int nextLVL = skills.getXPToNextLevel(Constants.STAT_MINING);
 	long startTime = System.currentTimeMillis(), runTime;
-	double expGained;
-	int expPerHour, startExp, moneyMade, oreProfit, profitPerHour, oresPerHour,
-			oreValue = grandExchange.loadItemInfo(ore).getMarketPrice();
+	int expPerHour, expGained, startExp, moneyMade, oreProfit, profitPerHour,
+			oresPerHour, oreValue = grandExchange.loadItemInfo(ore)
+					.getMarketPrice();
 
 	// Paths
 	RSTile lumTile = new RSTile(3221, 3219);
 	RSTile bankTile = new RSTile(3270, 3168);
 
-	public RSTile mineTile;
+	public RSTile mineTile, rockTile;
 	public RSTile[] bankToMine;
 	public RSTile[] mineToBank;
 
@@ -135,7 +129,11 @@ public class FamousMiner extends Script implements PaintListener,
 
 	private boolean bank() {
 		if (RSInterface.getInterface(Constants.INTERFACE_BANK).isValid()) {
-			bank.depositAllExcept(pickaxe);
+			if (inventoryContains(pickaxe)) {
+				bank.depositAllExcept(pickaxe);
+			} else if (!inventoryContains(pickaxe)) {
+				bank.depositAll();
+			}
 		} else {
 			openBank();
 		}
@@ -206,206 +204,53 @@ public class FamousMiner extends Script implements PaintListener,
 		return random(200, 400);
 	}
 
-	public static double getScriptVersion() {
-		try {
-			URL url = new URL(
-					"http://famousscripts.webs.com/scripts/FamousMinerVERSION.txt");
-			BufferedReader br = new BufferedReader(new InputStreamReader(
-					new BufferedInputStream(url.openConnection()
-							.getInputStream())));
-			double ver = Double.parseDouble(br.readLine().trim());
-			br.close();
-			return ver;
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
-
-	}
-
 	public boolean failFix() {
 		final RSTile dest = getDestination();
 		return dest == null || distanceTo(getDestination()) < random(2, 8)
 				|| !getMyPlayer().isMoving();
 	}
 
-	public boolean checkSkill(final String skill) {
-		if (skill.equals("attack")) {
-			cskill = 1;
-		} else if (skill.equals("strength")) {
-			cskill = 4;
-		} else if (skill.equals("defense")) {
-			cskill = 21;
-		} else if (skill.equals("ranged")) {
-			cskill = 45;
-		} else if (skill.equals("prayer")) {
-			cskill = 69;
-		} else if (skill.equals("magic")) {
-			cskill = 86;
-		} else if (skill.equals("runecrafting")) {
-			cskill = 103;
-		} else if (skill.equals("construction")) {
-			cskill = 127;
-		} else if (skill.equals("hitpoints")) {
-			cskill = 2;
-		} else if (skill.equals("agility")) {
-			cskill = 12;
-		} else if (skill.equals("herblore")) {
-			cskill = 29;
-		} else if (skill.equals("thieving")) {
-			cskill = 53;
-		} else if (skill.equals("crafting")) {
-			cskill = 77;
-		} else if (skill.equals("fletching")) {
-			cskill = 94;
-		} else if (skill.equals("slayer")) {
-			cskill = 111;
-		} else if (skill.equals("hunter")) {
-			cskill = 135;
-		} else if (skill.equals("mining")) {
-			cskill = 3;
-		} else if (skill.equals("smithing")) {
-			cskill = 20;
-		} else if (skill.equals("fishing")) {
-			cskill = 37;
-		} else if (skill.equals("cooking")) {
-			cskill = 61;
-		} else if (skill.equals("firemaking")) {
-			cskill = 85;
-		} else if (skill.equals("woodcutting")) {
-			cskill = 102;
-		} else if (skill.equals("farming")) {
-			cskill = 119;
-		} else if (skill.equals("summoning")) {
-			cskill = 143;
-		} else if (skill.equals("dungeoneering")) {
-			cskill = 151;
-		}
-		final RSInterfaceChild ski = getInterface(320, cskill);
-		if (getCurrentTab() != Constants.TAB_STATS) {
-			openTab(Constants.TAB_STATS);
-			for (int i = 0; i < 100; i++) {
-				wait(20);
-				if (getCurrentTab() == Constants.TAB_STATS) {
-					break;
-				}
-			}
-			wait(random(150, 250));
-		}
-
-		if (RSInterface.getInterface(499).isValid()) {
-			clickMouse(499 + random(-5, 5), 21 + random(-4, 4), true);
-			wait(random(500, 900));
-		}
-		return getCurrentTab() == Constants.TAB_STATS && atInterface(ski);
-	}
-
 	private boolean gettingAttacked() {
 		return getMyPlayer().isInCombat();
 	}
 
-	public double getVersion() {
-		return 3.36;
-	}
-
-	public void openDoor(RSTile a, RSTile b) {
-		long st = System.currentTimeMillis();
-		do {
-			if ((System.currentTimeMillis() - st) > 750) {
-				setCameraRotation(random(0, 360));
-				st = System.currentTimeMillis();
-			}
-			moveMouse(midPoint(Calculations.tileToScreen(a), Calculations
-					.tileToScreen(b)), 3, 3);
-		} while (!listContainsString(getMenuItems(), "pen"));
-		while (listContainsString(getMenuItems(), "ire")
-				|| listContainsString(getMenuItems(), "hop down")) {
-			setCameraRotation(random(0, 360));
-			wait(random(200, 500));
-		}
-		clickMouse(true);
-		wait(random(100, 200));
-	}
-
-	private boolean listContainsString(final java.util.List<String> list,
-			final String string) {
-		try {
-			int a;
-			for (a = list.size() - 1; a-- >= 0;) {
-				if (list.get(a).contains(string)) {
-					return true;
-				}
-			}
-		} catch (final Exception e) {
-		}
-		return false;
-	}
-
-	public Point midPoint(Point p1, Point p2) {
-		return (new Point((p1.x + p2.x) / 2, (p1.y + p2.y) / 2));
-	}
-
-	public int hoverNextRock() {
-		try {
-			if (getCurrentTab() != Constants.TAB_INVENTORY
-					&& !RSInterface.getInterface(Constants.INTERFACE_BANK)
-							.isValid()
-					&& !RSInterface.getInterface(Constants.INTERFACE_STORE)
-							.isValid()) {
-				openTab(Constants.TAB_INVENTORY);
-			}
-			final int[] items = getInventoryArray();
-			final java.util.List<Integer> possible = new ArrayList<Integer>();
-			for (int i = 0; i < items.length; i++) {
-				for (final int id : ores) {
-					if (items[i] == id) {
-						possible.add(i);
-					}
-				}
-			}
-			if (possible.size() == 0) {
-				return 10;
-			}
-			final int ida = possible.get(random(0, possible.size()));
-			final Point t = getInventoryItemPoint(ida);
-			clickMouse(t, 5, 5, false);
-			int idx = getMenuIndex("Drop");
-			if (idx == -1) {
-				idx = getMenuIndex("Cancel");
-				final RSTile menu = getMenuLocation();
-				final int xOff = random(4, getMenuItems().get(idx).length() * 4);
-				final int yOff = random(21, 29) + 15 * idx;
-				clickMouse(menu.getX() + xOff, menu.getY() + yOff, 2, 2, true);
-				return 10;
-			} else {
-				final RSTile menu = getMenuLocation();
-				final int xOff = random(4, getMenuItems().get(idx).length() * 4);
-				final int yOff = random(21, 29) + 15 * idx;
-				moveMouse(menu.getX() + xOff, menu.getY() + yOff, 2, 2);
-				return 10;
-			}
-		} catch (final Exception e) {
-		}
-		return 50;
-	}
-
-	public boolean mineRocks() {
-		final RSObject Rock = getNearestObjectByID(rock);
-		if (Rock == null) {
-			return false;
-		}
-
+	public boolean isAni() {
 		if (getMyPlayer().getAnimation() == miningAnimation
 				|| getMyPlayer().getAnimation() == 626
 				|| getMyPlayer().getAnimation() == 624
 				|| getMyPlayer().getAnimation() == 627) {
-			return false;
+			return true;
+		}
+		return false;
+	}
 
-		} else {
-			if (getMyPlayer().getAnimation() != miningAnimation && Rock != null) {
-				atObject(Rock, "Mine");
-				wait(random(950, 1100));
-				return true;
+	public boolean deadRock() {
+		final RSObject Rock = getNearestObjectByID(rock);
+		if (isAni() && Rock == null) {
+			return true;
+		}
+		return false;
+	}
+
+	public boolean mineRocks() {
+		try {
+			final RSObject Rock = getNearestObjectByID(rock);
+			if (Rock == null) {
+				return false;
 			}
+
+			if (isAni()) {
+				return false;
+
+			} else {
+				if (!isAni() && Rock != null) {
+					atObject(Rock, "Mine");
+					wait(random(950, 1100));
+					return true;
+				}
+			}
+		} catch (Exception ignored) {
+
 		}
 		return false;
 	}
@@ -433,12 +278,9 @@ public class FamousMiner extends Script implements PaintListener,
 	}
 
 	public int drop() {
-		int[] toKeep = new int[] { 1265, 1267, 1269, 1271, 1273, 1275, 1296,
-				380302, 379433, 379181, 995 };
-		dropAllExcept(toKeep);
-		dropAllExcept(toKeep);
-		dropAllExcept(toKeep);
-		dropAllExcept(toKeep);
+		while (inventoryContains(ore)) {
+			dropAllExcept(pickaxe);
+		}
 		return random(510, 760);
 	}
 
@@ -454,7 +296,7 @@ public class FamousMiner extends Script implements PaintListener,
 				|| getMyPlayer().getAnimation() == 627) {
 			return 1800;
 		}
-		if (getInterface(211).containsText("You need a Pickaxe to mine this")) {
+		if (getInterface(211).containsText("You need a Pickaxe to mine")) {
 			log("You do not have a pickaxe. Stopping Script.");
 			stopScript();
 		}
@@ -621,7 +463,22 @@ public class FamousMiner extends Script implements PaintListener,
 			status = "Mining";
 			return 900;
 
-		} else if (Location.equals("Falador")) {
+		} else if (Location.equals("Dwarven Mines")) {
+			if (isInventoryFull()) {
+				if (powerMine) {
+					status = "Dropping Ore";
+					drop();
+				}
+			}
+			if (getMyPlayer().isMoving()) {
+				return random(1232, 2310);
+			}
+			setRun(true);
+			mineRocks();
+			status = "Mining";
+			return 900;
+
+		} else if (Location.equals("West Falador")) {
 			if (isInventoryFull()) {
 				if (powerMine) {
 					status = "Dropping Ore";
@@ -755,7 +612,80 @@ public class FamousMiner extends Script implements PaintListener,
 		antiban.stopThread = true;
 		log("Thank You for using Famous Miner!");
 		log("Ores Mined: " + rocksMined);
+		log("EXP Gained: " + expGained);
 		log("Levels Gained: " + levelsGained);
+	}
+
+	public boolean clickSkill(final String skill) {
+		int cskill = 0;
+		if (skill.equals("attack")) {
+			cskill = 1;
+		} else if (skill.equals("defense")) {
+			cskill = 21;
+		} else if (skill.equals("strength")) {
+			cskill = 4;
+		} else if (skill.equals("hitpoints")) {
+			cskill = 2;
+		} else if (skill.equals("range")) {
+			cskill = 45;
+		} else if (skill.equals("prayer")) {
+			cskill = 69;
+		} else if (skill.equals("magic")) {
+			cskill = 86;
+		} else if (skill.equals("cooking")) {
+			cskill = 61;
+		} else if (skill.equals("woodcutting")) {
+			cskill = 102;
+		} else if (skill.equals("fletching")) {
+			cskill = 94;
+		} else if (skill.equals("fishing")) {
+			cskill = 37;
+		} else if (skill.equals("firemaking")) {
+			cskill = 85;
+		} else if (skill.equals("crafting")) {
+			cskill = 77;
+		} else if (skill.equals("smithing")) {
+			cskill = 20;
+		} else if (skill.equals("mining")) {
+			cskill = 3;
+		} else if (skill.equals("herblore")) {
+			cskill = 29;
+		} else if (skill.equals("agility")) {
+			cskill = 12;
+		} else if (skill.equals("thieving")) {
+			cskill = 53;
+		} else if (skill.equals("slayer")) {
+			cskill = 111;
+		} else if (skill.equals("farming")) {
+			cskill = 119;
+		} else if (skill.equals("runecrafting")) {
+			cskill = 103;
+		} else if (skill.equals("hunter")) {
+			cskill = 135;
+		} else if (skill.equals("construction")) {
+			cskill = 127;
+		} else if (skill.equals("summoning")) {
+			cskill = 143;
+		} else if (skill.equals("dungeoneering")) {
+			cskill = 151;
+		}
+		final RSInterfaceChild ski = getInterface(320, cskill);
+		if (getCurrentTab() != Constants.TAB_STATS) {
+			openTab(Constants.TAB_STATS);
+			for (int i = 0; i < 100; i++) {
+				wait(20);
+				if (getCurrentTab() == Constants.TAB_STATS) {
+					break;
+				}
+			}
+			wait(random(150, 250));
+		}
+
+		if (RSInterface.getInterface(499).isValid()) {
+			atInterface(499, 29);
+			wait(random(500, 900));
+		}
+		return getCurrentTab() == Constants.TAB_STATS && atInterface(ski);
 	}
 
 	// Credits to purefocus for progress bar.
@@ -840,12 +770,16 @@ public class FamousMiner extends Script implements PaintListener,
 		g.fillRoundRect(m.x - 6, m.y, 15, 3, 5, 5);
 		g.fillRoundRect(m.x, m.y - 6, 3, 15, 5, 5);
 		// //////////////////////////////////////////
+		if (startExp == 0) {
+			startExp = skills.getCurrentSkillExp(Constants.STAT_MINING);
+		}
 		runTime = System.currentTimeMillis() - startTime;
 		oreProfit = rocksMined * oreValue;
 		long millis = System.currentTimeMillis() - startTime;
 		final long hours = millis / (1000 * 60 * 60);
 		millis -= hours * 1000 * 60 * 60;
 		profitPerHour = (int) (3600000.0 / runTime * oreProfit);
+		expGained = skills.getCurrentSkillExp(Constants.STAT_MINING) - startExp;
 		oresPerHour = (int) ((3600000.0 / (double) runTime) * rocksMined);
 		expGained = skills.getCurrentSkillExp(STAT_MINING) - startExp;
 		expPerHour = (int) ((3600000.0 / (double) runTime) * expGained);
@@ -858,6 +792,17 @@ public class FamousMiner extends Script implements PaintListener,
 
 		ProgBar(g, 11, 323, 145, 11, percent, Color.black, Color.green,
 				Color.white);
+
+		// ///Status Bar////
+		g.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 13));
+		g.setColor(Color.BLACK);
+		g.drawRoundRect(330 - 15, 336 - 15, 200, 15, 10, 10);
+		g.setColor(new Color(0, 0, 0, 90));
+		g.fillRoundRect(330 - 15, 336 - 15, 200, 15, 10, 10);
+		g.setColor(Color.WHITE);
+		g.drawString(status, 330, 336 - 3);
+		g.drawString("Status: ", 270, 336 - 3);
+		// ///////////////////
 		switch (paintBox()) {
 		case 0:
 			g.setColor(new Color(0, 0, 0, 175));
@@ -879,18 +824,15 @@ public class FamousMiner extends Script implements PaintListener,
 			g.setColor(Color.white);
 			g.drawString("Time Running: " + hours + ":" + minutes + ":"
 					+ seconds + "", 561, 265);
-			g.drawString("Status: " + status, 561, 285);
-			g.drawString("Location: " + Location + "", 561, 305);
-			g.drawString("Chosen Rock: " + rockSelected + "", 561, 325);
+			g.drawString("Location: " + Location + "", 561, 285);
+			g.drawString("Chosen Rock: " + rockSelected + "", 561, 305);
 			if ((powerMine)) {
-				g.drawString("Mode: Power Mining", 561, 345);
+				g.drawString("Mode: Power Mining", 561, 325);
 			} else {
 				if ((!powerMine)) {
-					g.drawString("Mode: Banking", 561, 345);
+					g.drawString("Mode: Banking", 561, 325);
 				}
 			}
-			g.setColor(Color.red);
-			g.drawString("" + update + ".", 561, 450);
 			break;
 
 		// Stats
@@ -912,12 +854,13 @@ public class FamousMiner extends Script implements PaintListener,
 			g.drawString("Ores/Hour: " + oresPerHour, 561, 305);
 			g.drawString("Levels Gained: " + Integer.toString(levelsGained)
 					+ "", 561, 325);
+			g.drawString("Exp Gained: " + expGained + "", 561, 345);
 			g.drawString("EXP Till Next Level: "
 					+ skills.getXPToNextLevel(Constants.STAT_MINING) + "", 561,
-					345);
-			g.drawString("EXP/Hour: " + expPerHour, 561, 365);
+					365);
+			g.drawString("EXP/Hour: " + expPerHour, 561, 385);
 			g.drawString("Gems Mined: " + Integer.toString(gemsMined) + "",
-					561, 385);
+					561, 405);
 			break;
 
 		// Profit
@@ -944,6 +887,8 @@ public class FamousMiner extends Script implements PaintListener,
 
 	public boolean clickEXP() {
 		atInterface(548, 185);
+		wait(random(1000, 1300));
+		atMenu("Reset XP Total");
 		return true;
 	}
 
@@ -956,11 +901,10 @@ public class FamousMiner extends Script implements PaintListener,
 		rocksMined = 0;
 		levelsGained = 0;
 		gemsMined = 0;
-		startExp = skills.getCurrentSkillExp(STAT_MINING);
+		startExp = 0;
 		if (canEquip()) {
 			wieldPick();
 		}
-		clickEXP();
 		final String FIM = args.get("powerMine");
 		final String FIM2 = args.get("location");
 		final String FIM4 = args.get("paintE");
@@ -1019,8 +963,11 @@ public class FamousMiner extends Script implements PaintListener,
 			mineToBank = reversePath(bankToMine);
 			bankTile = new RSTile(3270, 3168);
 
-		} else if (FIM2.equals("Falador")) {
-			Location = "Falador";
+		} else if (FIM2.equals("West Falador")) {
+			Location = "West Falador";
+
+		} else if (FIM2.equals("Dwarven Mines")) {
+			Location = "Dwarven Mines";
 			bankID = 11758;
 			bankTile = new RSTile(3270, 3168);
 
@@ -1079,8 +1026,8 @@ public class FamousMiner extends Script implements PaintListener,
 		} else if (FIM5.equals("Coal")) {
 			ore = 453;
 			rockSelected = "Coal";
-			rock = new int[] { 31070, 31068, 11930, 11931, 11932, 29215, 29216,
-					29217 };
+			rock = new int[] { 31070, 31068, 11930, 11931, 11963, 11964, 11932,
+					29215, 29216, 29217 };
 		} else if (FIM5.equals("Clay")) {
 			ore = 434;
 			rockSelected = "Clay";
@@ -1157,6 +1104,17 @@ public class FamousMiner extends Script implements PaintListener,
 		} else if (FIM2.equals("West Lumbridge") && (FIM5.equals("Copper"))) {
 			mineTile = new RSTile(3228, 3417);
 			// /////////////////////////
+			// /////West Falador//////
+			// /////////////////////////
+		} else if (FIM2.equals("West Falador") && (FIM5.equals("Iron"))) {
+			mineTile = new RSTile(2904, 3355);
+		} else if (FIM2.equals("West Falador") && (FIM5.equals("Coal"))) {
+			mineTile = new RSTile(2909, 3362);
+		} else if (FIM2.equals("West Falador") && (FIM5.equals("Tin"))) {
+			mineTile = new RSTile(2906, 3359);
+		} else if (FIM2.equals("West Falador") && (FIM5.equals("Copper"))) {
+			mineTile = new RSTile(2908, 3361);
+			// /////////////////////////
 			// ///////Draynor///////////
 			// /////////////////////////
 		} else if (FIM2.equals("Draynor") && (FIM5.equals("Coal"))) {
@@ -1201,14 +1159,7 @@ public class FamousMiner extends Script implements PaintListener,
 			openTab(Constants.TAB_INVENTORY);
 			wait(random(200, 400));
 		}
-
-		if (getScriptVersion() == getVersion()) {
-			update = "You have the latest version";
-		} else {
-			update = "You need to update this script";
-			log("Your script needs to be updated. Please visit the link below:");
-			log("Check Famousscripts.forumotion.com to obtain the latest version.");
-		}
+		clickEXP();
 
 		return true;
 	}
@@ -1229,8 +1180,8 @@ public class FamousMiner extends Script implements PaintListener,
 		final String serverString = arg0.getMessage();
 		if (serverString.contains("You've just advanced")) {
 			levelsGained++;
-			if (startLVL >= 20) {
-				checkSkill("mining");
+			if (startLVL >= 49) {
+				clickSkill("mining");
 				wait(random(2000, 3000));
 			}
 		}
@@ -1356,8 +1307,11 @@ public class FamousMiner extends Script implements PaintListener,
 							Bot.getInputManager().releaseKey(LR[random1]);
 
 							if (random(0, 8) == 0) {
-								openTab(Constants.TAB_STATS);
-								moveMouse(660, 227, 50, 28);
+								if (getCurrentTab() != 1) {
+									openTab(1);
+									moveMouse(new Point(703, 222), 29, 11);
+									wait(random(1500, 3000));
+								}
 								Thread.sleep(random(3000, 6000));
 							}
 

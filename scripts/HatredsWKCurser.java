@@ -17,6 +17,7 @@ import org.rsbot.script.wrappers.RSTile;
 
 @ScriptManifest(authors = { "Hatred" }, category = "Magic", name = "Hatred's WKCurser", version = 1.0,
         description = "<html><body><center><b>Hatred's WKCurser!<br>Now supports magical balances!</b><br><br>This script WILL check for updates, but will NOT download them.<br><br>Curse type: <select name='OPT'><option>Curse</option><option>Stun</option></select><br><br>Use Elemental Balance: <select name='EB'><option>No</option><option>Yes</option></select><br><br>F2P/P2P: <select name='ALL'><option>F2P</option><option>P2P</option></select></center></body></html>")
+
 public class HatredsWKCurser extends Script implements PaintListener, ServerMessageListener {
 	
 	//Scripts static variables
@@ -132,22 +133,22 @@ public class HatredsWKCurser extends Script implements PaintListener, ServerMess
 			if (stun == false) {
 				if (members == true) {
 					moveMouse(new Point(random(564, 579), random(270, 286)));
-					wait(random(400, 600));
+					wait(random(300, 500));
 					clickMouse(true);
 				} else {
 					moveMouse(new Point(random(687, 700), random(245, 262)));
-					wait(random(400, 600));
+					wait(random(300, 500));
 					clickMouse(true);
 				}
 			} else {
 				moveMouse(new Point(random(662, 678), random(352, 371)));
-				wait(random(400, 600));
+				wait(random(300, 500));
 				clickMouse(true);
 			}
-			wait(random(500, 700));
+			wait(random(400, 500));
 			if (!usingEB) atNPC(knight, "Cast");
 			else atObject(EB, "Cast");
-			wait(random(200, 500));
+			wait(random(100, 400));
 			cursesCast++;
 			if (getMyPlayer().isMoving()) {
 				walkTileOnScreen(start);

@@ -45,9 +45,12 @@ import java.io.File;
 import java.io.IOException;
 import java.io.EOFException;
 
+import java.text.SimpleDateFormat;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -87,6 +90,7 @@ import org.rsbot.event.listeners.PaintListener;
 import org.rsbot.event.listeners.ServerMessageListener;
 
 import org.rsbot.util.GlobalConfiguration;
+import org.rsbot.util.ScreenshotUtil;;
 
 @ScriptManifest(name = "ParaFishNCook", authors = {"Parameter"}, version = ParaFishNCook.VERSION,
 		category = "Fishing", description = "<html><head><style type='text/css'>" +
@@ -102,11 +106,11 @@ import org.rsbot.util.GlobalConfiguration;
 		"and you have a hatchet and a tinderbox in your inventory.<br/>" +
 		"<b>Note: This is a powerfisher - it will drop the fish after " +
 		"it has been fished/cooked.<br/><br/>" +
-		"<b>Note2: Althought MouseKeys feature is very fast, it isn't againts the Runescape rules." +
+		"<b>Note2: Althought MouseKeys feature is very fast, it isn't against the Runescape rules." +
 		"</b><br/><br/>All options can be found in GUI.</b></p></body></html>")
 public class ParaFishNCook extends Script implements PaintListener, ServerMessageListener {
-	public static final double VERSION = 1.17;
-	private static final int SETTINGS_VERSION = 5;
+	public static final double VERSION = 1.19;
+	private static final int SETTINGS_VERSION = 6;
 	
 	private static final int FISHING = 0, CHOPPING = 1,
 		FIRING = 2, COOKING = 3, DROPPING = 4;
@@ -156,40 +160,41 @@ public class ParaFishNCook extends Script implements PaintListener, ServerMessag
 		logsChopped, wcLvlsGained, logsBurned, fmLvlsGained,
 		fishCooked, cookingLvlsGained, defaultTab = -1;
 	private double fishingXPGained, wcXPGained, fmXPGained, cookingXPGained;
-	private long startTime = System.currentTimeMillis();
+	private static long startTime = System.currentTimeMillis();
 	private boolean mouseClicked = false;
 	
 	private int hoverInvCount = -1;
 	private boolean checkDropping;
 	
-	private FishingStyle curStyle;
+	private static FishingStyle curStyle;
 	private int curStyleIndex;
 	private int mouseSpeed = 5;
 	private boolean cook = true, fastPowerFish, drawPaint = true, drawTrees, check2ndSkills = true,
 		customDropping, useMouseKeys;
 	private final Set<Integer> customDroppingIDs = new LinkedHashSet<Integer>();
 	private Point guiLocation = new Point(250, 250);
+	private boolean takeScreenshots, takeScreenshotOnStop, hideUsernameInScreenshot;
+	private int screenshotInterval = 3600;
 	
-	private int gearFails, tinderBoxFails;
+	private int treeFails, gearFails, tinderBoxFails, lvlFails;
 	
 	private final File settingsFile = new File(GlobalConfiguration.Paths.getSettingsDirectory() +
-			File.separator + "ParaFishNCook.dat");
+			File.separator + "ParaFishNCook.dat"),
+		screenshotsPath = new File(GlobalConfiguration.Paths.getScreenshotsDirectory());
+	private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd_hhmmss");
+	private long lastScreenshotTime;
 	
 	private final CameraAntiBan cameraAntiBan = new CameraAntiBan();
 	private final Gui gui = new Gui();
 	
 	private static final class LevelInfo {
-		private final int statID, levelRequired /*, xpGain*/;
-		//private int xpGained;
-		
-		public LevelInfo(final int statID, final int levelRequired, final int xpGain) {
-			this.statID = statID;
-			this.levelRequired = levelRequired;
-			//this.xpGain = xpGain;
-		}
+		private final int statID, levelRequired;
+		private double xpGained;
+		private int lvlsGained;
 		
 		public LevelInfo(final int statID, final int levelRequired) {
-			this(statID, levelRequired, -1);
+			this.statID = statID;
+			this.levelRequired = levelRequired;
 		}
 		
 		public boolean check() {
@@ -204,15 +209,61 @@ public class ParaFishNCook extends Script implements PaintListener, ServerMessag
 			return this.levelRequired;
 		}
 		
-		/*public void addXPGain() {
+		public String getName() {
+			return statID == -1 ? null : Skills.statsArray[statID];
+		}
+		
+		public void addXPGain(final double xpGain) {
 			if(xpGain != -1) {
-				xpGained += xpGain;
+				this.xpGained += xpGain;
 			}
 		}
 		
-		public int getXPGain() {
+		public String[] getPaintTextLines() {
+			if(statID == -1) return null;
+			final long time = System.currentTimeMillis() - startTime;
+			final double xpPerMs = xpGained / time;
+			return new String[] {
+				"ParaFishNCook v" + VERSION,
+				"-",
+				capitalize(getName()) + " lvl: " + m.skills.getCurrentSkillLevel(statID) + 
+					" (gained: " + lvlsGained + ")",
+				"Level in: " + (xpPerMs != 0 ? 
+						formatTime(m.skills.getXPToNextLevel(statID) / xpPerMs) :
+						"--:--:--"),
+				"XP Gained: " + formatAmount(xpGained) + " (" +
+					formatAmount(3600000.0 / time * xpGained) + " xp/h)",
+				"%" + statID
+			};
+		}
+		
+		public static void updateLvlsGained(final String msg, final LevelInfo... levelInformation) {
+			if(levelInformation == null) return;
+			for(final LevelInfo li : levelInformation) {
+				if(msg.contains(li.getName())) {
+					li.lvlsGained++;
+					break;
+				}
+			}
+		}
+	}
+	
+	private static final class XPGain {
+		private final int statID;
+		private final double xpGain;
+		
+		public XPGain(final int statID, final double xpGain) {
+			this.statID = statID;
+			this.xpGain = xpGain;
+		}
+		
+		public int getStatID() {
+			return this.statID;
+		}
+		
+		public double getXPGain() {
 			return this.xpGain;
-		}*/
+		}
 	}
 	
 	private static enum FishingStyle {
@@ -227,9 +278,9 @@ public class ParaFishNCook extends Script implements PaintListener, ServerMessag
 		LURE       ("Fly Fishing", "Lure", 20, new int[] {622, 623}, new int[] {309, 314}, 
 				new Fish[] {Fish.TROUT, Fish.SALMON}, 328, 329),
 		HARPOON    ("Harpoon Fishing", "Harpoon", 35, new int[] {618}, new int[] {311},
-				new Fish[] {Fish.TUNA, Fish.SWORDFISH}, 324),
+				new Fish[] {Fish.TUNA, Fish.SWORDFISH}, 321, 324),
 		CAGE       ("Lobster Cage Fishing", "Cage", 40, new int[] {619}, new int[] {301},
-				new Fish[] {Fish.LOBSTER}, 324),
+				new Fish[] {Fish.LOBSTER}, 321, 324),
 		HEAVY_ROD  ("Heavy Rod Fishing", "Use-rod", 
 				new LevelInfo[] {
 					new LevelInfo(STAT_FISHING, 48),
@@ -261,7 +312,7 @@ public class ParaFishNCook extends Script implements PaintListener, ServerMessag
 			
 			boolean cookable = false;
 			for(final Fish f : catches) {
-				if(!cookable && f.isCookable()) {
+				if(f.isCookable()) {
 					cookable = true;
 					break;
 				}
@@ -370,14 +421,18 @@ public class ParaFishNCook extends Script implements PaintListener, ServerMessag
 		// Lobster cage fishing
 		LOBSTER       ("Lobster", "Burnt lobster", 377, 379, 381, 40, 40, 90, 120),
 		// Heavy rod fishing
-		LEAPING_TROUT  ("Leaping trout", 11328, 48, 50),
-		LEAPING_SALMON ("Leaping salmon", 11330, 58, 70),
-		LEAPING_STURGEON ("Leaping sturgeon", 11332, 70, 80);
+		LEAPING_TROUT  ("Leaping trout", 11328, 48, 50, new XPGain(STAT_AGILITY, 5),
+						new XPGain(STAT_STRENGTH, 5)),
+		LEAPING_SALMON ("Leaping salmon", 11330, 58, 70, new XPGain(STAT_AGILITY, 6),
+						new XPGain(STAT_STRENGTH, 6)),
+		LEAPING_STURGEON ("Leaping sturgeon", 11332, 70, 80, new XPGain(STAT_AGILITY, 7),
+						new XPGain(STAT_STRENGTH, 7));
 		
 		private final String name, burntName;
 		private final int id, cookedId, burntId, fishingLvl, cookingLvl;
 		private final double fishingXPGain, cookingXPGain;
 		private final boolean cookable;
+		private final XPGain[] xpGains;
 		
 		private Fish(final String name, final String burntName,
 				final int id, final int cookedId, final int burntId, 
@@ -393,6 +448,7 @@ public class ParaFishNCook extends Script implements PaintListener, ServerMessag
 			this.fishingXPGain = fishingXPGain;
 			this.cookingXPGain = cookingXPGain;
 			this.cookable = true;
+			this.xpGains = null;
 		}
 		
 		private Fish(final String name, final int id, final int cookedId,
@@ -402,7 +458,8 @@ public class ParaFishNCook extends Script implements PaintListener, ServerMessag
 					fishingLvl, cookingLvl, fishingXPGain, cookingXPGain);
 		}
 		
-		private Fish(final String name, final int id, final int fishingLvl, final int fishingXPGain) {
+		private Fish(final String name, final int id, final int fishingLvl, final int fishingXPGain,
+				final XPGain... xpGains) {
 			this.name = name;
 			this.burntName = "UNUSED";
 			this.id = id;
@@ -412,6 +469,7 @@ public class ParaFishNCook extends Script implements PaintListener, ServerMessag
 			this.cookingLvl = 0;
 			this.fishingXPGain = fishingXPGain;
 			this.cookingXPGain = 0;
+			this.xpGains = xpGains;
 			this.cookable = false;
 		}
 		
@@ -453,6 +511,18 @@ public class ParaFishNCook extends Script implements PaintListener, ServerMessag
 		
 		public boolean isCookable() {
 			return this.cookable;
+		}
+		
+		public void updateXPGains() {
+			if(xpGains == null || curStyle == null) return;
+			for(final XPGain xpGain : xpGains) {
+				for(final LevelInfo lvlInfo : curStyle.getLevelInformation()) {
+					if(xpGain.getStatID() == lvlInfo.getStatID()) {
+						lvlInfo.addXPGain(xpGain.getXPGain());
+						break;
+					}
+				}
+			}
 		}
 		
 		public static Fish getCookableInvFish() {
@@ -528,7 +598,7 @@ public class ParaFishNCook extends Script implements PaintListener, ServerMessag
 			final Set<Tree> trees = new HashSet<Tree>();
 			
 			try {
-				System.out.println("---------------------------------");
+				//System.out.println("---------------------------------");
 				final Client client = Bot.getClient();
 				final RSGround[][] rsGround = client.getRSGroundArray()[client.getPlane()];
 				final int baseX = client.getBaseX(), baseY = client.getBaseY();
@@ -617,10 +687,16 @@ public class ParaFishNCook extends Script implements PaintListener, ServerMessag
 					     new int[] {1351}, 1),
 		BIG_DEADTREE     ("Dead tree", 1, Log.NORMAL, new int[] {1282},
 						 new int[] {1347}, 2),
+		SMALL_EVERGREEN  ("Evergreen", 1, Log.NORMAL, new int[] {1315},
+						 new int[] {1342}, 2),
+		BIG_EVERGREEN    ("Evergreen", 1, Log.NORMAL, new int[] {1316},
+						 new int[] {1355}, 3),
 		OAK              ("Oak", 15, Log.OAK_LOGS, new int[] {1281, 1383},
 						 new int[] {1356, 1358}, 3),
 		WILLOW           ("Willow", 30, Log.WILLOW_LOGS, new int[] {5551, 5552, 5553},
-						 new int[] {5554}, 2);
+						 new int[] {5554}, 2),
+		MAPLE            ("Maple", 45, Log.MAPLE_LOGS, new int[] {1307},
+						 new int[] {7400}, 2);
 		
 		private final String name;
 		private final int wcLevel, edgeSize;
@@ -675,7 +751,8 @@ public class ParaFishNCook extends Script implements PaintListener, ServerMessag
 	private static enum Log {
 		OAK_LOGS    ("Oak logs", 1521, 15, 37.5, 60),
 		NORMAL      ("Logs", 1511, 1, 25, 40),
-		WILLOW_LOGS ("Willow logs", 1519, 30, 67.5, 30);
+		WILLOW_LOGS ("Willow logs", 1519, 30, 67.5, 90),
+		MAPLE_LOGS  ("Maple logs", 1517, 45, 100, 135);
 		
 		private final String name;
 		private final int id, firemakingLvl;
@@ -875,10 +952,14 @@ public class ParaFishNCook extends Script implements PaintListener, ServerMessag
 				drawPaintCheckBox = new JCheckBox("Draw paint"),
 				drawTreesCheckBox = new JCheckBox("Draw rectangles over detected trees."),
 				check2ndSkillsCheckBox = new JCheckBox("Check secondary skills (e.g fm & wc)"),
-				mouseKeysCheckBox = new JCheckBox("Mousekeys (faster dropping)(legit!)");
+				mouseKeysCheckBox = new JCheckBox("Mousekeys (faster dropping)(legit!)"),
+				takeScreenshotsCheckBox = new JCheckBox("Take screenshots every (HH:MM:SS):"),
+				takeScreenshotOnStopCheckBox = new JCheckBox("Take screenshot on stop."),
+				hideUsernameCheckBox = new JCheckBox("Hide username in screenshot.");
 		private final JSpinner mouseSpeedSpinner = new JSpinner();
 		private final JButton stateButton = new JButton("Start"),
 				applyButton = new JButton("Apply");
+		private final JTextField screenshotIntervalField = new JTextField();
 		
 		private final DropDialog dropDialog = new DropDialog();
 		
@@ -922,11 +1003,23 @@ public class ParaFishNCook extends Script implements PaintListener, ServerMessag
 			mouseKeysCheckBox.setMnemonic(KeyEvent.VK_K);
 			mouseKeysCheckBox.setSelected(useMouseKeys);
 			
+			takeScreenshotsCheckBox.setMnemonic(KeyEvent.VK_E);
+			takeScreenshotsCheckBox.setSelected(takeScreenshots);
+			
+			takeScreenshotOnStopCheckBox.setMnemonic(KeyEvent.VK_N);
+			takeScreenshotOnStopCheckBox.setSelected(takeScreenshotOnStop);
+			
+			hideUsernameCheckBox.setMnemonic(KeyEvent.VK_U);
+			hideUsernameCheckBox.setSelected(hideUsernameInScreenshot);
+			
 			mouseSpeedSpinner.setModel(
 					new SpinnerNumberModel(mouseSpeed, 0, 15, 1));
 			mouseSpeedSpinner.setMaximumSize(new Dimension(50, 
 					mouseSpeedSpinner.getPreferredSize().height));
 			mouseSpeedSpinner.setAlignmentX(Component.LEFT_ALIGNMENT);
+			
+			screenshotIntervalField.setText(formatTime(screenshotInterval * 1000));
+			screenshotIntervalField.setAlignmentX(Component.LEFT_ALIGNMENT);
 			
 			stateButton.addActionListener(this);
 			stateButton.setActionCommand("changestate");
@@ -973,6 +1066,10 @@ public class ParaFishNCook extends Script implements PaintListener, ServerMessag
 			settingsPanel.add(drawTreesCheckBox);
 			settingsPanel.add(check2ndSkillsCheckBox);
 			settingsPanel.add(mouseKeysCheckBox);
+			settingsPanel.add(takeScreenshotsCheckBox);
+			settingsPanel.add(screenshotIntervalField);
+			settingsPanel.add(takeScreenshotOnStopCheckBox);
+			settingsPanel.add(hideUsernameCheckBox);
 			final JButton customDroppingButton = new JButton("Custom dropping settings...");
 			customDroppingButton.addActionListener(this);
 			customDroppingButton.setActionCommand("showcustomdroppingdialog");
@@ -1014,7 +1111,7 @@ public class ParaFishNCook extends Script implements PaintListener, ServerMessag
 					applySettings();
 					
 					// Reset paint variables
-					startTime = System.currentTimeMillis();
+					startTime = lastScreenshotTime = System.currentTimeMillis();
 					trips = fishCaught = fishingLvlsGained = logsChopped = wcLvlsGained = 
 						logsBurned = fmLvlsGained = fishCooked = cookingLvlsGained =
 							gearFails = tinderBoxFails = 0;
@@ -1052,7 +1149,16 @@ public class ParaFishNCook extends Script implements PaintListener, ServerMessag
 			drawTrees = drawTreesCheckBox.isSelected();
 			check2ndSkills = check2ndSkillsCheckBox.isSelected();
 			useMouseKeys = mouseKeysCheckBox.isSelected();
+			takeScreenshots = takeScreenshotsCheckBox.isSelected();
+			takeScreenshotOnStop = takeScreenshotOnStopCheckBox.isSelected();
+			hideUsernameInScreenshot = hideUsernameCheckBox.isSelected();
 			mouseSpeed = (Integer)mouseSpeedSpinner.getValue();
+			final int interval = parseTime(screenshotIntervalField.getText());
+			if(interval < 0) {
+				screenshotIntervalField.setText(formatTime(screenshotInterval * 1000L));
+			} else {
+				screenshotInterval = interval;
+			}
 			log("Settings applied!");
 			log("Fishing style: " + curStyle.getName() + ", [" + (cook ? "X" : " ") + "] Cook, " + 
 					"[" + (drawPaint ? "X" : " ") + "] Draw paint, " +
@@ -1061,6 +1167,12 @@ public class ParaFishNCook extends Script implements PaintListener, ServerMessag
 					"[" + (drawTrees ? "X" : " ") + "] Draw trees, " +
 					"[" + (check2ndSkills ? "X" : " ") + "] Check secondary skills.");
 			log("Mouse speed: " + mouseSpeed);
+			if(takeScreenshots) {
+				log("Taking screenshots every " + formatTime(screenshotInterval * 1000L) + ".");
+			}
+			log("[" + (takeScreenshotOnStop ? "X" : " ") + "] Take screenshot on stop.");
+			if(takeScreenshots || takeScreenshotOnStop)
+				log("[" + (hideUsernameInScreenshot ? "X" : " ") + "] Hide username in screenshot.");
 		} 
 		
 		public Component getListCellRendererComponent(final JList list,
@@ -1250,6 +1362,10 @@ public class ParaFishNCook extends Script implements PaintListener, ServerMessag
 	}
 	
 	public void onFinish() {
+		if(takeScreenshotOnStop) {
+			log("[SCREENSHOT] Taking screenshot on stop.");
+			takeScreenshot(hideUsernameInScreenshot);
+		}
 		cameraAntiBan.stop();
 		gui.dispose();
 		saveSettings(settingsFile);
@@ -1273,6 +1389,7 @@ public class ParaFishNCook extends Script implements PaintListener, ServerMessag
 			defaultTab = in.readInt();
 			curStyleIndex = in.readInt();
 			mouseSpeed = in.readInt();
+			screenshotInterval = in.readInt();
 			cook = in.readBoolean();
 			fastPowerFish = in.readBoolean();
 			drawPaint = in.readBoolean();
@@ -1280,6 +1397,9 @@ public class ParaFishNCook extends Script implements PaintListener, ServerMessag
 			check2ndSkills = in.readBoolean();
 			useMouseKeys = in.readBoolean();
 			customDropping = in.readBoolean();
+			takeScreenshots = in.readBoolean();
+			takeScreenshotOnStop = in.readBoolean();
+			hideUsernameInScreenshot = in.readBoolean();
 			guiLocation = new Point(in.readInt(), in.readInt());
 			try {
 				while(true) {
@@ -1308,6 +1428,7 @@ public class ParaFishNCook extends Script implements PaintListener, ServerMessag
 			out.writeInt(defaultTab);
 			out.writeInt(curStyleIndex);
 			out.writeInt(mouseSpeed);
+			out.writeInt(screenshotInterval);
 			out.writeBoolean(cook);
 			out.writeBoolean(fastPowerFish);
 			out.writeBoolean(drawPaint);
@@ -1315,6 +1436,9 @@ public class ParaFishNCook extends Script implements PaintListener, ServerMessag
 			out.writeBoolean(check2ndSkills);
 			out.writeBoolean(useMouseKeys);
 			out.writeBoolean(customDropping);
+			out.writeBoolean(takeScreenshots);
+			out.writeBoolean(takeScreenshotOnStop);
+			out.writeBoolean(hideUsernameInScreenshot);
 			final Point p = gui.getLocation();
 			out.writeInt(p.x);
 			out.writeInt(p.y);
@@ -1330,6 +1454,10 @@ public class ParaFishNCook extends Script implements PaintListener, ServerMessag
 				log("Can't close settings stream: " + e);
 			}
 		}
+	}
+	
+	private static String capitalize(final String input) {
+		return Character.toUpperCase(input.charAt(0)) + input.substring(1).toLowerCase();
 	}
 	
 	private boolean atPoint(final Point p, final String action) {
@@ -1717,7 +1845,10 @@ public class ParaFishNCook extends Script implements PaintListener, ServerMessag
 							wait(random(25, 125));
 							final boolean cooked = (id == f.getCookedID());
 							if(y == 6) {
-								input.hopMouse(input.getX(), getMenuLocation().getY() + 25 + 15 * 
+								final RSTile menuLoc = getMenuLocation();
+								if(menuLoc == null) 
+									continue yLoop;
+								input.hopMouse(input.getX(), menuLoc.getY() + 25 + 15 * 
 										(cooked ? 2 : 1));
 							} else {
 								mouseKeyMove(0, cooked ? 62 : 37);
@@ -1979,13 +2110,25 @@ public class ParaFishNCook extends Script implements PaintListener, ServerMessag
 		for(final LevelInfo li : 
 				curStyle.getLevelInformation()) {
 			if(!li.check()) {
-				if(hasLevelsRequired) {
-					log("To use " + curStyle.getName() + ", you must meet these level requirements:");
-					hasLevelsRequired = false;
+				if(lvlFails >= 5) {
+					if(hasLevelsRequired) {
+						log("To use " + curStyle.getName() + ", you must meet these level requirements:");
+						hasLevelsRequired = false;
+					}
+					log("At least lvl " + li.getLevelRequired() + " in " + 
+							li.getName() + ".");
+				} else {
+					log("Checking for levels. (" + ++lvlFails + "/5)");
+					return false;
 				}
-				log("At least lvl " + li.getLevelRequired() + " in " + 
-						Skills.statsArray[li.getStatID()] + ".");
 			}
+		}
+		if(hasLevelsRequired && lvlFails > 0) {
+			log("Account meets the level requirements...");
+			lvlFails = 0;
+		}
+		if(!hasLevelsRequired) {
+			lvlFails++;
 		}
 		return hasLevelsRequired;
 	}
@@ -2002,9 +2145,17 @@ public class ParaFishNCook extends Script implements PaintListener, ServerMessag
 			if(update) {
 				trees = Tree.scanForTrees();
 				if(trees.isEmpty()) {
-					log("No trees found around!");
-					logout();
-					return -1;
+					if(treeFails >= 5) {
+						log("No trees found around!");
+						logout();
+						return -1;
+					} else {
+						log("Checking for trees. (" + ++treeFails + "/5)");
+						return random(750, 1250);
+					}
+				} else if(treeFails > 0) {
+					log("Trees found around.");
+					treeFails = 0;
 				}
 				fishingSpotTile = getLocation();
 				update = false;
@@ -2065,13 +2216,17 @@ public class ParaFishNCook extends Script implements PaintListener, ServerMessag
 		case FISHING:
 			if(fastPowerFish && getInventoryCount(curStyle.getCatches()) >= 2 || 
 					getInventoryCount() >=
-					(cook && fire != null && tileOnScreen(fire.getLocation()) ? 28 : 27)) {
+					(!cook || (fire != null && tileOnScreen(fire.getLocation())) ? 28 : 27)) {
 				status = cook ? CHOPPING : DROPPING;
 				break;
 			}
 			if(!checkLevels()) {
-				logout();
-				return -1;
+				if(lvlFails >= 6) {
+					logout();
+					return -1;
+				} else {
+					return random(750, 1250);
+				}
 			}
 			if(inventoryContains(curStyle.getGearIDs())) {
 				if(gearFails != 0) {
@@ -2385,17 +2540,32 @@ public class ParaFishNCook extends Script implements PaintListener, ServerMessag
 	}
 	
 	
-	private String formatTime(final long time) {
+	private static String formatTime(final long time) {
 		final int sec = (int)(time / 1000),
 		h = sec / 3600, m = sec / 60 % 60, s = sec % 60;
 		return (h < 10 ? "0" + h : h) + ":" + (m < 10 ? "0" + m : m) + ":" + (s < 10 ? "0" + s : s);
 	}
 	
-	private String formatTime(final double time) {
+	private static String formatTime(final double time) {
 		return formatTime((long)time);
 	}
 	
-	private String formatAmount(final int amount) {
+	private int parseTime(String time) {
+		time = time.replaceAll(" ", "");
+		final String[] fields = time.split(":");
+		if(fields.length != 3) {
+			return -1;
+		}
+		try {
+			return Integer.parseInt(fields[0]) * 3600 + // Hours
+				Integer.parseInt(fields[1]) * 60 +      // Minutes
+				Integer.parseInt(fields[2]);            // Seconds
+		} catch (final NumberFormatException e) {
+			return -1;
+		}
+	}
+	
+	private static String formatAmount(final int amount) {
 		if(amount < 1000) return String.valueOf(amount);
 		final int len = String.valueOf(amount).length();
 		if(len >= 6) {
@@ -2406,7 +2576,7 @@ public class ParaFishNCook extends Script implements PaintListener, ServerMessag
 				len < 7 ? 'k' : 'm');
 	}
 	
-	private String formatAmount(final double amount) {
+	private static String formatAmount(final double amount) {
 		return formatAmount((int)amount);
 	}
 	
@@ -2424,6 +2594,12 @@ public class ParaFishNCook extends Script implements PaintListener, ServerMessag
 			g.drawPolygon(new int[] {p1.x, p2.x, p3.x, p4.x},
 					new int[] {p1.y, p2.y, p3.y, p4.y}, 4);
 		}
+	}
+	
+	private void takeScreenshot(final boolean hideUsername) {
+		ScreenshotUtil.takeScreenshot(
+				new File(screenshotsPath, "ParaFishNCook_" + dateFormat.format(new Date()) + ".png"), 
+				"png", hideUsername);
 	}
 	
 	public void onRepaint(final Graphics g) {
@@ -2493,7 +2669,7 @@ public class ParaFishNCook extends Script implements PaintListener, ServerMessag
 				curY += 21;
 				curTab++;
 			}
-
+			
 			final long time = System.currentTimeMillis() - startTime;
 			String[] lines = null;
 			switch(selTab) {
@@ -2524,12 +2700,15 @@ public class ParaFishNCook extends Script implements PaintListener, ServerMessag
 						"--:--:--"),
 						"XP gained: " + formatAmount(fishingXPGained) + 
 						" (" + formatAmount(3600000.0 / time * fishingXPGained) + " xp/h)",
-						"%fishing"
+						"%" + STAT_FISHING
 				};
 				break;
 			case 2: // Woodcutting
 				xpPerMs = wcXPGained / time;
-				lines = new String[] {
+				lines = (!cook || !curStyle.containsAnyCookableFish()) &&
+							curStyle.getLevelInformation().length > 1 ? 
+						curStyle.getLevelInformation()[1].getPaintTextLines() : 
+						new String[] {
 						"ParaFishNCook v" + VERSION,
 						"-",
 						"Logs chopped: " + formatAmount(logsChopped) +
@@ -2541,12 +2720,14 @@ public class ParaFishNCook extends Script implements PaintListener, ServerMessag
 						"--:--:--"),
 						"XP gained: " + formatAmount(wcXPGained) + 
 						" (" + formatAmount(3600000.0 / time * wcXPGained) + " xp/h)",
-						"%wc",
-				};
+						"%" + STAT_WOODCUTTING};
 				break;
 			case 3: // Firemaking
 				xpPerMs = fmXPGained / time;
-				lines = new String[] {
+				lines = (!cook || !curStyle.containsAnyCookableFish()) &&
+							curStyle.getLevelInformation().length > 2 ?
+						curStyle.getLevelInformation()[2].getPaintTextLines() :
+						new String[] {
 						"ParaFishNCook v" + VERSION,
 						"-",
 						"Logs burned: " + formatAmount(logsBurned) +
@@ -2558,8 +2739,7 @@ public class ParaFishNCook extends Script implements PaintListener, ServerMessag
 						"--:--:--"),
 						"XP gained: " + formatAmount(fmXPGained) +
 						" (" + formatAmount(3600000.0 / time * fmXPGained) + " xp/h)",
-						"%fm"
-				};
+						"%" + STAT_FIREMAKING};
 				break;
 			case 4: // Cooking
 				xpPerMs = cookingXPGained / time;
@@ -2575,13 +2755,18 @@ public class ParaFishNCook extends Script implements PaintListener, ServerMessag
 						"--:--:--"),
 						"XP gained: " + formatAmount(cookingXPGained) + 
 						" (" + formatAmount(3600000.0 / time * cookingXPGained) + " xp/h)",
-						"%cooking"
+						"%" + STAT_COOKING
 				};
 				break;
 			}
 			if(lines != null) {
-				final int width = getWidth(lines) + 6,
-				x = 494 - width;
+				final Color[] progBarColors = {
+					new Color(118, 164, 239, 150),
+					new Color(113, 242, 57, 150),
+					new Color(239, 5, 5, 150),
+					new Color(231, 236, 10, 150),
+				};
+				final int width = getWidth(lines) + 6, x = 494 - width;
 				curY = 249;
 
 				g.setColor(new Color(0, 0, 0, 175));
@@ -2598,25 +2783,10 @@ public class ParaFishNCook extends Script implements PaintListener, ServerMessag
 						curY += 11;
 						continue;
 					} else if(line.startsWith("%")) {
-						Color c = null;
-						int percent = 0, xpLeft = 0;
-						if(line.equals("%fishing")) {
-							c = new Color(118, 164, 239, 150);
-							percent = skills.getPercentToNextLevel(STAT_FISHING);
-							xpLeft = skills.getXPToNextLevel(STAT_FISHING);
-						} else if(line.equals("%wc")) {
-							c = new Color(113, 242, 57, 150);
-							percent = skills.getPercentToNextLevel(STAT_WOODCUTTING);
-							xpLeft = skills.getXPToNextLevel(STAT_WOODCUTTING);
-						} else if(line.equals("%fm")) {
-							c = new Color(239, 5, 5, 150);
-							percent = skills.getPercentToNextLevel(STAT_FIREMAKING);
-							xpLeft = skills.getXPToNextLevel(STAT_FIREMAKING);
-						} else if(line.equals("%cooking")) {
-							c = new Color(231, 236, 10, 150);
-							percent = skills.getPercentToNextLevel(STAT_COOKING);
-							xpLeft = skills.getXPToNextLevel(STAT_COOKING);
-						}
+						final Color c = progBarColors[selTab - 1];
+						final int statID = Integer.parseInt(line.substring(1)),
+							percent = skills.getPercentToNextLevel(statID), 
+							xpLeft = skills.getXPToNextLevel(statID);
 						g.setColor(new Color(0, 0, 0, 200));
 						g.fillRect(x + 3, curY - 10, width - 6, 15);
 						g.setColor(c);
@@ -2650,6 +2820,14 @@ public class ParaFishNCook extends Script implements PaintListener, ServerMessag
 				}
 			}
 		}
+		
+		if(takeScreenshots && 
+				System.currentTimeMillis() > lastScreenshotTime + screenshotInterval * 1000L) {
+			log("[SCREENSHOT] Taking screenshot after " + 
+					formatTime(System.currentTimeMillis() - startTime) + ".");
+			takeScreenshot(hideUsernameInScreenshot);
+			lastScreenshotTime = System.currentTimeMillis();
+		}
 	}
 	
 	public void serverMessageRecieved(final ServerMessageEvent s) {
@@ -2662,6 +2840,7 @@ public class ParaFishNCook extends Script implements PaintListener, ServerMessag
 				if(msg.contains(f.toString().toLowerCase())) {
 					fishCaught++;
 					fishingXPGained += f.getFishingXPGain();
+					f.updateXPGains();
 					break;
 				}
 			}
@@ -2684,6 +2863,8 @@ public class ParaFishNCook extends Script implements PaintListener, ServerMessag
 				fmLvlsGained++;
 			} else if (msg.contains("Cooking")) {
 				cookingLvlsGained++;
+			} else {
+				LevelInfo.updateLvlsGained(msg, curStyle.getLevelInformation());
 			}
 		} else if (msg.startsWith("You get some")) {
 			for(final Log l : Log.values()) {

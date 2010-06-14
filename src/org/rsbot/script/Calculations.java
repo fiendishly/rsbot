@@ -193,32 +193,32 @@ public class Calculations {
 	 *         valid path to the destination was found.
 	 */
 	public static int getRealDistanceTo(final int startX, final int startY, final int destX, final int destY, final boolean isObject) {
-		final int[][] via = new int[104][104];
-		final int[][] cost = new int[104][104];
+		final int[][] prev = new int[104][104];
+		final int[][] dist = new int[104][104];
 		final int[] tileQueueX = new int[4000];
 		final int[] tileQueueY = new int[4000];
 
 		for (int xx = 0; xx < 104; xx++) {
 			for (int yy = 0; yy < 104; yy++) {
-				via[xx][yy] = 0;
-				cost[xx][yy] = 99999999;
+				prev[xx][yy] = 0;
+				dist[xx][yy] = 99999999;
 			}
 		}
 
 		int curX = startX;
 		int curY = startY;
-		via[startX][startY] = 99;
-		cost[startX][startY] = 0;
-		int head = 0;
-		int tail = 0;
-		tileQueueX[head] = startX;
-		tileQueueY[head++] = startY;
+		prev[startX][startY] = 99;
+		dist[startX][startY] = 0;
+		int pathPtr = 0;
+		int stepPtr = 0;
+		tileQueueX[pathPtr] = startX;
+		tileQueueY[pathPtr++] = startY;
 		boolean foundPath = false;
 		final int pathLength = tileQueueX.length;
 		final int blocks[][] = Bot.getClient().getRSGroundDataArray()[Bot.getClient().getPlane()].getBlocks();
-		while (tail != head) {
-			curX = tileQueueX[tail];
-			curY = tileQueueY[tail];
+		while (stepPtr != pathPtr) {
+			curX = tileQueueX[stepPtr];
+			curY = tileQueueY[stepPtr];
 
 			if (!isObject && (curX == destX) && (curY == destY)) {
 				foundPath = true;
@@ -229,69 +229,68 @@ public class Calculations {
 					break;
 				}
 			}
-			tail = (tail + 1) % pathLength;
+			stepPtr = (stepPtr + 1) % pathLength;
 
-			// Big and ugly block of code
-			final int thisCost = cost[curX][curY] + 1;
-			if ((curY > 0) && (via[curX][curY - 1] == 0) && ((blocks[curX][curY - 1] & 0x1280102) == 0)) {
-				tileQueueX[head] = curX;
-				tileQueueY[head] = curY - 1;
-				head = (head + 1) % pathLength;
-				via[curX][curY - 1] = 1;
-				cost[curX][curY - 1] = thisCost;
+			final int thisCost = dist[curX][curY] + 1;
+			if ((curY > 0) && (prev[curX][curY - 1] == 0) && ((blocks[curX][curY - 1] & 0x1280102) == 0)) {
+				tileQueueX[pathPtr] = curX;
+				tileQueueY[pathPtr] = curY - 1;
+				pathPtr = (pathPtr + 1) % pathLength;
+				prev[curX][curY - 1] = 1;
+				dist[curX][curY - 1] = thisCost;
 			}
-			if ((curX > 0) && (via[curX - 1][curY] == 0) && ((blocks[curX - 1][curY] & 0x1280108) == 0)) {
-				tileQueueX[head] = curX - 1;
-				tileQueueY[head] = curY;
-				head = (head + 1) % pathLength;
-				via[curX - 1][curY] = 2;
-				cost[curX - 1][curY] = thisCost;
+			if ((curX > 0) && (prev[curX - 1][curY] == 0) && ((blocks[curX - 1][curY] & 0x1280108) == 0)) {
+				tileQueueX[pathPtr] = curX - 1;
+				tileQueueY[pathPtr] = curY;
+				pathPtr = (pathPtr + 1) % pathLength;
+				prev[curX - 1][curY] = 2;
+				dist[curX - 1][curY] = thisCost;
 			}
-			if ((curY < 104 - 1) && (via[curX][curY + 1] == 0) && ((blocks[curX][curY + 1] & 0x1280120) == 0)) {
-				tileQueueX[head] = curX;
-				tileQueueY[head] = curY + 1;
-				head = (head + 1) % pathLength;
-				via[curX][curY + 1] = 4;
-				cost[curX][curY + 1] = thisCost;
+			if ((curY < 104 - 1) && (prev[curX][curY + 1] == 0) && ((blocks[curX][curY + 1] & 0x1280120) == 0)) {
+				tileQueueX[pathPtr] = curX;
+				tileQueueY[pathPtr] = curY + 1;
+				pathPtr = (pathPtr + 1) % pathLength;
+				prev[curX][curY + 1] = 4;
+				dist[curX][curY + 1] = thisCost;
 			}
-			if ((curX < 104 - 1) && (via[curX + 1][curY] == 0) && ((blocks[curX + 1][curY] & 0x1280180) == 0)) {
-				tileQueueX[head] = curX + 1;
-				tileQueueY[head] = curY;
-				head = (head + 1) % pathLength;
-				via[curX + 1][curY] = 8;
-				cost[curX + 1][curY] = thisCost;
+			if ((curX < 104 - 1) && (prev[curX + 1][curY] == 0) && ((blocks[curX + 1][curY] & 0x1280180) == 0)) {
+				tileQueueX[pathPtr] = curX + 1;
+				tileQueueY[pathPtr] = curY;
+				pathPtr = (pathPtr + 1) % pathLength;
+				prev[curX + 1][curY] = 8;
+				dist[curX + 1][curY] = thisCost;
 			}
-			if ((curX > 0) && (curY > 0) && (via[curX - 1][curY - 1] == 0) && ((blocks[curX - 1][curY - 1] & 0x128010e) == 0) && ((blocks[curX - 1][curY] & 0x1280108) == 0) && ((blocks[curX][curY - 1] & 0x1280102) == 0)) {
-				tileQueueX[head] = curX - 1;
-				tileQueueY[head] = curY - 1;
-				head = (head + 1) % pathLength;
-				via[curX - 1][curY - 1] = 3;
-				cost[curX - 1][curY - 1] = thisCost;
+			if ((curX > 0) && (curY > 0) && (prev[curX - 1][curY - 1] == 0) && ((blocks[curX - 1][curY - 1] & 0x128010e) == 0) && ((blocks[curX - 1][curY] & 0x1280108) == 0) && ((blocks[curX][curY - 1] & 0x1280102) == 0)) {
+				tileQueueX[pathPtr] = curX - 1;
+				tileQueueY[pathPtr] = curY - 1;
+				pathPtr = (pathPtr + 1) % pathLength;
+				prev[curX - 1][curY - 1] = 3;
+				dist[curX - 1][curY - 1] = thisCost;
 			}
-			if ((curX > 0) && (curY < 104 - 1) && (via[curX - 1][curY + 1] == 0) && ((blocks[curX - 1][curY + 1] & 0x1280138) == 0) && ((blocks[curX - 1][curY] & 0x1280108) == 0) && ((blocks[curX][curY + 1] & 0x1280120) == 0)) {
-				tileQueueX[head] = curX - 1;
-				tileQueueY[head] = curY + 1;
-				head = (head + 1) % pathLength;
-				via[curX - 1][curY + 1] = 6;
-				cost[curX - 1][curY + 1] = thisCost;
+			if ((curX > 0) && (curY < 104 - 1) && (prev[curX - 1][curY + 1] == 0) && ((blocks[curX - 1][curY + 1] & 0x1280138) == 0) && ((blocks[curX - 1][curY] & 0x1280108) == 0) && ((blocks[curX][curY + 1] & 0x1280120) == 0)) {
+				tileQueueX[pathPtr] = curX - 1;
+				tileQueueY[pathPtr] = curY + 1;
+				pathPtr = (pathPtr + 1) % pathLength;
+				prev[curX - 1][curY + 1] = 6;
+				dist[curX - 1][curY + 1] = thisCost;
 			}
-			if ((curX < 104 - 1) && (curY > 0) && (via[curX + 1][curY - 1] == 0) && ((blocks[curX + 1][curY - 1] & 0x1280183) == 0) && ((blocks[curX + 1][curY] & 0x1280180) == 0) && ((blocks[curX][curY - 1] & 0x1280102) == 0)) {
-				tileQueueX[head] = curX + 1;
-				tileQueueY[head] = curY - 1;
-				head = (head + 1) % pathLength;
-				via[curX + 1][curY - 1] = 9;
-				cost[curX + 1][curY - 1] = thisCost;
+			if ((curX < 104 - 1) && (curY > 0) && (prev[curX + 1][curY - 1] == 0) && ((blocks[curX + 1][curY - 1] & 0x1280183) == 0) && ((blocks[curX + 1][curY] & 0x1280180) == 0) && ((blocks[curX][curY - 1] & 0x1280102) == 0)) {
+				tileQueueX[pathPtr] = curX + 1;
+				tileQueueY[pathPtr] = curY - 1;
+				pathPtr = (pathPtr + 1) % pathLength;
+				prev[curX + 1][curY - 1] = 9;
+				dist[curX + 1][curY - 1] = thisCost;
 			}
-			if ((curX < 104 - 1) && (curY < 104 - 1) && (via[curX + 1][curY + 1] == 0) && ((blocks[curX + 1][curY + 1] & 0x12801e0) == 0) && ((blocks[curX + 1][curY] & 0x1280180) == 0) && ((blocks[curX][curY + 1] & 0x1280120) == 0)) {
-				tileQueueX[head] = curX + 1;
-				tileQueueY[head] = curY + 1;
-				head = (head + 1) % pathLength;
-				via[curX + 1][curY + 1] = 12;
-				cost[curX + 1][curY + 1] = thisCost;
+			if ((curX < 104 - 1) && (curY < 104 - 1) && (prev[curX + 1][curY + 1] == 0) && ((blocks[curX + 1][curY + 1] & 0x12801e0) == 0) && ((blocks[curX + 1][curY] & 0x1280180) == 0) && ((blocks[curX][curY + 1] & 0x1280120) == 0)) {
+				tileQueueX[pathPtr] = curX + 1;
+				tileQueueY[pathPtr] = curY + 1;
+				pathPtr = (pathPtr + 1) % pathLength;
+				prev[curX + 1][curY + 1] = 12;
+				dist[curX + 1][curY + 1] = thisCost;
 			}
 		}
 		if (foundPath)
-			return cost[curX][curY];
+			return dist[curX][curY];
 		return -1;
 	}
 
