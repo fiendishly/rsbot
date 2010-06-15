@@ -236,6 +236,7 @@ public class FamousMiner extends Script implements PaintListener,
 		try {
 			final RSObject Rock = getNearestObjectByID(rock);
 			if (Rock == null) {
+				status = "Waiting for New Rock";
 				return false;
 			}
 
@@ -1310,9 +1311,8 @@ public class FamousMiner extends Script implements PaintListener,
 								if (getCurrentTab() != 1) {
 									openTab(1);
 									moveMouse(new Point(703, 222), 29, 11);
-									wait(random(1500, 3000));
+									Thread.sleep(random(2000, 3000));
 								}
-								Thread.sleep(random(3000, 6000));
 							}
 
 							if (random(0, 10) == 0) {
