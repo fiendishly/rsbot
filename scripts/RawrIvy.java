@@ -9,7 +9,7 @@ import org.rsbot.event.listeners.PaintListener;
 import org.rsbot.event.listeners.ServerMessageListener;
 import org.rsbot.event.events.ServerMessageEvent;
 
-@ScriptManifest(authors = { "RawR" }, category = "Woodcutting", name = "Rawr Ivy Chopper", version = 1.63, description = "<html><body>"
+@ScriptManifest(authors = { "RawR" }, category = "Woodcutting", name = "Rawr Ivy Chopper", version = 1.65, description = "<html><body>"
 		+ "<center><h2>RawR Ivy Chopper</h2></center>"
 		+ "This script supports all Ivy cutting locations. <br />"
 		+ "When starting, face the Ivy and the bot will do the rest.<br /><br />"
@@ -53,24 +53,6 @@ public class RawrIvy extends Script implements PaintListener,
 	@Override
 	public int getMouseSpeed() {
 		return random(6, 8);
-	}
-
-	public void setCamera() {
-		final int curZ = Bot.getClient().getCamPosZ();
-		if (curZ <= -950 && curZ >= -1050) {
-			return;
-		} else {
-			final char key = (char) (curZ < -1000 ? KeyEvent.VK_DOWN
-					: KeyEvent.VK_UP);
-			input.pressKey(key);
-			final int finalZ = -1000 + random(-50, 51);
-			while (key == (char) KeyEvent.VK_DOWN ? Bot.getClient()
-					.getCamPosZ() < finalZ
-					: Bot.getClient().getCamPosZ() > finalZ) {
-				wait(random(10, 20));
-			}
-			input.releaseKey(key);
-		}
 	}
 
 	public int gatherNest() {
@@ -144,7 +126,6 @@ public class RawrIvy extends Script implements PaintListener,
 	}
 
 	public int loop() {
-		setCamera();
 		gatherNest();
 
 		if (useAntiBan != null) {
@@ -467,12 +448,7 @@ public class RawrIvy extends Script implements PaintListener,
 			g.setColor(BACKGROUND);
 			g.fillRect(4, 313, 174, 24);
 			g.setColor(GREEN);
-			g
-					.fillRect(
-							4,
-							313,
-							((skills.getPercentToNextLevel(STAT_WOODCUTTING) * 2) - 25),
-							24);
+			g.fillRect(4, 313, ((skills.getPercentToNextLevel(STAT_WOODCUTTING) * 2) - 25), 24);
 			g.setColor(Color.WHITE);
 			g.drawString(skills.getPercentToNextLevel(STAT_WOODCUTTING)
 					+ " % to "
@@ -513,7 +489,7 @@ public class RawrIvy extends Script implements PaintListener,
 				return null;
 			}
 			if (rsGround != null) {
-				obj = rsGround.getRSObject3_0();
+				obj = rsGround.getRSObject3_1();
 				if (obj != null) {
 					rsObj = (org.rsbot.accessors.RSObject) obj;
 					if (rsObj.getID() != -1) {

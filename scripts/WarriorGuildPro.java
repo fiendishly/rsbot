@@ -15,28 +15,29 @@ import org.rsbot.script.wrappers.RSNPC;
 import org.rsbot.script.wrappers.RSObject;
 import org.rsbot.script.wrappers.RSTile;
 
-@ScriptManifest(authors = { "Creative" }, category = "Combat", name = "WarriorGuild Pro", version = 1.6, description = "<html><body><fontcolor=black><center>"
-		+ "<h2>"
-		+ "WarriorGuild Pro"
-		+ " V 1.6</h2>"
-		+ "Author: "
-		+ "Creative"
-		+ "<br><br>Start near kamfreena."
-		+ "<br>Have your food, and defender that you are using to gain the higher version of in your inventory!"
-		+ "<br>Informative Paint."
-		+ "<br>"
-		+ "<br>Select the Food you would like to use: "
-		+ "<select name=\"food\"><option>Lobster<option>Salmon<option>Tuna<option>Trout<option>Sharks<option>Monkfish<option>Manta ray<option>Sea turtle<option>Cake<option>Chocolate cake<option>Plain pizza<option>Pineapple pizza<option>Meat pizza<option>Rocktail<option>Swordfish</select>"
-		+ "<br>"
-		+ "<br>Select Animated Armour we be using: "
-		+ "<select name=\"Enemy\"><option>Animated Bronze Armour</option><option>Animated Iron Armour</option><option>Animated Steel Armour</option><option>Animated Black Armour</option><option>Animated Mithril Armour</option><option>Animated Adamant Armour</option><option>Animated Rune Armour</option></select>"
-		+ "<br>"
-		+ "<br>Select the defender you want to collect: "
-		+ "<select name=\"defender\"><option>Bronze</option><option>Iron</option><option>Steel</option><option>Black</option><option>Mithril</option><option>Adamant</option><option>Rune</option></select>"
-		+ "<br>"
-		+ "<br>Pick/Bury Big Bones?<input name='PrayMode' type='checkbox' value='1'>")
-public class WarriorGuildPro extends Script implements PaintListener,
-		ServerMessageListener {
+@ScriptManifest(authors = { "Creative" }, category = "Combat", name = "WarriorGuild Proness", version = 1.7, description = "<html><body><fontcolor=black><center>"
+	+ "<h2>"
+	+ "WarriorGuild Pro"
+	+ " V 1.7</h2>"
+	+ "Author: "
+	+ "Creative"
+	+ "<br><br>Start near kamfreena."
+	+ "<br>Have your food, and defender that you are using to gain the higher version of in your inventory!"
+	+ "<br>Informative Paint."
+	+ "<br>"
+	+ "<br>Select the Food you would like to use: "
+	+ "<select name=\"food\"><option>Lobster<option>Salmon<option>Tuna<option>Trout<option>Sharks<option>Monkfish<option>Manta ray<option>Sea turtle<option>Cake<option>Chocolate cake<option>Plain pizza<option>Pineapple pizza<option>Meat pizza<option>Rocktail<option>Swordfish</select>"
+	+ "<br>"
+	+ "<br>Select Animated Armour we be using: "
+	+ "<select name=\"Enemy\"><option>Animated Bronze Armour</option><option>Animated Iron Armour</option><option>Animated Steel Armour</option><option>Animated Black Armour</option><option>Animated Mithril Armour</option><option>Animated Adamant Armour</option><option>Animated Rune Armour</option></select>"
+	+ "<br>"
+	+ "<br>Select the defender you want to collect: "
+	+ "<select name=\"defender\"><option>Bronze</option><option>Iron</option><option>Steel</option><option>Black</option><option>Mithril</option><option>Adamant</option><option>Rune</option></select>"
+	+ "<br>"
+	+ "<br>Pick/Bury Big Bones?<input name='PrayMode' type='checkbox' value='1'>"
+	+ "<br>"
+	+ "<br>MouseSpeed<br><input type='checkbox' name='mspe1' value='true'>1 </input><input type='checkbox' name='mspe2' value='true'>2 </input><input type='checkbox' name='mspe3' value='true'>3 </input><input type='checkbox' name='mspe4' value='true'>4 </input><input type='checkbox' name='mspe5' value='true'>5 </input><input type='checkbox' name='mspe6' value='true'>6 </input><input type='checkbox' name='mspe7' value='true'>7 </input><input type='checkbox' name='mspe8' value='true'>8 </input><input type='checkbox' name='mspe9' value='true'>9 </input><input type='checkbox' name='mspe10' value='true'>10 </input></form></body></html>")
+	public class WarriorGuildPro extends Script implements PaintListener, ServerMessageListener {
 
 	// Npc
 	public int cyclops[] = { 6079, 6078, 6080, 4292, 4291, 6081 };
@@ -48,6 +49,20 @@ public class WarriorGuildPro extends Script implements PaintListener,
 	private static final int[] animatedMithril = { 4282 };
 	private static final int[] animatedAdamant = { 4283 };
 	private static final int[] animatedRune = { 4284 };
+	
+	//Mouse
+	public int mspe;
+	public static int MouseSpeed = 4;
+	public boolean msped1 = false;
+	public boolean msped2 = false;
+	public boolean msped3 = false;
+	public boolean msped4 = false;
+	public boolean msped5 = false;
+	public boolean msped6 = false;
+	public boolean msped7 = false;
+	public boolean msped8 = false;
+	public boolean msped9 = false;
+	public boolean msped10 = false;
 
 	// Paint
 	public int strengthXP = skills.getCurrentSkillExp(STAT_STRENGTH);
@@ -55,12 +70,13 @@ public class WarriorGuildPro extends Script implements PaintListener,
 	public int defenseXP = skills.getCurrentSkillExp(STAT_DEFENSE);
 	public int hpXP = skills.getCurrentSkillExp(STAT_HITPOINTS);
 	public int prayXp = skills.getCurrentSkillExp(STAT_PRAYER);
-	public int gainedStr = skills.getCurrentSkillExp(STAT_STRENGTH)
-			- strengthXP;
+	public int gainedStr = skills.getCurrentSkillExp(STAT_STRENGTH)	- strengthXP;
 	public int gainedAtt = skills.getCurrentSkillExp(STAT_ATTACK) - attackXP;
 	public int gainedDef = skills.getCurrentSkillExp(STAT_DEFENSE) - defenseXP;
 	public int gainedHP = skills.getCurrentSkillExp(STAT_HITPOINTS) - hpXP;
 	public int gainedPray = skills.getCurrentSkillExp(STAT_PRAYER) - prayXp;
+
+	
 
 	// Ids
 	public int foodID;
@@ -82,12 +98,8 @@ public class WarriorGuildPro extends Script implements PaintListener,
 	public int[] mithrilArmour = { 1121, 1071, 1159, 8851 };
 	public int[] adamantArmour = { 1123, 1073, 1161, 8851 };
 	public int[] runeArmour = { 1127, 1079, 1163, 8851 };
-	public int[] gear = { 1117, 1075, 1155, 1115, 1067, 1153, 1119, 1069, 1157,
-			1121, 1071, 1159, 1123, 1073, 1161, 1127, 1079, 1163, 1125, 1077,
-			1165, 8851 };
-	public int[] armour = { 1117, 1075, 1155, 1115, 1067, 1153, 1119, 1069,
-			1157, 1121, 1071, 1159, 1123, 1073, 1161, 1127, 1079, 1163, 1125,
-			1077, 1165 };
+	public int[] gear = { 1117, 1075, 1155, 1115, 1067, 1153,1119, 1069, 1157,1121, 1071, 1159,  1123, 1073, 1161 , 1127, 1079, 1163, 1125, 1077, 1165, 8851 };
+	public int[] armour = { 1117, 1075, 1155, 1115, 1067, 1153,1119, 1069, 1157,1121, 1071, 1159,  1123, 1073, 1161 , 1127, 1079, 1163, 1125, 1077, 1165};
 	public int bronze = 1117;
 	public int iron = 1115;
 	public int steel = 1119;
@@ -106,14 +118,11 @@ public class WarriorGuildPro extends Script implements PaintListener,
 	final RSObject groundFloorStairs = getNearestObjectByID(1738);
 	final RSObject middleFloorStairs = getNearestObjectByID(38012);
 	final RSObject topFloorStairs = getNearestObjectByID(15638);
-
-	RSTile doorspot = new RSTile(2856, 3545);
-	RSTile animatorspot = new RSTile(2854, 3536);
-	public RSTile PathToBank[] = { new RSTile(2854, 3546),
-			new RSTile(2847, 3546), new RSTile(2843, 3542) };
-	public RSTile PathToDoor[] = { new RSTile(2843, 3543),
-			new RSTile(2847, 3545), new RSTile(2850, 3546),
-			new RSTile(2854, 3546) };
+	
+	RSTile doorspot = new RSTile(2856,3545);
+	RSTile animatorspot  = new RSTile (2854, 3536);
+	public RSTile PathToBank[] = { new RSTile(2854,3546), new RSTile(2847,3546), new RSTile(2843,3542)};
+	public RSTile PathToDoor[] = { new RSTile(2843,3543), new RSTile(2847,3545), new RSTile(2850,3546), new RSTile(2854,3546)};
 
 	// Args
 	long startTime = System.currentTimeMillis();
@@ -129,6 +138,7 @@ public class WarriorGuildPro extends Script implements PaintListener,
 	private boolean bury;
 	public int TokenAmount;
 
+
 	// OnStart
 	@Override
 	public boolean onStart(Map<String, String> args) {
@@ -138,6 +148,18 @@ public class WarriorGuildPro extends Script implements PaintListener,
 		attackXP = skills.getCurrentSkillExp(STAT_ATTACK);
 		defenseXP = skills.getCurrentSkillExp(STAT_DEFENSE);
 		hpXP = skills.getCurrentSkillExp(STAT_HITPOINTS);
+		
+		
+		msped1 = args.get("mspe1") != null;
+		msped2 = args.get("mspe2") != null;
+		msped3 = args.get("mspe3") != null;
+		msped4 = args.get("mspe4") != null;
+		msped5 = args.get("mspe5") != null;
+		msped6 = args.get("mspe6") != null;
+		msped7 = args.get("mspe7") != null;
+		msped8 = args.get("mspe8") != null;
+		msped9 = args.get("mspe9") != null;
+		msped10 = args.get("mspe10") != null;
 
 		if (args.get("PrayMode") != null) {
 			bury = true;
@@ -219,32 +241,74 @@ public class WarriorGuildPro extends Script implements PaintListener,
 			useD = 8849;
 			pickD = 8850;
 		}
+
+		
+		if (msped1) {
+			mspe = 1;
+		}
+		
+		if (msped2) {
+			mspe = 2;
+		}
+		
+		if (msped3) {
+			mspe = 3;
+		}
+		
+		if (msped4) {
+			mspe = 4;
+		}
+		
+		if (msped5) {
+			mspe = 5;
+		}
+
+		if (msped6) {
+			mspe = 6;
+		}
+
+		if (msped7) {
+			mspe = 7;
+		}
+
+		if (msped8) {
+			mspe = 8;
+		}
+		
+		if (msped9) {
+			mspe = 9;
+		}
+		
+		if (msped10) {
+			mspe = 10;
+		}
+		
 		return true;
 	}
 
 	// Methods
-
+	
 	public boolean atDoor() {
 		RSObject door = getNearestObjectByID(819);
 		if (door == null)
 			return false;
 		return tileOnScreen(door.getLocation());
 	}
-
+	
 	public boolean atBank() {
 		RSObject banker = getNearestObjectByID(2213);
 		if (banker == null)
 			return false;
 		return tileOnScreen(banker.getLocation());
 	}
-
+	
 	public boolean atAnimator() {
 		RSObject anim = getNearestObjectByID(15621);
 		if (anim == null)
 			return false;
 		return tileOnScreen(anim.getLocation());
 	}
-
+	
 	public boolean atCyclops() {
 		RSNPC beast = getNearestNPCByID(cyclops);
 		if (beast == null)
@@ -252,6 +316,7 @@ public class WarriorGuildPro extends Script implements PaintListener,
 		return tileOnScreen(beast.getLocation());
 	}
 
+	
 	private boolean inSquare(int maxX, int maxY, int minX, int minY) {
 		int x = getMyPlayer().getLocation().getX();
 		int y = getMyPlayer().getLocation().getY();
@@ -282,10 +347,10 @@ public class WarriorGuildPro extends Script implements PaintListener,
 			wait(2000);
 		}
 	}
-
+	
 	public void pickgear() {
 		tile2 = getNearestGroundItemByID(gear);
-
+		
 		if (tile2 != null) {
 			atTile(tile2, "Take Warrior");
 			wait(1500);
@@ -295,7 +360,7 @@ public class WarriorGuildPro extends Script implements PaintListener,
 			wait(1000);
 			atTile(tile2, "Take");
 			wait(2000);
-		}
+			}
 	}
 
 	public void pickBury() {
@@ -307,10 +372,11 @@ public class WarriorGuildPro extends Script implements PaintListener,
 			wait(2500);
 		}
 	}
-
-	protected int getMouseSpeed() {
-		return 10;
+	
+	 protected int getMouseSpeed() {
+		   return mspe; 
 	}
+
 
 	// Credit to whom ever made this. Most effective method ever used =D
 	private boolean ATTACKNPC(final RSNPC npc, final String action) {
@@ -356,8 +422,7 @@ public class WarriorGuildPro extends Script implements PaintListener,
 		return false;
 	}
 
-	private boolean isinlocation(int smallestx, int smallesty, int biggestx,
-			int biggesty) {
+	private boolean isinlocation(int smallestx, int smallesty, int biggestx, int biggesty) {
 		int x = getMyPlayer().getLocation().getX();
 		int y = getMyPlayer().getLocation().getY();
 		if (smallestx <= x && x <= biggestx && smallesty <= y && y <= biggesty)
@@ -365,15 +430,16 @@ public class WarriorGuildPro extends Script implements PaintListener,
 		else
 			return false;
 	}
+	
+	   private int walkPath(final RSTile[] path) {
 
-	private int walkPath(final RSTile[] path) {
-
-		if (distanceTo(getDestination()) <= random(5, 12)
-				|| !getMyPlayer().isMoving()) {
-			walkPathMM(randomizePath(path, 2, 2), 15);
-		}
-		return random(400, 600);
-	}
+	        if (distanceTo(getDestination()) <= random(5, 12)
+	                || !getMyPlayer().isMoving()) {
+	            walkPathMM(randomizePath(path, 2, 2), 15);
+	        }
+	        return random(400,600);
+	    }
+	    
 
 	// Paint
 	public void onRepaint(final Graphics g) {
@@ -387,7 +453,7 @@ public class WarriorGuildPro extends Script implements PaintListener,
 			long seconds = millis / 1000;
 
 			int gainedStr = skills.getCurrentSkillExp(STAT_STRENGTH)
-					- strengthXP;
+			- strengthXP;
 			int gainedAtt = skills.getCurrentSkillExp(STAT_ATTACK) - attackXP;
 			int gainedDef = skills.getCurrentSkillExp(STAT_DEFENSE) - defenseXP;
 			int gainedHP = skills.getCurrentSkillExp(STAT_HITPOINTS) - hpXP;
@@ -402,8 +468,7 @@ public class WarriorGuildPro extends Script implements PaintListener,
 				g.drawString("WarriorGuild Pro ", 560, 230);
 				g.setColor(Color.white);
 				g.setFont(new Font("Trebuchet MS", Font.PLAIN, 12));
-				g.drawString("Time running: " + hours + ":" + minutes + ":"
-						+ seconds, 560, 245);
+				g.drawString("Time running: " + hours + ":" + minutes + ":" + seconds, 560, 245);
 				g.setColor(Color.red);
 				g.drawString("Attack Xp: " + gainedAtt, 560, 270);
 				g.setColor(Color.green);
@@ -422,7 +487,7 @@ public class WarriorGuildPro extends Script implements PaintListener,
 				g.drawString("Status: " + status, 560, 445);
 				g.setFont(new Font("Palatino Linotype", Font.ITALIC, 10));
 				g.drawString("- Creative", 687, 220);
-				g.drawString("V 1.5", 704, 456);
+				g.drawString("V 1.7", 704, 456);
 			}
 		}
 	}
@@ -430,15 +495,14 @@ public class WarriorGuildPro extends Script implements PaintListener,
 	@Override
 	public int loop() {
 		setCameraAltitude(true);
-
+		
 		tokens = getInventoryCount(Tokens);
-
-		if (bury
-				&& (!isInventoryFull() && getMyPlayer().getInteracting() == null)) {
+		
+		if (bury && (!isInventoryFull() && getMyPlayer().getInteracting() == null)) {
 			pickBury();
 		}
-
-		if (inventoryContains(bone)) {
+		
+		if(inventoryContains(bone)){
 			status = "Burying...";
 			atInventoryItem(bone, "Bury");
 			wait(2500);
@@ -447,29 +511,29 @@ public class WarriorGuildPro extends Script implements PaintListener,
 		if (!isInventoryFull()) {
 			pickUp();
 		}
-
-		if (atCyclops() && (!inventoryContains(foodID))) {
+		
+		if(atCyclops() && (!inventoryContains(foodID))){
 			RSObject escape = getNearestObjectByID(33438);
 			walkTileMM(doorTile3);
 			wait(1000);
 			setCompass('w');
 			atObject(escape, "Open");
 			wait(1000);
-
+			
 		}
 
 		if (getNearestGroundItemByID(gear) != null && (!isInventoryFull())) {
 			status = "Looting...";
 			pickgear();
 		}
-
+		
 		if (getNearestGroundItemByID(gear) != null && (isInventoryFull())) {
 			atInventoryItem(foodID, "Eat");
 			wait(400);
 			atInventoryItem(foodID, "Eat");
 			wait(400);
 			atInventoryItem(foodID, "Eat");
-
+			
 		}
 
 		if (inventoryContainsOneOf(Defenders)) {
@@ -482,8 +546,7 @@ public class WarriorGuildPro extends Script implements PaintListener,
 			pickUp();
 		}
 
-		if (getMyPlayer().getInteracting() == null
-				&& getNearestFreeNPCByID(cyclops) != null) {
+		if (getMyPlayer().getInteracting() == null	&& getNearestFreeNPCByID(cyclops) != null) {
 			status = "Attacking...";
 			ATTACKNPC(getNearestFreeNPCByID(cyclops), "Attack");
 		}
@@ -496,121 +559,113 @@ public class WarriorGuildPro extends Script implements PaintListener,
 				wait(random(1500, 2000));
 			}
 		}
-
-		if (getMyPlayer().getInteracting() == null
-				&& getNearestFreeNPCByID(animatorID) != null) {
+		
+		if (getMyPlayer().getInteracting() == null && getNearestFreeNPCByID(animatorID) != null) {
 			status = "Attacking...";
 			atNPC(getNearestFreeNPCByID(animatorID), "Attack");
 		}
 
-		if (inSquare(2861, 3545, 2848, 3533)
-				&& (inventoryContains(foodID) && (inventoryContains(bronzeArmour)))) {
-			setCompass('e');
-			status = "On Animator...";
-			atInventoryItem(bronze, "Use");
-			wait(random(600, 800));
-			if (isItemSelected()) {
+		if (inSquare(2861, 3545, 2848, 3533) && (inventoryContains(foodID) && (inventoryContains(bronzeArmour)))) {
+				setCompass('e');
+				status = "On Animator...";
+				atInventoryItem(bronze, "Use");
+				wait(random(600,800));
+				if (isItemSelected()) {
 				atObject(Animator, "Use");
-				wait(random(5000, 6000));
-			} else {
-				moveMouse(random(650, 660), random(180, 190));
-				clickMouse(true);
-			}
+				wait(random(5000,6000));
+				}else{
+					moveMouse(random(650, 660), random(180, 190));
+					clickMouse(true);
+				}
 		}
-		if (inSquare(2861, 3545, 2848, 3533)
-				&& (inventoryContains(foodID) && (inventoryContains(ironArmour)))) {
-			setCompass('e');
-			status = "On Animator...";
-			atInventoryItem(iron, "Use");
-			wait(random(600, 800));
-			if (isItemSelected()) {
-				atObject(Animator, "Use");
-				wait(random(5000, 6000));
-			} else {
-				moveMouse(random(650, 660), random(180, 190));
-				clickMouse(true);
+		if (inSquare(2861, 3545, 2848, 3533) && (inventoryContains(foodID) && (inventoryContains(ironArmour)))) {
+				setCompass('e');
+				status = "On Animator...";
+				atInventoryItem(iron, "Use");
+				wait(random(600,800));
+				if (isItemSelected()) {
+					atObject(Animator, "Use");
+					wait(random(5000,6000));
+					}else{
+						moveMouse(random(650, 660), random(180, 190));
+						clickMouse(true);
+					}
 			}
-		}
-		if (inSquare(2861, 3545, 2848, 3533)
-				&& (inventoryContains(foodID) && (inventoryContains(steelArmour)))) {
-			setCompass('e');
-			status = "On Animator...";
-			atInventoryItem(steel, "Use");
-			wait(random(600, 800));
-			if (isItemSelected()) {
-				atObject(Animator, "Use");
-				wait(random(5000, 6000));
-			} else {
-				moveMouse(random(650, 660), random(180, 190));
-				clickMouse(true);
+		if (inSquare(2861, 3545, 2848, 3533) && (inventoryContains(foodID) && (inventoryContains(steelArmour)))) {
+				setCompass('e');
+				status = "On Animator...";
+				atInventoryItem(steel, "Use");
+				wait(random(600,800));
+				if (isItemSelected()) {
+					atObject(Animator, "Use");
+					wait(random(5000,6000));
+					}else{
+						moveMouse(random(650, 660), random(180, 190));
+						clickMouse(true);
+					}
 			}
-		}
-		if (inSquare(2861, 3545, 2848, 3533)
-				&& (inventoryContains(foodID) && (inventoryContains(blackArmour)))) {
-			setCompass('e');
-			status = "On Animator...";
-			atInventoryItem(black, "Use");
-			wait(random(600, 800));
-			if (isItemSelected()) {
-				atObject(Animator, "Use");
-				wait(random(5000, 6000));
-			} else {
-				moveMouse(random(650, 660), random(180, 190));
-				clickMouse(true);
+		if (inSquare(2861, 3545, 2848, 3533) && (inventoryContains(foodID) && (inventoryContains(blackArmour)))) {
+				setCompass('e');
+				status = "On Animator...";
+				atInventoryItem(black, "Use");
+				wait(random(600,800));
+				if (isItemSelected()) {
+					atObject(Animator, "Use");
+					wait(random(5000,6000));
+					}else{
+						moveMouse(random(650, 660), random(180, 190));
+						clickMouse(true);
+					}
 			}
-		}
-		if (inSquare(2861, 3545, 2848, 3533)
-				&& (inventoryContains(foodID) && (inventoryContains(mithrilArmour)))) {
-			setCompass('e');
-			status = "On Animator...";
-			atInventoryItem(mithril, "Use");
-			wait(random(600, 800));
-			if (isItemSelected()) {
-				atObject(Animator, "Use");
-				wait(random(5000, 6000));
-			} else {
-				moveMouse(random(650, 660), random(180, 190));
-				clickMouse(true);
+		if (inSquare(2861, 3545, 2848, 3533) && (inventoryContains(foodID) && (inventoryContains(mithrilArmour)))) {
+				setCompass('e');
+				status = "On Animator...";
+				atInventoryItem(mithril, "Use");
+				wait(random(600,800));
+				if (isItemSelected()) {
+					atObject(Animator, "Use");
+					wait(random(5000,6000));
+					}else{
+						moveMouse(random(650, 660), random(180, 190));
+						clickMouse(true);
+					}
 			}
-		}
-		if (inSquare(2861, 3545, 2848, 3533)
-				&& (inventoryContains(foodID) && (inventoryContains(adamantArmour)))) {
-			setCompass('e');
-			status = "On Animator...";
-			atInventoryItem(adamant, "Use");
-			wait(random(600, 800));
-			if (isItemSelected()) {
-				atObject(Animator, "Use");
-				wait(random(5000, 6000));
-			} else {
-				moveMouse(random(650, 660), random(180, 190));
-				clickMouse(true);
+		if (inSquare(2861, 3545, 2848, 3533) && (inventoryContains(foodID) && (inventoryContains(adamantArmour)))) {
+				setCompass('e');
+				status = "On Animator...";
+				atInventoryItem(adamant, "Use");
+				wait(random(600,800));
+				if (isItemSelected()) {
+					atObject(Animator, "Use");
+					wait(random(5000,6000));
+					}else{
+						moveMouse(random(650, 660), random(180, 190));
+						clickMouse(true);
+					}
 			}
-		}
-		if (inSquare(2861, 3545, 2848, 3533)
-				&& (inventoryContains(foodID) && (inventoryContains(runeArmour)))) {
-			setCompass('e');
-			status = "On Animator...";
-			atInventoryItem(rune, "Use");
-			wait(random(600, 800));
-			if (isItemSelected()) {
-				atObject(Animator, "Use");
-				wait(random(5000, 6000));
-			} else {
-				moveMouse(random(650, 660), random(180, 190));
-				clickMouse(true);
+		if (inSquare(2861, 3545, 2848, 3533) && (inventoryContains(foodID) && (inventoryContains(runeArmour)))) {
+				setCompass('e');
+				status = "On Animator...";
+				atInventoryItem(rune, "Use");
+				wait(random(600,800));
+				if (isItemSelected()) {
+					atObject(Animator, "Use");
+					wait(random(5000,6000));
+					}else{
+						moveMouse(random(650, 660), random(180, 190));
+						clickMouse(true);
+					}
 			}
-		}
-
-		if (inSquare(2861, 3545, 2848, 3533)
-				&& (!inventoryContains(foodID) && (inventoryContainsOneOf(runeArmour)))) {
+		
+		if (inSquare(2861, 3545, 2848, 3533) && (!inventoryContains(foodID) && (inventoryContainsOneOf(runeArmour)))){
 			setCompass('n');
 			status = "To Door...";
 			walkTileMM(doorspot);
 			wait(3000);
 		}
 
-		if (atDoor() && (!inventoryContains(foodID))) {
+		
+		if (atDoor() && (!inventoryContains(foodID))){
 			RSObject door = getNearestObjectByID(33438);
 			status = "Opening Door...";
 			atObject(door, "Open");
@@ -619,38 +674,39 @@ public class WarriorGuildPro extends Script implements PaintListener,
 			walkPath(PathToBank);
 			wait(4000);
 		}
-
-		if (atBank() && (!inventoryContains(foodID))) {
+		
+		if(atBank() && (!inventoryContains(foodID))){
 			status = "Banking...";
 			final RSObject Banker = getNearestObjectByID(bankBooth);
-			if (!(bank.isOpen())) {
-				if (Banker != null) {
-					atObject(Banker, "Use-quickly");
-					wait(random(1200, 1600));
-				}
-				if (Banker == null) {
-					wait(random(100, 200));
-				}
-			}
-
-			status = "Banking...";
-			if (bank.isOpen()) {
-				status = "Withdrawing...";
-				bank.withdraw(foodID, 23);
-				wait(1500);
-
-				bank.close();
-			}
-
-		}
-
-		if (isInventoryFull() && (!atAnimator())) {
+			    if(!(bank.isOpen())){
+			       if(Banker != null){
+			        atObject(Banker, "Use-quickly");
+			        wait(random(1200, 1600));
+			        }
+			        if(Banker == null){
+			            wait(random(100, 200));
+			        	}
+			    	}
+				
+				status = "Banking...";
+			    if(bank.isOpen()){
+			    	status = "Withdrawing...";
+			    	bank.withdraw(foodID, 23);
+					wait(1500);
+					    	
+					bank.close();
+			    	}
+	 
+	}
+			
+		
+		if(getInventoryCount(foodID) == 23 && (!atAnimator())){
 			status = "To Door...";
 			walkPath(PathToDoor);
 			wait(6000);
 		}
-
-		if (atDoor() && (isInventoryFull())) {
+			
+		if(atDoor() && (getInventoryCount(foodID) == 23)){
 			setCompass('n');
 			RSObject door = getNearestObjectByID(33438);
 			status = "Opening Door...";
@@ -660,7 +716,7 @@ public class WarriorGuildPro extends Script implements PaintListener,
 			walkTileMM(animatorspot);
 			wait(3000);
 		}
-
+	
 		if (isinlocation(2841, 3537, 2846, 3542)) {
 			logout();
 			stopScript();
@@ -672,8 +728,7 @@ public class WarriorGuildPro extends Script implements PaintListener,
 	public void serverMessageRecieved(ServerMessageEvent e) {
 		String message = e.getMessage();
 
-		if (message
-				.contains("Your Time is up, please make your way to the exit")) {
+		if (message	.contains("Your Time is up, please make your way to the exit")) {
 			if (tileOnScreen(topFloorInDoors.getLocation())) {
 				atObject(topFloorInDoors, "Open");
 			} else {

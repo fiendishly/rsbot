@@ -1,6 +1,9 @@
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Point;
+import java.awt.RenderingHints;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
@@ -27,8 +30,9 @@ import org.rsbot.script.wrappers.RSPlayer;
 import org.rsbot.script.wrappers.RSTile;
 import org.rsbot.util.ScreenshotUtil;
 
-@ScriptManifest(authors = { "Exempt", "DaRkY^" }, category = "Fletching", name = "E_n_D_Fletcher", version = 1.91, description = "<html><head></head><body style=\"text-align: center; font-family: Calibri, Arial; padding: 5px;\"><p style=\"text-align: center;\"><img src=\"http://i44.tinypic.com/2564mqq.png\" /><br /><small>(Picture by Pontus)</small><br /><u><b>Log in before starting this script</b></u><br /><br />Fletching: <input type=checkbox name=fletchOp value=true></input><br />Stringing: <input type=checkbox name=stringOp value=true></input><br />Using Clay Knife: <input type=checkbox name=clayKnifePick value=true></input><br /><br />What to fletch:<select name='fletchPick'><option>None<option>Short Bow<option>Long Bow</select><br />What type of logs:<select name='logPick'><option>None<option>Normal Logs<option>Oak Logs<option>Willow Logs<option>Maple Logs<option>Yew Logs<option>Magic Logs</select><br />What to string:<select name='stringPick'><option>None<option>Normal Short Bow<option>Normal Long Bow<option>Oak Short Bow<option>Oak Long Bow<option>Willow Short Bow<option>Willow Long Bow<option>Maple Short Bow<option>Maple Long Bow<option>Yew Short Bow<option>Yew Long Bow<option>Magic Short Bow<option>Magic Long Bow</select><br /><br /><hr /><br />Disable antiban if you are using the built in antiban.<br />Disable Antiban: <input type=checkbox name=antiban value=true></input><br />Hide paint?: <input type=checkbox name=paint value=true></input><br /><small>Add delay to slow down script (recommended for laggers)</small><br />Script Delay: <input type=text name=waitTime>ms (1000ms = 1sec)</p></font></body></html>")
-public class E_n_D_Fletcher extends Script implements PaintListener, ServerMessageListener {
+@ScriptManifest(authors = { "Exempt", "DaRkY^" }, category = "Fletching", name = "E_n_D_Fletcher", version = 1.93, description = "<html><head></head><body style=\"text-align: center; font-family: Calibri, Arial; padding: 5px;\"><p style=\"text-align: center;\"><img src=\"http://i44.tinypic.com/2564mqq.png\" /><br /><small>(Picture by Pontus)</small><br /><u><b>Log in before starting this script</b></u><br /><br />Fletching: <input type=checkbox name=fletchOp value=true></input><br />Stringing: <input type=checkbox name=stringOp value=true></input><br />Using Clay Knife: <input type=checkbox name=clayKnifePick value=true></input><br /><br />What to fletch:<select name='fletchPick'><option>None<option>Short Bow<option>Long Bow</select><br />What type of logs:<select name='logPick'><option>None<option>Normal Logs<option>Oak Logs<option>Willow Logs<option>Maple Logs<option>Yew Logs<option>Magic Logs</select><br />What to string:<select name='stringPick'><option>None<option>Normal Short Bow<option>Normal Long Bow<option>Oak Short Bow<option>Oak Long Bow<option>Willow Short Bow<option>Willow Long Bow<option>Maple Short Bow<option>Maple Long Bow<option>Yew Short Bow<option>Yew Long Bow<option>Magic Short Bow<option>Magic Long Bow</select><br /><br /><hr /><br />Disable antiban if you are using the built in antiban.<br />Disable Antiban: <input type=checkbox name=antiban value=true></input><br />Hide paint?: <input type=checkbox name=paint value=true></input><br /><small>Add delay to slow down script (recommended for laggers)</small><br />Script Delay: <input type=text name=waitTime>ms (1000ms = 1sec)</p></font></body></html>")
+public class E_n_D_Fletcher extends Script implements PaintListener,
+		ServerMessageListener {
 
 	BufferedImage normal = null;
 	BufferedImage clicked = null;
@@ -38,6 +42,8 @@ public class E_n_D_Fletcher extends Script implements PaintListener, ServerMessa
 	}
 
 	// Variables
+	Mouse m = Bot.getClient().getMouse();
+
 	int startXp;
 	int startStatLvl;
 	int wait1 = 250;
@@ -719,7 +725,12 @@ public class E_n_D_Fletcher extends Script implements PaintListener, ServerMessa
 		}
 	}
 
+	private final RenderingHints rh = new RenderingHints(
+			RenderingHints.KEY_TEXT_ANTIALIASING,
+			RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+
 	public void onRepaint(final Graphics g) {
+		((Graphics2D) g).setRenderingHints(rh);
 		if (isLoggedIn() && paint) {
 			long millis = System.currentTimeMillis() - startTime;
 			final long hours = millis / (1000 * 60 * 60);
@@ -745,48 +756,87 @@ public class E_n_D_Fletcher extends Script implements PaintListener, ServerMessa
 			int xLoc = 16;
 			int yLoc = 367;
 
-			decorRect(g, 6, 345, 490, 113, 5, new Color(176, 44, 75),
-					new Color(99, 25, 42));
+			if (paint) {
+				decorRect(g, 405, 300, 105, 30, 3, new Color(176, 44, 75),
+						new Color(99, 25, 42));
+				g.setFont(new Font("Century Gothic", 0, 15));
+				g.setColor(Color.WHITE);
+				g.drawString("Toggle Paint", 416, 321);
 
-			g.setColor(Color.WHITE);
-			g.drawString("Run Time: " + hours + ":" + minutes + ":" + seconds
-					+ "     Status: " + status, xLoc, yLoc);
-			yLoc += 15;
-			g
-					.drawString(
-							"Exp Gained: "
-									+ (skills
-											.getCurrentSkillExp(Constants.STAT_FLETCHING) - startXp)
-									+ "(" + (int) xpPerHour + "/hour)", xLoc,
-							yLoc);
-			yLoc += 15;
-			g.drawString("Bows Strung: " + amountStrung, xLoc, yLoc);
-			yLoc += 15;
-			g.drawString("Logs Fletched: " + amountFletch, xLoc, yLoc);
-			yLoc += 15;
-			g.drawString("Levels Gained: " + levelChange, xLoc, yLoc);
-			yLoc += 15;
-			ProgBar(g, xLoc + 1, 432, 250, 16, skills
-					.getPercentToNextLevel(STAT_FLETCHING),
-					new Color(0, 163, 0), new Color(0, 240, 0), Color.WHITE);
+				if (m.x >= 405 && m.x < 405 + 105 && m.y >= 300
+						&& m.y < 300 + 30) {
 
-			 if (normal != null) {
-			        final Mouse mouse = Bot.getClient().getMouse();
-			        final int mouse_x = mouse.getMouseX();
-			        final int mouse_y = mouse.getMouseY();
-			        final int mouse_x2 = mouse.getMousePressX();
-			        final int mouse_y2 = mouse.getMousePressY();
-			        final long mpt = System.currentTimeMillis()
-			                - mouse.getMousePressTime();
-			        if (mouse.getMousePressTime() == -1 || mpt >= 1000) {
-			            g.drawImage(normal, mouse_x - 8, mouse_y - 8, null); //this show the mouse when its not clicked
-			        }
-			        if (mpt < 1000) {
-			            g.drawImage(clicked, mouse_x2 - 8, mouse_y2 - 8, null); //this show the four squares where you clicked.
-			            g.drawImage(normal, mouse_x - 8, mouse_y - 8, null); //this show the mouse as normal when its/just clicked
-			      }
-		     }
-		 }
+					decorRect(g, 6, 345, 490, 113, 5, new Color(176, 44, 75),
+							new Color(99, 25, 42));
+
+					g.setColor(Color.WHITE);
+					g.drawString("Run Time: " + hours + ":" + minutes + ":"
+							+ seconds + "     Status: " + status, xLoc, yLoc);
+					yLoc += 15;
+					g
+							.drawString(
+									"Exp Gained: "
+											+ (skills
+													.getCurrentSkillExp(Constants.STAT_FLETCHING) - startXp)
+											+ "(" + (int) xpPerHour + "/hour)",
+									xLoc, yLoc);
+					yLoc += 15;
+					g.drawString("Bows Strung: " + amountStrung, xLoc, yLoc);
+					yLoc += 15;
+					g.drawString("Logs Fletched: " + amountFletch, xLoc, yLoc);
+					yLoc += 15;
+					g.drawString("Levels Gained: " + levelChange, xLoc, yLoc);
+					yLoc += 15;
+					ProgBar(g, xLoc + 1, 432, 250, 16, skills
+							.getPercentToNextLevel(STAT_FLETCHING), new Color(
+							0, 163, 0), new Color(0, 240, 0), Color.WHITE);
+				} else {
+					decorRect(g, 405, 300, 105, 30, 3, new Color(176, 44, 75),
+							new Color(99, 25, 42));
+					g.setFont(new Font("Century Gothic", 0, 15));
+					g.setColor(Color.WHITE);
+					g.drawString("Toggle Paint", 416, 321);
+				}
+			}
+		}
+		if (normal != null) {
+			final Mouse mouse = Bot.getClient().getMouse();
+			final int mouse_x = mouse.getMouseX();
+			final int mouse_y = mouse.getMouseY();
+			final int mouse_x2 = mouse.getMousePressX();
+			final int mouse_y2 = mouse.getMousePressY();
+			final long mpt = System.currentTimeMillis()
+					- mouse.getMousePressTime();
+			if (mouse.getMousePressTime() == -1 || mpt >= 1000) {
+				g.drawImage(normal, mouse_x - 8, mouse_y - 8, null); // this
+				// show
+				// the
+				// mouse
+				// when
+				// its
+				// not
+				// clicked
+			}
+			if (mpt < 1000) {
+				g.drawImage(clicked, mouse_x2 - 8, mouse_y2 - 8, null); // this
+				// show
+				// the
+				// four
+				// squares
+				// where
+				// you
+				// clicked.
+				g.drawImage(normal, mouse_x - 8, mouse_y - 8, null); // this
+				// show
+				// the
+				// mouse
+				// as
+				// normal
+				// when
+				// its/just
+				// clicked
+			}
+		}
 	}
 
 	public void drawBorderedRectangle(Graphics g, int x, int y, int width,
