@@ -16,6 +16,7 @@ import org.rsbot.script.wrappers.RSTile;
  * Updated by zzSleepzz(Mar 1, 2010 to remove false positives)
  * Updated by Iscream(Apr 15, 2010)
  * Updated by Iscream(Apr 23, 2010)
+ * Updated by Parameter(Jun 16, 2010) fixed exiting.
  */
 @ScriptManifest(authors = {"Iscream"}, name = "Prison Pete", version = 1.5)
 public class Prison extends Random {
@@ -240,7 +241,7 @@ public class Prison extends Random {
 					walkTileMM(pete.getLocation());
 					return random(400, 600);
 				}
-				if (IScanContinue() && !(getInterface(ISgetInterface("Hooray")).containsText("Hooray"))) {
+				if (IScanContinue() && (getInterface(ISgetInterface("Hooray")).containsText("Hooray"))) {
 					if (getInterface(242).isValid()
 							&& getInterface(242).getChild(5).getText().contains(
 							"Lucky you!")) {

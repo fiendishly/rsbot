@@ -11,8 +11,8 @@ import org.rsbot.script.wrappers.RSObject;
  * Updated by Iscream (Feb 8, 10) Fixed some loop issues.
  * Updated by Iscream (Feb 09,10)
  * Updated by Iscream (Feb 17,10) Fixed Exiting Issues
+ * Updated by Parameter (Jun 10, 10) Fixed Exiting Issues (changed getInterface(271) to getInterface(271, 4))
  */
-
 @ScriptManifest(authors = { "Keilgo", "Taha", "Equilibrium", "Twistedmind" }, name = "Cap'n Arnav", version = 0.9)
 public class CapnArnav extends Random {
 
@@ -72,8 +72,8 @@ public class CapnArnav extends Random {
 			atObject(Chest, "Open");
 			return random(800, 1200);
 		}
-		if (getInterface(241).isValid()) {
-		if (getInterface(241).containsText("haul") || getInterface(241).containsText("Just hop")) {
+		if (getInterface(241).isValid() && 
+				(getInterface(241, 4).containsText("haul") || getInterface(241, 4).containsText("Just hop"))) {
 			done = true;
 			log ("Finished CapnArnav Random ~ Exiting");
 			if (canContinue()) {
@@ -81,7 +81,6 @@ public class CapnArnav extends Random {
 				return random(600,700);
 			}
 			return random(500,700);
-		}
 		}
 		if (done) {
 			final RSObject Portal = getNearestObjectByID(11369);
