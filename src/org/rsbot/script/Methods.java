@@ -2310,8 +2310,8 @@ public class Methods implements Constants {
 			actions = menuActionsCache.toArray(new String[menuActionsCache.size()]);
 		}
 		ArrayList<String> output = new ArrayList<String>();
-		//for(int i = Math.min(options.length, actions.length) - 1; i >= 0; i--) {
-		for (int i = 0; i < Math.min(options.length, actions.length); i++) {
+		for(int i = Math.min(options.length, actions.length) - 1; i >= 0; i--) {
+		//for (int i = 0; i < Math.min(options.length, actions.length); i++) {
 			String option = options[i];
 			String action = actions[i];
 			if (option != null && action != null) {
@@ -3310,7 +3310,7 @@ public class Methods implements Constants {
 	public boolean isLoggedIn() {
 		org.rsbot.accessors.Client client = Bot.getClient();
 		int index = client == null ? -1 : client.getLoginIndex();
-		return index == 9 || index == 10;
+		return index == 10 || index == 11;
 	}
 
 	/**

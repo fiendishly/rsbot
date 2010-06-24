@@ -514,7 +514,7 @@ public class BotGUI extends JFrame implements ActionListener {
 	private boolean isLoggedIn() {
 		final Client client = Bot.getClient();
 		final int index = client == null ? -1 : client.getLoginIndex();
-		return (index == 30) || (index == 25);
+		return (index == 10) || (index == 11);
 	}
 
 	/**

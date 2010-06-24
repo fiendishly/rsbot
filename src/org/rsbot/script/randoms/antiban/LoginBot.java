@@ -29,8 +29,8 @@ public class LoginBot extends Random {
 	private static final int INTERFACE_WELCOME_SCREEN_BUTTON_PLAY_1 = 178;
 	private static final int INTERFACE_WELCOME_SCREEN_BUTTON_PLAY_2 = 180;
 
-	private static final int INDEX_LOGGED_OUT = 2;
-	private static final int INDEX_LOBBY = 6;
+	private static final int INDEX_LOGGED_OUT = 3;
+	private static final int INDEX_LOBBY = 7;
 
 	private int invalidCount, worldFullCount;
 
@@ -64,7 +64,7 @@ public class LoginBot extends Random {
 						true
 				);
 
-				for (int i = 0; i < 4 && getLoginIndex() == 6; i++)
+				for (int i = 0; i < 4 && getLoginIndex() == INDEX_LOBBY; i++)
 					wait(500);
 			}
 			return -1;
@@ -112,7 +112,7 @@ public class LoginBot extends Random {
 				return random(1000, 1200);
 			}
 		}
-		if (getLoginIndex() == 2) {
+		if (getLoginIndex() == INDEX_LOGGED_OUT) {
 			if (!atLoginScreen()) {
 				atComponent(RSInterface.getChildInterface(INTERFACE_MAIN, INTERFACE_MAIN_CHILD).getComponents()[INTERFACE_MAIN_CHILD_COMPONENT_ID], "");
 				return random(500, 600);
