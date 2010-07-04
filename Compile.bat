@@ -8,7 +8,7 @@ SET res=resources
 SET out=bin
 SET jarout=data
 
-CALL Clean.bat 2>NUL
+CALL :clean 2>NUL
 CALL "%res%\FindJDK.bat"
 
 SET lstf=temp.txt
@@ -59,4 +59,10 @@ GOTO :eof
 SET gx=%1
 SET gx=%gx:\=\\%
 ECHO %gx% >> %lstf%
+GOTO :eof
+
+:clean
+RD /S /Q bin
+RD /S /Q data
+DEL /F /Q scripts\*.class
 GOTO :eof
